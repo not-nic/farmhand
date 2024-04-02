@@ -2,7 +2,7 @@ import os, traceback
 import xml.etree.ElementTree as ET
 from flask import Blueprint, jsonify, send_from_directory
 from models.vehicle import Vehicle
-from app import database, app
+from app import app, database
 from PIL import Image
 
 equipment_util = Blueprint("equipment_util", __name__, url_prefix="/equipment")
@@ -11,11 +11,11 @@ equipment_util = Blueprint("equipment_util", __name__, url_prefix="/equipment")
 def collect_equipment():
     """
     Traverse the file system for all vehicles and equipment adding them to the database,
-    if the static directory is not populated.
+    if the static directory is not already populated.
 
     """
     equipment_path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Farming Simulator 22\\data\\vehicles"
-    static_directory = "static"
+    static_directory = app.config.get("STATIC_PATH")
     invalid_file_count = 0
     valid_file_count = 0
 
@@ -77,7 +77,7 @@ def collect_equipment():
                                 print("An error occurred:", e)
                                 traceback.print_exc()
         else:
-            print("Equipment already collected, ignoring.")
+            print("FS Equipment Parsed, Ignoring Database Population.")
 
     database.session.commit()
     return jsonify({"message": f"{valid_file_count} Valid XML Files, {invalid_file_count} Invalid XML files"}), 200
