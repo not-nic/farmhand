@@ -1,30 +1,17 @@
-from sqlalchemy import Column, Integer, ForeignKey, Boolean, Enum
-import enum
+from sqlalchemy import Column, String, Integer, Double, Boolean
 from app import database
-
-
-class CropType(enum.Enum):
-    WHEAT = 'wheat'
-    BARLEY = 'barley'
-    CANOLA = 'canola'
-    OAT = 'oat'
-    CORN = 'corn'
-    SUNFLOWERS = 'sunflowers'
-    SOYBEANS = 'soybeans'
-    POTATOES = 'potatoes'
-    SUGAR_BEET = 'sugar beet'
-    SORGHUM = 'sorghum'
-    POPLAR = 'poplar'
-    GRASS = 'grass'
-    OILSEED_RADISH = 'oilseed radish'
-    RED_BEET = 'red beet'
-    CARROTS = 'carrots'
-    PARSNIPS = 'parsnip'
 
 
 class Crop(database.Model):
     id = Column(Integer, primary_key=True)
-    type = Column(Enum(CropType), nullable=False)
-    growth_stage = Column(Integer, nullable=False)
-    is_previous = Column(Boolean, nullable=False)
-    field_id = Column(Integer, ForeignKey('field.number'), nullable=False)
+
+    crop_type = Column(String(255), nullable=False, unique=True)
+
+    nitrogen_level = Column(Integer, nullable=False)
+    growth_stages = Column(Integer, nullable=False)
+    yield_per_ha = Column(Integer, nullable=False)
+    seeds_per_ha = Column(Integer, nullable=False)
+
+    price_per_tonne = Column(Double, nullable=False)
+
+    root_crop = Column(Boolean, default=False)
