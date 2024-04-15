@@ -1,0 +1,184 @@
+{
+  "crops": [
+    {
+      "type": "wheat",
+      "nitrogenLevel": 200,
+      "growthStages": 7,
+      "yieldPerHa": 8900,
+      "seedsPerHa": 500,
+      "price": 0.337,
+      "rootCrop": false
+    },
+    {
+      "type": "barley",
+      "nitrogenLevel": 180,
+      "growthStages": 6,
+      "yieldPerHa": 9600,
+      "seedsPerHa": 500,
+      "price": 0.313,
+      "rootCrop": false
+    },
+    {
+      "type": "canola",
+      "nitrogenLevel": 200,
+      "growthStages": 8,
+      "yieldPerHa": 5800,
+      "seedsPerHa": 200,
+      "price": 0.603,
+      "rootCrop": false
+    },
+    {
+      "type": "oats",
+      "nitrogenLevel": 140,
+      "growthStages": 4,
+      "yieldPerHa": 5700,
+      "seedsPerHa": 500,
+      "price": 0.532,
+      "rootCrop": false
+    },
+    {
+      "type": "maize",
+      "nitrogenLevel": 200,
+      "growthStages": 6,
+      "yieldPerHa": 9200,
+      "seedsPerHa": 400,
+      "price": 0.380,
+      "rootCrop": true
+    },
+    {
+      "type": "sunflowers",
+      "nitrogenLevel": 200,
+      "growthStages": 6,
+      "yieldPerHa": 5200,
+      "seedsPerHa": 300,
+      "price": 0.673,
+      "rootCrop": false
+    },
+    {
+      "type": "grapes",
+      "nitrogenLevel": 60,
+      "growthStages": 4,
+      "yieldPerHa": 9200,
+      "seedsPerHa": 0,
+      "price": 0.603,
+      "rootCrop": false
+    },
+    {
+      "type": "grass",
+      "nitrogenLevel": 65,
+      "growthStages": 3,
+      "yieldPerHa": 0,
+      "seedsPerHa": 300,
+      "price": 0,
+      "rootCrop": false
+    },
+    {
+      "type": "oilseed",
+      "nitrogenLevel": 0,
+      "growthStages": 1,
+      "yieldPerHa": 0,
+      "seedsPerHa": 100,
+      "price": 0,
+      "rootCrop": false
+    },
+    {
+      "type": "soybeans",
+      "nitrogenLevel": 0,
+      "growthStages": 6,
+      "yieldPerHa": 4500,
+      "seedsPerHa": 300,
+      "price": 0.778,
+      "rootCrop": false
+    },
+    {
+      "type": "potatoes",
+      "nitrogenLevel": 160,
+      "growthStages": 5,
+      "yieldPerHa": 41300,
+      "seedsPerHa": 3800,
+      "price": 0.172,
+      "rootCrop": true
+    },
+    {
+      "type": "sugar beet",
+      "nitrogenLevel": 180,
+      "growthStages": 7,
+      "yieldPerHa": 57800,
+      "seedsPerHa": 400,
+      "price": 0.122,
+      "rootCrop": true
+    },
+    {
+      "type": "sugarcane",
+      "nitrogenLevel": 200,
+      "growthStages": 7,
+      "yieldPerHa": 113400,
+      "seedsPerHa": 12000,
+      "price": 0.119,
+      "rootCrop": true
+    },
+    {
+      "type": "cotton",
+      "nitrogenLevel": 120,
+      "growthStages": 8,
+      "yieldPerHa": 4970,
+      "seedsPerHa": 500,
+      "price": 1.252,
+      "rootCrop": true
+    },
+    {
+      "type": "sorghum",
+      "nitrogenLevel": 160,
+      "growthStages": 8,
+      "yieldPerHa": 8200,
+      "seedsPerHa": 200,
+      "price": 0.430,
+      "rootCrop": false
+    },
+    {
+      "type": "olives",
+      "nitrogenLevel": 60,
+      "growthStages": 4,
+      "yieldPerHa": 9200,
+      "seedsPerHa": 0.603,
+      "price": 0.430,
+      "rootCrop": false
+    },
+    {
+      "type": "poplar",
+      "nitrogenLevel": 180,
+      "growthStages": 13,
+      "yieldPerHa": 0,
+      "seedsPerHa": 1500,
+      "price": 0,
+      "rootCrop": true
+    },
+    {
+      "type": "carrots",
+      "nitrogenLevel": 200,
+      "growthStages": 4,
+      "yieldPerHa": 77000,
+      "seedsPerHa": 10,
+      "price": 0.396,
+      "rootCrop": true
+    },
+    {
+      "type": "parsnips",
+      "nitrogenLevel": 200,
+      "growthStages": 4,
+      "yieldPerHa": 69500,
+      "seedsPerHa": 10,
+      "price": 0.393,
+      "rootCrop": true
+    },
+    {
+      "type": "beetroot",
+      "nitrogenLevel": 200,
+      "growthStages": 4,
+      "yieldPerHa": 57800,
+      "seedsPerHa": 40,
+      "price": 0.366,
+      "rootCrop": true
+    }
+  ]
+}

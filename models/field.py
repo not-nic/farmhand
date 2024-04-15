@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, Double, Boolean, String, TIMESTAMP
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app import database
-from models.crop import Crop
+from models.field_crop import FieldCrop
 
 
 class Field(database.Model):
@@ -11,7 +11,7 @@ class Field(database.Model):
 
     number = Column(Integer, nullable=False, unique=True)
 
-    crops = relationship(Crop, backref='field', lazy=True)
+    crops = relationship(FieldCrop, backref='field', lazy=True)
 
     ground_type = Column(String(255), nullable=True)
     soil_type = Column(String(255), nullable=True)

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from app import database
 from sqlalchemy.exc import IntegrityError
 from models.field import Field
-from models.crop import Crop, CropType
+from models.field_crop import FieldCrop, GrowthTense
 
 fields = Blueprint("fields_blueprint", __name__, url_prefix="/api")
 
@@ -57,15 +57,10 @@ def add_crop():
 
     field_number = data["field_number"]
 
-    try:
-        crop_type = CropType(data["type"])
-    except ValueError:
-        return jsonify({"message": f"Invalid crop type: {data['type']}"}), 400
-
-    new_crop = Crop(
-        type=crop_type,
+    new_crop = FieldCrop(
+        type=data["type"],
         growth_stage=data["growth_stage"],
-        is_previous=data["is_previous"],
+        growth_tense=data["growth_tense"],
         field_id=field_number,
     )
 
@@ -165,6 +160,36 @@ def delete_field(number: int):
         return jsonify({"message": f"Field {number} doesn't exist."})
 
 
+@fields.route("/field/past/<number>", methods=["GET"])
+def get_past_crops(number: int):
+    """
+    get all the past crops for a field number
+    :param number: the number of the field to retrieve the crops from
+    :return: (dict) of past crops
+    """
+    return get_crops_by_tense(number, GrowthTense.PAST), 200
+
+
+@fields.route("/field/present/<number>", methods=["GET"])
+def get_present_crops(number: int):
+    """
+    get all the present crops for a field number
+    :param number: the number of the field to retrieve the crops from
+    :return: (dict) of present crops
+    """
+    return get_crops_by_tense(number, GrowthTense.PRESENT), 200
+
+
+@fields.route("/field/future/<number>", methods=["GET"])
+def get_future_crops(number: int):
+    """
+    get all the future crops for a field number
+    :param number: the number of the field to retrieve the crops from
+    :return: (dict) of future crops
+    """
+    return get_crops_by_tense(number, GrowthTense.FUTURE), 200
+
+
 def field_response_object(field: Field) -> dict:
     """
     json response object of a field.
@@ -184,14 +209,33 @@ def field_response_object(field: Field) -> dict:
     }
 
 
-def get_crop_details(crop: Crop) -> dict:
+def get_crop_details(crop: FieldCrop) -> dict:
     """
     json response object of a crop.
     :param crop: The crop to be converted into Json.
     :return: (dict) a dict of the crop values.
     """
     return {
-        "type": crop.type.value,
+        "type": crop.type,
         "growth_stage": crop.growth_stage,
-        "is_previous": crop.is_previous
+        "growth_tense": crop.growth_tense.value,
+        "field_id": crop.field_id
     }
+
+
+def get_crops_by_tense(number: int, tense: GrowthTense):
+    """
+    return
+    :param tense: if the function should return the PAST, PRESENT or FUTURE crops
+    :param number: the number of the field to retrieve the crops from
+    :return: (dict) of crops by their tense crops
+    """
+    field = Field.query.filter_by(number=number).first()
+    future_crops = []
+
+    if field:
+        for crop in field.crops:
+            if crop.growth_tense == tense:
+                future_crops.append(get_crop_details(crop))
+
+    return jsonify(future_crops)
