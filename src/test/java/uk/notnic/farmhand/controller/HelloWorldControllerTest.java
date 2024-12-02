@@ -12,15 +12,12 @@ public class HelloWorldControllerTest {
 
     @Test
     void testGetUserNotes() {
-        // Arrange
         HelloWorldController controller = new HelloWorldController();
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn("unit_test_user");
 
-        // Act
         ResponseEntity<String> response = controller.getUserNotes(authentication);
 
-        // Assert
         assertEquals(ResponseEntity.ok("Hello unit_test_user!"), response, "The response should be 'Hello unit_test_user!'");
     }
 
