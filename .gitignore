@@ -46,3 +46,5 @@ venv
 
 .env
 *.env
+
+testdb.sqlite

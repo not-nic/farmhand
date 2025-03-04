@@ -10,7 +10,12 @@ class Config:
     POSTGRES_USER: str = os.getenv("DB_USER")
     POSTGRES_PASSWORD: str = os.getenv("DB_PASSWORD")
     POSTGRES_DB: str = os.getenv("DB_NAME")
+    ENVIRONMENT: str = os.getenv("ENV", "testing")
 
-    DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    if ENVIRONMENT == "development":
+        DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+    if ENVIRONMENT == "testing":
+        DATABASE_URL = "sqlite:///./testdb.sqlite"
 
 config = Config()

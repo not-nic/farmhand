@@ -3,7 +3,10 @@ from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 
 from src.config import config
 
-engine = create_engine(config.DATABASE_URL)
+def get_engine():
+    return create_engine(config.DATABASE_URL)
+
+engine = get_engine()
 db_session = scoped_session(sessionmaker(autoflush=True, bind=engine))
 Base = declarative_base()
 

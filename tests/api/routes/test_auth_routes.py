@@ -1,7 +1,6 @@
 from fastapi import status
 from fastapi.testclient import TestClient
 
-
 class TestAuthRoutes:
     url = "api/v1/login"
 
@@ -17,7 +16,7 @@ class TestAuthRoutes:
 
         response = self.post(url=self.url, data=payload, client=client)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert response.json() == {"detail": "Invalid credentials"}
+        assert response.json() == {"detail": "Username or password is incorrect"}
 
     def test_login_with_credentials(self, client, create_test_user):
         payload = {
