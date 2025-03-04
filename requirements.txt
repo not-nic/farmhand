@@ -1,0 +1,9 @@
+fastapi
+sqlalchemy
+pydantic
+SQLAlchemy
+psycopg2-binary
+pytest
+pytest-cov
+uvicorn
+passlib

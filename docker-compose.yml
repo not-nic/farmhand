@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: farmhand-api
+    depends_on:
+      - database
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+  database:
+    image: postgres:12
+    container_name: farmhand-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: farmhand
+    ports:
+      - "5432:5432"
