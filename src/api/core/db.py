@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 
-from src.config import config
+from src.config import settings
 
 def get_engine():
-    return create_engine(config.DATABASE_URL)
+    return create_engine(settings.DATABASE_URL)
 
 engine = get_engine()
 db_session = scoped_session(sessionmaker(autoflush=True, bind=engine))
