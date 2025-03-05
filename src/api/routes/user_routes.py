@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from src.api.core.deps import get_current_user
+from src.api.deps import get_current_user
 from src.api.core.models import UserCreate, User
 from src.api.core.security import Security
 

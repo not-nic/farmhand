@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Response
 from datetime import datetime
 
-from src.api.core.deps import get_current_user
+from src.api.deps import get_current_user
 from src.api.core.models import LoginRequest, User
 from src.api.core.security import Security
 from src.api.utils import generate_session_token
