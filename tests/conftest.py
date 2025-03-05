@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 load_dotenv("tests/fixtures/test.env", override=True)
 
+# ruff: noqa: E402
 from main import app
 from main import settings
 from src.api.core.db import Base, engine

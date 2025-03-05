@@ -1,12 +1,11 @@
 from fastapi import Request, HTTPException, status
-
 from fastapi.security import OAuth2PasswordBearer
 
 from src.api.core.models import User
 from src.api.core.repositories import sessions
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"api/v1/login"
+    tokenUrl="api/v1/login"
 )
 
 def get_current_user(request: Request) -> dict:

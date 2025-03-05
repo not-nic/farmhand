@@ -1,0 +1,20 @@
+exclude = [
+    "venv",
+    ".venv/",
+    "__pypackages__",
+    ".git",
+    ".pyc",
+    ".tox",
+    "instance",
+    "__pycache__",
+    ".pytest_cache/",
+    ".idea",
+    ".github",
+]
+
+line-length = 100
+
+[format]
+quote-style = "double"
+skip-magic-trailing-comma = false
+docstring-code-format = true
