@@ -10,4 +10,4 @@ echo "\_| \__,_|_|  |_| |_| |_|_| |_|\__,_|_| |_|\__,_|";
 echo "                                                 ";
 
 echo "=========== Farmhand service started ============"
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --host 0.0.0.0 --port 8000

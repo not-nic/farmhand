@@ -1,3 +1,4 @@
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -9,13 +10,20 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "Farmhand"
     VERSION: str = "0.1"
+    API_V1_STR: str = "/api/v1"
 
-    POSTGRES_HOST: str = None
+    POSTGRES_HOST: str
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str = None
-    POSTGRES_PASSWORD: str = None
-    POSTGRES_DB: str = None
-    ENVIRONMENT: str = "testing"
-    DATABASE_URL: str  = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+    ENVIRONMENT: str
+
+    @computed_field(return_type=str)
+    def DATABASE_URL(self):
+        if self.ENVIRONMENT == "development":
+            return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        if self.ENVIRONMENT == "testing":
+            return "sqlite:///./instance/testdb.sqlite"
 
 settings = Settings()

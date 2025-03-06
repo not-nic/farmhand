@@ -3,9 +3,9 @@ from src.api.deps import get_current_user
 from src.api.core.models import UserCreate, User
 from src.api.core.security import Security
 
-router = APIRouter(tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/user/me")
+@router.get("/me")
 async def get_user_info(current_user: dict = Depends(get_current_user)):
     """
     (Temp) Get the information of a current logged-in user.
@@ -15,7 +15,7 @@ async def get_user_info(current_user: dict = Depends(get_current_user)):
     current_user.pop("session", None)
     return current_user
 
-@router.post("/user", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(user_create: UserCreate):
     """
     Create a new user in the service
