@@ -3,12 +3,13 @@ from fastapi.security import OAuth2PasswordBearer
 
 from src.api.core.models import User
 from src.api.core.repositories import sessions
+from src.config import settings
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl="api/v1/login"
+    tokenUrl=f"{settings.API_V1_STR}/login"
 )
 
-def get_current_user(request: Request) -> dict:
+def get_current_user(request: Request) -> User:
     """
     dependency to get the current user by their session token
     :param request: the incoming request object.
@@ -29,10 +30,4 @@ def get_current_user(request: Request) -> dict:
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return {
-        "username": user.username,
-        "email_address": user.email_address,
-        "name": user.name,
-        "created_at": user.created_at,
-        "session": session_token
-    }
+    return user
