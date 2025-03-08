@@ -1,6 +1,4 @@
-from uuid import UUID
-
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 
 from src.api.core.models import FarmCreate, FarmResponse, User, Farm, FarmsResponse, FarmUpdate
 from src.api.deps import get_current_user, get_users_farm
