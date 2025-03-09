@@ -1,8 +1,10 @@
 from fastapi import status
 from fastapi.testclient import TestClient
+from src.config import settings
+
 
 class TestAuthRoutes:
-    url = "api/v1/login"
+    url = f"{settings.API_V1_STR}/login"
 
     @staticmethod
     def post(url: str, data: dict, client: TestClient):
