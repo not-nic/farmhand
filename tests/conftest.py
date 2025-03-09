@@ -14,6 +14,10 @@ from src.api.core.models import User
 from src.api.core.security import Security
 
 
+UNIT_TESTING_USER = "unit-testing-user"
+UNIT_TESTING_PASSWORD = "unit-testing-password"
+
+
 @pytest.fixture(scope="module")
 def client() -> Generator[TestClient, None, None]:
     """
@@ -26,18 +30,34 @@ def client() -> Generator[TestClient, None, None]:
         yield c
         Base.metadata.drop_all(engine)
 
+
 @pytest.fixture(scope="function")
-def create_test_user():
+def create_test_user() -> User:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
     """
     test_user = User.create(
-        username="unit-testing-user",
-        password=Security.get_password_hash("unit-testing-password"),
+        username=UNIT_TESTING_USER,
+        password=Security.get_password_hash(UNIT_TESTING_PASSWORD),
         email_address="unit-test@mail.com",
         name="unit-tester"
     )
 
-    return User.get(test_user.id)
+    yield User.get(test_user.id)
+    User.delete(test_user.id)
 
+
+@pytest.fixture
+def session(client, create_test_user) -> str:
+    """
+    Create a session for the unit test user.
+    :param create_test_user:
+    :param client:
+    :return:
+    """
+    payload = {"username": UNIT_TESTING_USER, "password": UNIT_TESTING_PASSWORD}
+    result = client.post(url=f"{settings.API_V1_STR}/login", json=payload)
+    session_token = result.cookies.get("session")
+    client.cookies["session"] = session_token
+    yield session_token
