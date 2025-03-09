@@ -50,6 +50,6 @@ def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found")
 
     if farm.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You do not own this farm.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{current_user.username} does not own this farm.")
 
     return farm
