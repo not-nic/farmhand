@@ -33,25 +33,28 @@ class Farm(Repository):
     DB Model for farms.
     """
 
-    __tablename__ = "farms"
+    __tablename__ = 'farms'
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    map = Column(String(255), nullable=True)
+    map_name = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
 
     owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
+    map_id = Column(UUID(), ForeignKey("maps.id"), nullable=True)
 
     user = relationship("User", back_populates="farms")
+
     map = relationship("Map", back_populates="farms")
 
     def __repr__(self):
-        return f"<Farm: {self.name}, Map: {self.map}>"
+        return f"<Farm: {self.name}, Map: {self.map_name}>"
+
 
 class Map(Repository):
     """
-    DB Model for the Map
+    DB Model for Maps.
     """
 
     __tablename__ = "maps"
@@ -62,7 +65,5 @@ class Map(Repository):
     author = Column(String(100), nullable=True)
     release_date = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
-
-    farms = relationship("Farm", back_populates="map")
 
     farms = relationship("Farm", back_populates="map")
