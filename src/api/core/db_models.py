@@ -1,7 +1,7 @@
 import uuid
 import datetime
 
-from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from src.api.core.repositories import UserRepository, Repository
@@ -62,5 +62,7 @@ class Map(Repository):
     author = Column(String(100), nullable=True)
     release_date = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+
+    farms = relationship("Farm", back_populates="map")
 
     farms = relationship("Farm", back_populates="map")
