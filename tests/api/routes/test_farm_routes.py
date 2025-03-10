@@ -33,7 +33,7 @@ class TestFarmRoutes:
         farms = [
             Farm.create(name="farm 1", description="description 1", map="map 1", owner_id=user_id),
             Farm.create(name="farm 2", description="description 2", map="map 3", owner_id=user_id),
-            Farm.create(name="farm 3", description="description 3", map="map 3", owner_id=user_id)
+            Farm.create(name="farm 3", description="description 3", map="map 3", owner_id=user_id),
         ]
         return farms
 
@@ -87,7 +87,7 @@ class TestFarmRoutes:
         result = self.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {'detail': 'Farm not found'}
+        assert result.json() == {"detail": "Farm not found"}
 
     def test_get_farm_for_a_different_user(self, client, session):
         """
@@ -95,7 +95,9 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
-        farm = Farm.create(name="farm 1", description="description 1",map="map 1",owner_id=uuid4())
+        farm = Farm.create(
+            name="farm 1", description="description 1", map="map 1", owner_id=uuid4()
+        )
 
         result = self.get(f"{self.url}/{farm.id}", client)
 
@@ -131,11 +133,11 @@ class TestFarmRoutes:
         :param session: the user's session
         :param user_id: the id of the unit test user
         """
-        expected_farm = Farm.create(name="Old farm name", description="test description", map="test map", owner_id=user_id)
+        expected_farm = Farm.create(
+            name="Old farm name", description="test description", map="test map", owner_id=user_id
+        )
 
-        payload = {
-            "name": "New farm name"
-        }
+        payload = {"name": "New farm name"}
 
         result = self.put(f"{self.url}/{expected_farm.id}", payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
@@ -147,7 +149,9 @@ class TestFarmRoutes:
         :param session: the user's session
         :param user_id: the id of the unit test user
         """
-        expected_farm = Farm.create(name="test name", description="test description", map="test map", owner_id=user_id)
+        expected_farm = Farm.create(
+            name="test name", description="test description", map="test map", owner_id=user_id
+        )
 
         result = self.delete(f"{self.url}/{expected_farm.id}", client)
         assert result.status_code == status.HTTP_204_NO_CONTENT

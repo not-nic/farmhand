@@ -6,6 +6,7 @@ from src.api.core.security import Security
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+
 @router.get("/me")
 async def get_user_info(current_user: dict = Depends(get_current_user)):
     """
@@ -15,6 +16,7 @@ async def get_user_info(current_user: dict = Depends(get_current_user)):
     """
     current_user.pop("session", None)
     return current_user
+
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(user_create: UserCreate):
@@ -28,14 +30,12 @@ async def create_user(user_create: UserCreate):
 
     if exists_by_username:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Username already taken"
         )
 
     if exists_by_email:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
     user_create.password = Security.get_password_hash(user_create.password)
