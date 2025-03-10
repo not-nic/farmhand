@@ -27,7 +27,9 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
 
-    LOG_FORMATTER: str = "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - " "[%(levelname)s] - %(message)s"
+    LOG_FORMATTER: str = (
+        "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - [%(levelname)s] - %(message)s"
+    )
 
 
 settings = Settings()
