@@ -18,5 +18,3 @@ def create_db_and_tables():
     create database tables on application startup
     """
     Base.metadata.create_all(engine)
-
-
