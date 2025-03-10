@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from src.api.core.models import Farm, User
+from src.api.core.db_models import User, Farm
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 

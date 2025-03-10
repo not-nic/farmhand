@@ -4,13 +4,14 @@ from uuid import UUID
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from src.api.core.models import User, Farm
+from src.api.core.db_models import User, Farm
 from src.api.core.repositories import sessions
 from src.config import settings
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login"
 )
+
 
 def get_current_user(request: Request) -> User:
     """
@@ -35,7 +36,9 @@ def get_current_user(request: Request) -> User:
 
     return user
 
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
 
 def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
     """

@@ -1,5 +1,16 @@
+import logging
 import string
 import random
+
+from src.config import settings
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+log_handler = logging.StreamHandler()
+log_handler.setFormatter(logging.Formatter(settings.LOG_FORMATTER, datefmt="%Y-%m-%d %H:%M:%S"))
+
+logger.addHandler(log_handler)
 
 
 def generate_session_token():

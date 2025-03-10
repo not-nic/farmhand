@@ -1,6 +1,7 @@
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file="../.env",
@@ -25,5 +26,8 @@ class Settings(BaseSettings):
             return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
+
+    LOG_FORMATTER: str = "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - " "[%(levelname)s] - %(message)s"
+
 
 settings = Settings()
