@@ -7,7 +7,7 @@ from src.api.core.db import Base, db_session
 if TYPE_CHECKING:
     from src.api.core.db_models import User
 
-T = TypeVar('T', bound='Repository')
+T = TypeVar("T", bound="Repository")
 
 sessions = {}
 
@@ -18,6 +18,7 @@ class Repository(Base):
         i.e. Model(Repository)
                 -> Model.create(...)
     """
+
     __abstract__ = True
 
     @classmethod
@@ -100,6 +101,7 @@ class UserRepository(Repository):
     """
     User Repository for interaction with the DB
     """
+
     __abstract__ = True
 
     @classmethod

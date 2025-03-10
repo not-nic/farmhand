@@ -8,9 +8,7 @@ from src.api.core.db_models import User, Farm
 from src.api.core.repositories import sessions
 from src.config import settings
 
-reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login"
-)
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login")
 
 
 def get_current_user(request: Request) -> User:
@@ -22,11 +20,15 @@ def get_current_user(request: Request) -> User:
     session_token = request.cookies.get("session")
 
     if not session_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session token missing or invalid")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session token missing or invalid"
+        )
 
     session_data = sessions.get(session_token)
     if not session_data:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token"
+        )
 
     username = session_data["username"]
     user = User.get_by_username(username)
@@ -53,6 +55,9 @@ def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found")
 
     if farm.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"{current_user.username} does not own this farm.")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"{current_user.username} does not own this farm.",
+        )
 
     return farm

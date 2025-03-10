@@ -22,16 +22,17 @@ async def login(login_request: LoginRequest, response: Response):
     user = User.get_by_username(login_request.username)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Username or password is incorrect")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Username or password is incorrect"
+        )
 
     if not Security.verify_password(login_request.password, user.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Username or password is incorrect")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Username or password is incorrect"
+        )
 
     session_token = generate_session_token()
-    sessions[session_token] = {
-        "username": user.username,
-        "created_at": datetime.utcnow()
-    }
+    sessions[session_token] = {"username": user.username, "created_at": datetime.utcnow()}
 
     response.set_cookie(key="session", value=session_token, httponly=True, secure=True)
 

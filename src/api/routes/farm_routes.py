@@ -11,7 +11,7 @@ router = APIRouter(prefix="/farm", tags=["farms"])
     "/",
     response_model=FarmResponse,
     dependencies=[Depends(get_current_user)],
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_farm(farm_request: FarmCreate, current_user: User = Depends(get_current_user)):
     """
@@ -24,7 +24,7 @@ async def create_farm(farm_request: FarmCreate, current_user: User = Depends(get
         name=farm_request.name,
         description=farm_request.description,
         map=farm_request.map,
-        owner_id=current_user.id
+        owner_id=current_user.id,
     )
 
     return FarmResponse(**farm.to_dict())
@@ -34,7 +34,7 @@ async def create_farm(farm_request: FarmCreate, current_user: User = Depends(get
     "/",
     response_model=FarmsResponse,
     dependencies=[Depends(get_current_user)],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_farms(current_user: User = Depends(get_current_user)):
     """
@@ -51,7 +51,7 @@ async def get_farms(current_user: User = Depends(get_current_user)):
     "/{id}",
     response_model=FarmResponse,
     dependencies=[Depends(get_current_user)],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_farm_by_id(farm: Farm = Depends(get_users_farm)):
     """
@@ -63,9 +63,7 @@ async def get_farm_by_id(farm: Farm = Depends(get_users_farm)):
 
 
 @router.put(
-    "/{id}",
-    dependencies=[Depends(get_current_user)],
-    status_code=status.HTTP_204_NO_CONTENT
+    "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
 async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_farm)):
     """
@@ -81,9 +79,7 @@ async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_fa
 
 
 @router.delete(
-    "/{id}",
-    dependencies=[Depends(get_current_user)],
-    status_code=status.HTTP_204_NO_CONTENT
+    "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_farm(farm: Farm = Depends(get_users_farm)):
     """

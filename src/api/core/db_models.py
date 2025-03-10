@@ -11,7 +11,8 @@ class User(UserRepository):
     """
     DB model for a user
     """
-    __tablename__ = 'users'
+
+    __tablename__ = "users"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
     username = Column(String(255), unique=True, nullable=False)
@@ -21,11 +22,7 @@ class User(UserRepository):
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    farms = relationship(
-        'Farm',
-        back_populates='user',
-        cascade="all, delete"
-    )
+    farms = relationship("Farm", back_populates="user", cascade="all, delete")
 
     def __repr__(self):
         return f"<User: {self.username}>"
@@ -35,7 +32,8 @@ class Farm(Repository):
     """
     DB Model for farms.
     """
-    __tablename__ = 'farms'
+
+    __tablename__ = "farms"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
@@ -43,12 +41,9 @@ class Farm(Repository):
     map = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
 
-    owner_id = Column(UUID(), ForeignKey('users.id'), nullable=False)
+    owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
 
-    user = relationship(
-        'User',
-        back_populates='farms'
-    )
+    user = relationship("User", back_populates="farms")
 
     def __repr__(self):
         return f"<Farm: {self.name}, Map: {self.map}>"
