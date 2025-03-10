@@ -14,19 +14,18 @@ from src.api.utils import logger
 
 class ModHubService:
     # def __init__(self):
-        # mods_url = "https://www.farming-simulator.com/mods.php?title=fs2025&filter=mapEurope&page=0"
-        # mod_url = "https://www.farming-simulator.com/mod.php?mod_id=313458&title=fs2025"
-        # title = "fs2025", "fs2022"
-        # filters = "mapEurope", "mapNorthAmerica", "mapSouthAmerica", "mapOthers"
+    # mods_url = "https://www.farming-simulator.com/mods.php?title=fs2025&filter=mapEurope&page=0"
+    # mod_url = "https://www.farming-simulator.com/mod.php?mod_id=313458&title=fs2025"
+    # title = "fs2025", "fs2022"
+    # filters = "mapEurope", "mapNorthAmerica", "mapSouthAmerica", "mapOthers"
 
     async def scrape_all(self):
-
         mod_ids = await self.scrape_mod_pages()
 
         for mod_id in mod_ids:
             await self.scrape(mod_id)
 
-        logger.info(f"Collected Mod Ids: {mod_ids}", )
+        logger.info(f"Collected Mod Ids: {mod_ids}")
 
     # generic function to scrape data about a mod
     async def scrape(self, mod_id: int):
@@ -38,7 +37,7 @@ class ModHubService:
         url = self.create_mod_url(mod_id=mod_id)
         response = requests.get(url)
 
-        page_contents = BeautifulSoup(response.content, 'html.parser')
+        page_contents = BeautifulSoup(response.content, "html.parser")
 
         mod_name = page_contents.find("h2", class_="column title-label").get_text(strip=True)
         mod_info = page_contents.find("div", class_="table table-game-info")
@@ -71,7 +70,7 @@ class ModHubService:
             name=mod_detail.name,
             category=mod_detail.category,
             author=mod_detail.author,
-            release_date=mod_detail.release_date
+            release_date=mod_detail.release_date,
         )
 
     # Function to scrape the mod pages, to get a collection of mods and ids.
@@ -80,7 +79,7 @@ class ModHubService:
         # url = self.create_mods_url()
 
         response = requests.get(url)
-        page_contents = BeautifulSoup(response.content, 'html.parser')
+        page_contents = BeautifulSoup(response.content, "html.parser")
 
         # Get all rows that contain mods from a ModHub page
         rows = page_contents.find_all("div", class_="row")
@@ -97,11 +96,11 @@ class ModHubService:
                 mod_item = container.find("div", class_="mod-item")
 
                 if mod_item:
-                    more_info_tag = mod_item.find('a', class_='button-buy')
+                    more_info_tag = mod_item.find("a", class_="button-buy")
                     if more_info_tag:
-                        href = more_info_tag.get('href', '')
-                        if 'mod_id=' in href:
-                            mod_id = href.split('mod_id=')[1].split('&')[0]
+                        href = more_info_tag.get("href", "")
+                        if "mod_id=" in href:
+                            mod_id = href.split("mod_id=")[1].split("&")[0]
                             mod_ids.append(mod_id)
 
         return mod_ids
@@ -110,7 +109,11 @@ class ModHubService:
 
     # create mods_url with filters, pages & title
     @staticmethod
-    def create_mods_url(category_filter: Optional[str] = None, page: Optional[int] = None, title: Optional[str] = None) -> str:
+    def create_mods_url(
+        category_filter: Optional[str] = None,
+        page: Optional[int] = None,
+        title: Optional[str] = None,
+    ) -> str:
         """
         create a URL to scrape a mod by its category or without.
         :param page:
@@ -119,10 +122,10 @@ class ModHubService:
         :return: a string of the created url
         """
         return (
-                f"{URLs.BASE_MODS_URL}" +
-                (f"?filter={category_filter}" if category_filter else "") +
-                (f"&title={title}" if title else "") +
-                (f"&page={page}" if page else "")
+            f"{URLs.BASE_MODS_URL}"
+            + (f"?filter={category_filter}" if category_filter else "")
+            + (f"&title={title}" if title else "")
+            + (f"&page={page}" if page else "")
         )
 
     # create mod_url with mod_id & title (optional, if you have ID not needed)
@@ -155,4 +158,3 @@ class ModHubService:
                 info[key] = value
 
         return info
-
