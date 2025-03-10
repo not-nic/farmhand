@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status
 
-from src.api.core.models import FarmCreate, FarmResponse, User, Farm, FarmsResponse, FarmUpdate
+from src.api.core.models import FarmCreate, FarmResponse, FarmsResponse, FarmUpdate
+from src.api.core.db_models import User, Farm
 from src.api.deps import get_current_user, get_users_farm
 
 router = APIRouter(prefix="/farm", tags=["farms"])
+
 
 @router.post(
     "/",
@@ -27,6 +29,7 @@ async def create_farm(farm_request: FarmCreate, current_user: User = Depends(get
 
     return FarmResponse(**farm.to_dict())
 
+
 @router.get(
     "/",
     response_model=FarmsResponse,
@@ -43,6 +46,7 @@ async def get_farms(current_user: User = Depends(get_current_user)):
     farms_count = len(farms)
     return FarmsResponse(farms=farms, count=farms_count)
 
+
 @router.get(
     "/{id}",
     response_model=FarmResponse,
@@ -56,6 +60,7 @@ async def get_farm_by_id(farm: Farm = Depends(get_users_farm)):
     :return: (FarmsResponse) - Response of farm information and count
     """
     return FarmResponse(**farm.to_dict())
+
 
 @router.put(
     "/{id}",
@@ -73,6 +78,7 @@ async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_fa
     farm.update(farm.id, **update_data)
 
     return FarmResponse(**farm.to_dict())
+
 
 @router.delete(
     "/{id}",

@@ -2,12 +2,14 @@ from fastapi import APIRouter, HTTPException, Depends, status, Response
 from datetime import datetime
 
 from src.api.deps import get_current_user
-from src.api.core.models import LoginRequest, User
+from src.api.core.models import LoginRequest
+from src.api.core.db_models import User
 from src.api.core.security import Security
 from src.api.utils import generate_session_token
 from src.api.core.repositories import sessions
 
 router = APIRouter(tags=["auth"])
+
 
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def login(login_request: LoginRequest, response: Response):
@@ -34,6 +36,7 @@ async def login(login_request: LoginRequest, response: Response):
     response.set_cookie(key="session", value=session_token, httponly=True, secure=True)
 
     return {"message": "login successful"}
+
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(current_user: dict = Depends(get_current_user)):

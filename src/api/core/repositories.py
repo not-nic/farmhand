@@ -5,11 +5,12 @@ from src.api.core.db import Base, db_session
 
 
 if TYPE_CHECKING:
-    from src.api.core.models import User
+    from src.api.core.db_models import User
 
 T = TypeVar('T', bound='Repository')
 
 sessions = {}
+
 
 class Repository(Base):
     """
@@ -93,6 +94,7 @@ class Repository(Base):
         :return: dict with column names as keys and their values.
         """
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
 
 class UserRepository(Repository):
     """

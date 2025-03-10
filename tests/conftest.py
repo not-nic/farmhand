@@ -10,7 +10,7 @@ load_dotenv("tests/fixtures/test.env", override=True)
 from main import app
 from main import settings
 from src.api.core.db import Base, engine
-from src.api.core.models import User
+from src.api.core.db_models import User
 from src.api.core.security import Security
 
 
