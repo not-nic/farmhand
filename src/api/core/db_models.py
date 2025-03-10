@@ -44,6 +44,23 @@ class Farm(Repository):
     owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
 
     user = relationship("User", back_populates="farms")
+    map = relationship("Map", back_populates="farms")
 
     def __repr__(self):
         return f"<Farm: {self.name}, Map: {self.map}>"
+
+class Map(Repository):
+    """
+    DB Model for the Map
+    """
+
+    __tablename__ = "maps"
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(100), nullable=False)
+    category = Column(String(100), nullable=True)
+    author = Column(String(100), nullable=True)
+    release_date = Column(String(100), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+
+    farms = relationship("Farm", back_populates="map")
