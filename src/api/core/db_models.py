@@ -42,7 +42,7 @@ class Farm(Repository):
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
 
     owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
-    map_id = Column(UUID(), ForeignKey("maps.id"), nullable=True)
+    map_id = Column(Integer(), ForeignKey("maps.id"), nullable=True)
 
     user = relationship("User", back_populates="farms")
 

@@ -36,7 +36,7 @@ class Repository(Base):
         return session.query(cls).all()
 
     @classmethod
-    def get(cls, id: UUID) -> Optional[T]:
+    def get(cls, id: Optional[UUID | int]) -> Optional[T]:
         """
         Get a single record from DB by its ID.
         :param id: id of the item to get
