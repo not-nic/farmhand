@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.models import FarmCreate, FarmResponse, FarmsResponse, FarmUpdate
-from src.api.core.db_models import User, Farm
+from src.api.core.models import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
+from src.api.core.db_models import User, Farm, Map
 from src.api.deps import get_current_user, get_users_farm
 
 router = APIRouter(prefix="/farm", tags=["farms"])
@@ -13,18 +13,27 @@ router = APIRouter(prefix="/farm", tags=["farms"])
     dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_201_CREATED,
 )
-async def create_farm(farm_request: FarmCreate, current_user: User = Depends(get_current_user)):
+async def create_farm(farm_request: FarmRequest, current_user: User = Depends(get_current_user)):
     """
     Create a farm linked for the logged-in user.
     :param current_user: current logged-in user
     :param farm_request: farm request model
     :return: (FarmResponse) Return a response of the farm
     """
+    if farm_request.map_id:
+        map: Map = Map.get(farm_request.map_id)
+
+        if not map:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Map not found")
+
+        farm_request.map_name = map.name
+
     farm = Farm.create(
         name=farm_request.name,
         description=farm_request.description,
-        map=farm_request.map,
+        map_name=farm_request.map_name,
         owner_id=current_user.id,
+        map_id=farm_request.map_id
     )
 
     return FarmResponse(**farm.to_dict())

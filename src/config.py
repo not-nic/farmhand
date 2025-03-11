@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     ENVIRONMENT: str
 
+    SERVICE_USER_USERNAME: str
+    SERVICE_USER_EMAIL: str
+    SERVICE_USER_PASSWORD: str
+
     @computed_field(return_type=str)
     def DATABASE_URL(self):
         if self.ENVIRONMENT == "development":

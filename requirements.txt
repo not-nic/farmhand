@@ -11,3 +11,6 @@ pydantic-settings~=2.8.1
 pydantic_core==2.27.2
 python-dotenv==1.0.1
 ruff==0.9.9
+StrEnum==0.4.15
+requests==2.32.3
+beautifulsoup4==4.13.3
