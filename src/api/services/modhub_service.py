@@ -1,34 +1,20 @@
-import json
-import pprint
-
 import requests
 
 from typing import Optional
+from fastapi import status
 from bs4 import BeautifulSoup, Tag
+from requests import HTTPError
 
-from src.api.constants import URLs, MapFilters
-from src.api.core.db_models import Map
+from src.api.constants import URLs
 from src.api.core.models import Mod
 from src.api.utils import logger
 
 
 class ModHubService:
-    # def __init__(self):
-    # mods_url = "https://www.farming-simulator.com/mods.php?title=fs2025&filter=mapEurope&page=0"
-    # mod_url = "https://www.farming-simulator.com/mod.php?mod_id=313458&title=fs2025"
-    # title = "fs2025", "fs2022"
-    # filters = "mapEurope", "mapNorthAmerica", "mapSouthAmerica", "mapOthers"
-
-    async def scrape_all(self):
-        mod_ids = await self.scrape_mod_pages()
-
-        for mod_id in mod_ids:
-            await self.scrape(mod_id)
-
-        logger.info(f"Collected Mod Ids: {mod_ids}")
-
-    # generic function to scrape data about a mod
-    async def scrape(self, mod_id: int):
+    """
+    Module to scrape the Farming Simulator ModHub and get information about Mods.
+    """
+    async def scrape_mod(self, mod_id: int) -> Mod:
         """
         Scrape a mod page and return a pydantic model of the mod details
         :param mod_id: the id of the mod to scrape
@@ -36,6 +22,10 @@ class ModHubService:
         """
         url = self.create_mod_url(mod_id=mod_id)
         response = requests.get(url)
+
+        if response.status_code != status.HTTP_200_OK:
+            logger.warning(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
 
@@ -47,41 +37,29 @@ class ModHubService:
             mod_details["id"] = mod_id
             mod_details["name"] = mod_name
 
-            logger.info(f"Mod Name: {mod_name}")
-            logger.info(f"Mod Info: {mod_details}")
+            logger.info(f"Found mod information for {mod_name} ({mod_id})")
 
             mod_detail = Mod(**mod_details)
-
-            logger.info(mod_detail)
-
-            # temp save "map" to database
-            self.create_map_entry(mod_detail)
-
             return mod_detail
         else:
-            raise ValueError("Unable to extract data from mod page")
+            logger.warning(f"mod_id: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
+            raise ValueError(f"mod_id: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
 
-    # Scrape map function (something to add to the maps table)
-    # Maybe handle this somewhere else in a map service, keep this class generic.
-    @staticmethod
-    def create_map_entry(mod_detail: Mod):
-        Map.create(
-            id=mod_detail.id,
-            name=mod_detail.name,
-            category=mod_detail.category,
-            author=mod_detail.author,
-            release_date=mod_detail.release_date,
-        )
-
-    # Function to scrape the mod pages, to get a collection of mods and ids.
-    async def scrape_mod_pages(self) -> list:
-        url = self.create_mods_url(category_filter=MapFilters.EUROPEAN_MAPS)
-        # url = self.create_mods_url()
+    async def scrape_mods(self, category: Optional[str] = None) -> list:
+        """
+        Scrape the 'mods' pages and get the ids for each mod displayed
+        :param category: the category to get mods for i.e. MapFilters constants
+        :return: a list of mod_ids scraped from the page.
+        """
+        url = self.create_mods_url(category_filter=category if category else "")
 
         response = requests.get(url)
-        page_contents = BeautifulSoup(response.content, "html.parser")
 
-        # Get all rows that contain mods from a ModHub page
+        if response.status_code != status.HTTP_200_OK:
+            logger.warning(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            raise HTTPError(f"Request failed with status code: {response.status_code}")
+
+        page_contents = BeautifulSoup(response.content, "html.parser")
         rows = page_contents.find_all("div", class_="row")
 
         mod_ids = []
@@ -96,18 +74,11 @@ class ModHubService:
                 mod_item = container.find("div", class_="mod-item")
 
                 if mod_item:
-                    more_info_tag = mod_item.find("a", class_="button-buy")
-                    if more_info_tag:
-                        href = more_info_tag.get("href", "")
-                        if "mod_id=" in href:
-                            mod_id = href.split("mod_id=")[1].split("&")[0]
-                            mod_ids.append(mod_id)
+
+                    mod_ids.append(self.get_mod_id(mod_item))
 
         return mod_ids
 
-    # util methods:
-
-    # create mods_url with filters, pages & title
     @staticmethod
     def create_mods_url(
         category_filter: Optional[str] = None,
@@ -116,9 +87,9 @@ class ModHubService:
     ) -> str:
         """
         create a URL to scrape a mod by its category or without.
-        :param page:
-        :param category_filter:
-        :param title: the Farming Sim game version
+        :param page: the page to scrape (should be handled as an increment)
+        :param category_filter: the category to scrape i.e. FarmsEurope
+        :param title: The Farming Sim game version
         :return: a string of the created url
         """
         return (
@@ -128,7 +99,6 @@ class ModHubService:
             + (f"&page={page}" if page else "")
         )
 
-    # create mod_url with mod_id & title (optional, if you have ID not needed)
     @staticmethod
     def create_mod_url(mod_id: int, title: Optional[str] = None) -> str:
         """
@@ -139,11 +109,10 @@ class ModHubService:
         """
         return f"{URLs.BASE_MOD_URL}?mod_id={mod_id}" + (f"&title={title}" if title else "")
 
-    # method to get the stats about a mod author, release date, size, etc
     @staticmethod
     def get_mod_details(mod_info: Tag) -> dict:
         """
-        Get the details of a mod from the table on the mod website
+        Function to get the stats about a mod author, release date, size, etc
         :param mod_info: HTML Element of the Table
         :return: a dict of key and values e.g. author, mod_size, release date, etc.
         """
@@ -158,3 +127,17 @@ class ModHubService:
                 info[key] = value
 
         return info
+
+    @staticmethod
+    def get_mod_id(mod_item: Tag) -> int:
+        """
+        Get the id for the mod based on the href of the 'MORE_INFO' button.
+        :param mod_item: the current mod item
+        :return: (int) the id of the mod
+        """
+        more_info_tag = mod_item.find("a", class_="button-buy")
+        if more_info_tag:
+            href = more_info_tag.get("href", "")
+            if "mod_id=" in href:
+                mod_id = href.split("mod_id=")[1].split("&")[0]
+                return int(mod_id)
