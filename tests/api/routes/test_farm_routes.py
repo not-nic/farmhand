@@ -31,9 +31,9 @@ class TestFarmRoutes:
     @pytest.fixture
     def create_farms(self, user_id) -> list[Farm]:
         farms = [
-            Farm.create(name="farm 1", description="description 1", map="map 1", owner_id=user_id),
-            Farm.create(name="farm 2", description="description 2", map="map 3", owner_id=user_id),
-            Farm.create(name="farm 3", description="description 3", map="map 3", owner_id=user_id),
+            Farm.create(name="farm 1", description="description 1", map_name="map 1", owner_id=user_id),
+            Farm.create(name="farm 2", description="description 2", map_name="map 3", owner_id=user_id),
+            Farm.create(name="farm 3", description="description 3", map_name="map 3", owner_id=user_id),
         ]
         return farms
 
@@ -56,7 +56,7 @@ class TestFarmRoutes:
         for expected_farm, farm_data in zip(create_farms, result.json()["farms"]):
             assert farm_data["name"] == expected_farm.name
             assert farm_data["description"] == expected_farm.description
-            assert farm_data["map"] == expected_farm.map
+            assert farm_data["map_name"] == expected_farm.map_name
             assert farm_data["created_at"] is not None
 
     def test_get_farm(self, client, session, create_farms):
@@ -75,7 +75,7 @@ class TestFarmRoutes:
 
         assert result_json["name"] == expected_farm.name
         assert result_json["description"] == expected_farm.description
-        assert result_json["map"] == expected_farm.map
+        assert result_json["map_name"] == expected_farm.map_name
         assert result_json["created_at"] is not None
 
     def test_get_farm_that_does_not_exist(self, client, session):
@@ -96,7 +96,7 @@ class TestFarmRoutes:
         :param session: the user's session
         """
         farm = Farm.create(
-            name="farm 1", description="description 1", map="map 1", owner_id=uuid4()
+            name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )
 
         result = self.get(f"{self.url}/{farm.id}", client)
@@ -104,7 +104,7 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_403_FORBIDDEN
         assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not own this farm."}
 
-    def test_create_farm(self, client, session):
+    def test_create_farm_by_map_name(self, client, session):
         """
         Test creating a farm and validate it is in the database.
         :param client: FastAPI test client
@@ -113,7 +113,7 @@ class TestFarmRoutes:
         payload = {
             "name": "test-farm",
             "description": "test-description",
-            "map": "test-map",
+            "map_name": "test-map",
         }
 
         result = self.post(self.url, payload, client)
@@ -134,10 +134,10 @@ class TestFarmRoutes:
         :param user_id: the id of the unit test user
         """
         expected_farm = Farm.create(
-            name="Old farm name", description="test description", map="test map", owner_id=user_id
+            name="Old farm name", description="test description", map_name="test map", owner_id=user_id
         )
 
-        payload = {"name": "New farm name"}
+        payload = {"map_name": "New farm name"}
 
         result = self.put(f"{self.url}/{expected_farm.id}", payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
@@ -150,7 +150,7 @@ class TestFarmRoutes:
         :param user_id: the id of the unit test user
         """
         expected_farm = Farm.create(
-            name="test name", description="test description", map="test map", owner_id=user_id
+            name="test name", description="test description", map_name="test map", owner_id=user_id
         )
 
         result = self.delete(f"{self.url}/{expected_farm.id}", client)
