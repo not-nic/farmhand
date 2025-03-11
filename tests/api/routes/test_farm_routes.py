@@ -1,10 +1,12 @@
+import datetime
+
 import pytest
 
 from uuid import UUID, uuid4
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from src.api.core.db_models import User, Farm
+from src.api.core.db_models import User, Farm, Map
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 
@@ -36,6 +38,17 @@ class TestFarmRoutes:
             Farm.create(name="farm 3", description="description 3", map_name="map 3", owner_id=user_id),
         ]
         return farms
+
+    @pytest.fixture
+    def map_fixture(self):
+        expected_map = Map.create(
+            id=12345,
+            name="custom-map-1",
+            category="European Map",
+            author="Simon Pegg",
+            release_date=datetime.date(year=2025, month=3, day=11)
+        )
+        return expected_map
 
     @pytest.fixture
     def user_id(self) -> UUID:
@@ -106,7 +119,7 @@ class TestFarmRoutes:
 
     def test_create_farm_by_map_name(self, client, session):
         """
-        Test creating a farm and validate it is in the database.
+        Test creating a farm by a custom map_name and validate it is in the database.
         :param client: FastAPI test client
         :param session: the user's session
         """
@@ -126,6 +139,64 @@ class TestFarmRoutes:
         for key, value in payload.items():
             assert expected_farm.get(key) == value
 
+    def test_create_farm_by_map_id(self, client, session, map_fixture):
+        """
+        Test creating a farm by a map_id and validate it is in the database.
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param map_fixture: fixture to create a map
+        """
+
+        payload = {
+            "name": "test-farm",
+            "description": "test-description",
+            "map_id": 12345,
+        }
+
+        result = self.post(self.url, payload, client)
+        assert result.status_code == status.HTTP_201_CREATED
+
+        result_json = result.json()
+        expected_farm = Farm.get(UUID(result_json["id"]))
+        expected_farm_dict = expected_farm.to_dict()
+
+        for key, value in payload.items():
+            assert expected_farm_dict.get(key) == value
+
+        assert expected_farm.map_name == map_fixture.name
+        assert expected_farm.map.id == map_fixture.id
+
+    def test_create_farm_returns_404_if_no_map_is_found(self, client, session):
+        """
+        Test that when creating a farm with a map_id it returns a 404 if the map is not found.
+        :param client: FastAPI test client
+        :param session: the user's session
+        """
+
+        payload = {
+            "name": "test-farm",
+            "description": "test-description",
+            "map_id": 1234,
+        }
+
+        result = self.post(self.url, payload, client)
+        assert result.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_create_farm_returns_validation_error(self, client, session):
+        """
+        Testing creating a farm raises a 422 error if map_id or map_name is not provided.
+        :param client: FastAPI test client
+        :param session: the user's session
+        """
+
+        payload = {
+            "name": "test-farm",
+            "description": "test-description",
+        }
+
+        result = self.post(self.url, payload, client)
+        assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
     def test_update_farm(self, client, session, user_id):
         """
         Test updating a value in a farm record
@@ -133,6 +204,7 @@ class TestFarmRoutes:
         :param session: the user's session
         :param user_id: the id of the unit test user
         """
+
         expected_farm = Farm.create(
             name="Old farm name", description="test description", map_name="test map", owner_id=user_id
         )
@@ -149,6 +221,7 @@ class TestFarmRoutes:
         :param session: the user's session
         :param user_id: the id of the unit test user
         """
+
         expected_farm = Farm.create(
             name="test name", description="test description", map_name="test map", owner_id=user_id
         )
