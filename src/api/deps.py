@@ -42,6 +42,25 @@ def get_current_user(request: Request) -> User:
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
+def is_service_user(current_user: CurrentUser) -> bool:
+    """
+    (Temp) dependency to check if the current logged-in user
+    is the service user to trigger scrape commands.
+    :param current_user: the current logged-in user
+    :return: (Bool) if the current user is the service-user
+    """
+
+    if (
+        current_user.username != settings.SERVICE_USER_USERNAME or
+        current_user.email_address != settings.SERVICE_USER_EMAIL
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this resource."
+        )
+    return True
+
+
 def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
     """
     Get the farm for the current logged-in user
