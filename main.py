@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.core.db import create_db_and_tables
+from src.api.fixtures.fixtures import Fixtures
 from src.api.routes import api_router
 from src.config import settings
 
@@ -13,6 +14,7 @@ from src.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+    Fixtures.create_service_user()
     yield  # Continue running the app
 
 
