@@ -31,3 +31,11 @@ class Validators:
     @staticmethod
     def validate_platform(value) -> list:
         return [platform.strip() for platform in value.split(",")]
+
+    @staticmethod
+    def validate_map_id_or_name_exists(values):
+        map_id = values.get('map_id')
+        map_name = values.get('map_name')
+        if not map_id and not map_name:
+            raise ValueError('Either `map_id` or `map_name` must be provided.')
+        return values

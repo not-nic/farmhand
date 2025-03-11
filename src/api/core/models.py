@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, field_validator, model_validator, Field
 
 from src.api.core.validators import Validators
 
@@ -27,24 +27,29 @@ class UserCreate(BaseModel):
     name: str
 
 
-class FarmCreate(BaseModel):
+class FarmRequest(BaseModel):
     """
     Request model for creating a farm.
     """
 
     name: str
     description: str
-    map: str
+    map_name: Optional[str] = None
+    map_id: Optional[int] = None
+
+    @model_validator(mode="before")
+    def validate_map_id_or_name(cls, values):
+        return Validators.validate_map_id_or_name_exists(values)
 
 
-class FarmUpdate(FarmCreate):
+class FarmUpdate(FarmRequest):
     """
     Request model for creating a farm.
     """
 
     name: Optional[str] = None
     description: Optional[str] = None
-    map: Optional[str] = None
+    map_name: Optional[str] = None
 
 
 class FarmResponse(BaseModel):
@@ -54,7 +59,8 @@ class FarmResponse(BaseModel):
 
     id: uuid.UUID
     name: str
-    map: str
+    map_name: str
+    map_id: Optional[int]
     description: str
     created_at: datetime.datetime
 
