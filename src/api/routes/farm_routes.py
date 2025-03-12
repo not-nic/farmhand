@@ -24,7 +24,7 @@ async def create_farm(farm_request: FarmRequest, current_user: User = Depends(ge
         map: Map = Map.get(farm_request.map_id)
 
         if not map:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Map not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
 
         farm_request.map_name = map.name
 
