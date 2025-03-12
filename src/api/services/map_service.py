@@ -4,7 +4,6 @@ from src.api.services.modhub_service import ModHubService
 
 
 class MapService:
-
     def __init__(self):
         self.mod_hub_service = ModHubService()
 

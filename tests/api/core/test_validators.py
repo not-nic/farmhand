@@ -6,7 +6,6 @@ from src.api.core.validators import Validators
 
 
 class TestValidators:
-
     def test_validate_release_date_creates_date(self):
         """
         Test that when the pydantic validator is given the correct date
@@ -32,8 +31,8 @@ class TestValidators:
         """
         invalid_date_string = "2025-03-12"
         with pytest.raises(
-                ValueError,
-                match=f"Invalid date format: {invalid_date_string}. Expected format is 'dd.mm.yyyy'."
+            ValueError,
+            match=f"Invalid date format: {invalid_date_string}. Expected format is 'dd.mm.yyyy'.",
         ):
             Validators.validate_release_date(invalid_date_string)
 

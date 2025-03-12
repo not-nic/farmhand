@@ -14,6 +14,7 @@ class ModHubService:
     """
     Module to scrape the Farming Simulator ModHub and get information about Mods.
     """
+
     def scrape_mod(self, mod_id: int) -> Mod:
         """
         Scrape a mod page and return a pydantic model of the mod details
@@ -24,7 +25,9 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.warning(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            logger.warning(
+                f"Unable to connect to the ModHub - got status code: {response.status_code}"
+            )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
@@ -42,8 +45,12 @@ class ModHubService:
             mod_detail = Mod(**mod_details)
             return mod_detail
         else:
-            logger.warning(f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
-            raise ValueError(f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
+            logger.warning(
+                f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found."
+            )
+            raise ValueError(
+                f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found."
+            )
 
     def scrape_mods(self, category: Optional[str] = None) -> list:
         """
@@ -56,7 +63,9 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.warning(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            logger.warning(
+                f"Unable to connect to the ModHub - got status code: {response.status_code}"
+            )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")

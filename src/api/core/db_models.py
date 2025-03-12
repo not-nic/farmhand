@@ -33,7 +33,7 @@ class Farm(Repository):
     DB Model for farms.
     """
 
-    __tablename__ = 'farms'
+    __tablename__ = "farms"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)

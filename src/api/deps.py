@@ -51,8 +51,8 @@ def is_service_user(current_user: CurrentUser) -> bool:
     """
 
     if (
-        current_user.username != settings.SERVICE_USER_USERNAME or
-        current_user.email_address != settings.SERVICE_USER_EMAIL
+        current_user.username != settings.SERVICE_USER_USERNAME
+        or current_user.email_address != settings.SERVICE_USER_EMAIL
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

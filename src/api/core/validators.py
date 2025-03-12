@@ -55,8 +55,8 @@ class Validators:
         :param values: the values of the incoming object
         :return: Validation Error if neither are provided.
         """
-        map_id = values.get('map_id')
-        map_name = values.get('map_name')
+        map_id = values.get("map_id")
+        map_name = values.get("map_name")
         if not map_id and not map_name:
-            raise ValueError('Either `map_id` or `map_name` must be provided.')
+            raise ValueError("Either `map_id` or `map_name` must be provided.")
         return values
