@@ -9,7 +9,6 @@ from src.api.services.modhub_service import ModHubService
 
 
 class TestModHubService:
-
     def test_scrape_mock_mod(self, mock_mod_hub_page):
         """
         Test that when scraping a modhub mod a Mod pydantic model is returned
@@ -39,8 +38,8 @@ class TestModHubService:
         """
         mock_mod_hub_page(file_name="no_mod.html", status_code=status.HTTP_200_OK)
         with pytest.raises(
-                ValueError,
-                match="Mod ID: 12345 - Unable to scrape mod information as 'mod-info div' was not found."
+            ValueError,
+            match="Mod ID: 12345 - Unable to scrape mod information as 'mod-info div' was not found.",
         ):
             mod_hub_service = ModHubService()
             mod_hub_service.scrape_mod(mod_id=12345)

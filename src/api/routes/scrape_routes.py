@@ -7,11 +7,7 @@ from src.api.services.modhub_service import ModHubService
 router = APIRouter(prefix="/scrape", tags=["scraper"])
 
 
-@router.get(
-    "/{id}",
-    dependencies=[Depends(is_service_user)],
-    status_code=status.HTTP_202_ACCEPTED
-)
+@router.get("/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_data(id: int, background_tasks: BackgroundTasks):
     """
     Function to manually trigger scraping of an individual mod by its mod_id.
@@ -24,11 +20,7 @@ async def scrape_data(id: int, background_tasks: BackgroundTasks):
     return {"detail": "Started Scraping Task"}
 
 
-@router.get(
-    "/",
-    dependencies=[Depends(is_service_user)],
-    status_code=status.HTTP_202_ACCEPTED
-)
+@router.get("/", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_maps(background_tasks: BackgroundTasks):
     """
     Function to manually trigger the scraping of maps from the Farming Simulator ModHub website.

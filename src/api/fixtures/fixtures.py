@@ -5,7 +5,6 @@ from src.config import settings
 
 
 class Fixtures:
-
     @staticmethod
     def create_service_user() -> User:
         """

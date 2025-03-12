@@ -44,6 +44,8 @@ docs/build/
 .venv
 venv
 
+.farmhand
+
 .env
 *.env
 

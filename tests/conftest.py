@@ -76,6 +76,7 @@ def mock_mod_hub_page(mocker) -> callable:
     :param mocker: pytest mocker
     :return: a callable _mock_page function
     """
+
     def _mock_page(file_name: Optional[str] = None, status_code: int = status.HTTP_200_OK) -> None:
         html_content = load_test_resource(file_name) if file_name else None
 

@@ -33,9 +33,15 @@ class TestFarmRoutes:
     @pytest.fixture
     def create_farms(self, user_id) -> list[Farm]:
         farms = [
-            Farm.create(name="farm 1", description="description 1", map_name="map 1", owner_id=user_id),
-            Farm.create(name="farm 2", description="description 2", map_name="map 3", owner_id=user_id),
-            Farm.create(name="farm 3", description="description 3", map_name="map 3", owner_id=user_id),
+            Farm.create(
+                name="farm 1", description="description 1", map_name="map 1", owner_id=user_id
+            ),
+            Farm.create(
+                name="farm 2", description="description 2", map_name="map 3", owner_id=user_id
+            ),
+            Farm.create(
+                name="farm 3", description="description 3", map_name="map 3", owner_id=user_id
+            )
         ]
         return farms
 
@@ -206,7 +212,10 @@ class TestFarmRoutes:
         """
 
         expected_farm = Farm.create(
-            name="Old farm name", description="test description", map_name="test map", owner_id=user_id
+            name="Old farm name",
+            description="test description",
+            map_name="test map",
+            owner_id=user_id
         )
 
         payload = {"map_name": "New farm name"}
