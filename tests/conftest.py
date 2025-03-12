@@ -1,8 +1,14 @@
+from typing import Optional
+
 import pytest
 
 from collections.abc import Generator
 from dotenv import load_dotenv
+from fastapi import status
 from fastapi.testclient import TestClient
+from requests import Response
+
+from tests.utils import load_test_resource
 
 load_dotenv("tests/fixtures/test.env", override=True)
 
@@ -12,7 +18,6 @@ from main import settings
 from src.api.core.db import Base, engine
 from src.api.core.db_models import User
 from src.api.core.security import Security
-
 
 UNIT_TESTING_USER = "unit-testing-user"
 UNIT_TESTING_PASSWORD = "unit-testing-password"
@@ -61,3 +66,24 @@ def session(client, create_test_user) -> str:
     session_token = result.cookies.get("session")
     client.cookies["session"] = session_token
     yield session_token
+
+
+@pytest.fixture
+def mock_mod_hub_page(mocker) -> callable:
+    """
+    Create a fixture for a modhub page, define which HTML resource should be
+    returned and what status code.
+    :param mocker: pytest mocker
+    :return: a callable _mock_page function
+    """
+    def _mock_page(file_name: Optional[str] = None, status_code: int = status.HTTP_200_OK) -> None:
+        html_content = load_test_resource(file_name) if file_name else None
+
+        mock_response = Response()
+        mock_response.status_code = status_code
+        if html_content:
+            mock_response._content = html_content
+
+        mocker.patch("requests.get", return_value=mock_response)
+
+    return _mock_page
