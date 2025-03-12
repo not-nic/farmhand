@@ -18,12 +18,12 @@ class MapService:
 
         # iterate over all the map filters and make requests to each category's mod page.
         for map_filter in MapFilters:
-            mod_ids = await self.mod_hub_service.scrape_mods(category=map_filter)
+            mod_ids = self.mod_hub_service.scrape_mods(category=map_filter)
             map_ids.extend(mod_ids)
 
         # iterate over all the collected mod ids and scrape the mod page data.
         for mod_id in map_ids:
-            mod_detail = await self.mod_hub_service.scrape_mod(mod_id)
+            mod_detail = self.mod_hub_service.scrape_mod(mod_id)
 
             Map.create(
                 id=mod_detail.id,

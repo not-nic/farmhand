@@ -14,7 +14,7 @@ class ModHubService:
     """
     Module to scrape the Farming Simulator ModHub and get information about Mods.
     """
-    async def scrape_mod(self, mod_id: int) -> Mod:
+    def scrape_mod(self, mod_id: int) -> Mod:
         """
         Scrape a mod page and return a pydantic model of the mod details
         :param mod_id: the id of the mod to scrape
@@ -42,10 +42,10 @@ class ModHubService:
             mod_detail = Mod(**mod_details)
             return mod_detail
         else:
-            logger.warning(f"mod_id: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
-            raise ValueError(f"mod_id: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
+            logger.warning(f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
+            raise ValueError(f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found.")
 
-    async def scrape_mods(self, category: Optional[str] = None) -> list:
+    def scrape_mods(self, category: Optional[str] = None) -> list:
         """
         Scrape the 'mods' pages and get the ids for each mod displayed
         :param category: the category to get mods for i.e. MapFilters constants
@@ -72,9 +72,7 @@ class ModHubService:
             # mod page from the 'MORE INFO' tag.
             for container in mod_item_containers:
                 mod_item = container.find("div", class_="mod-item")
-
                 if mod_item:
-
                     mod_ids.append(self.get_mod_id(mod_item))
 
         return mod_ids
