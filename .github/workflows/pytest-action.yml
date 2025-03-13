@@ -57,6 +57,10 @@ jobs:
           restore-keys: |
             venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
+      - name: Create test database directory
+        run: |
+          mkdir -p /instance
+
       - name: "Run Pytest with coverage"
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
@@ -79,6 +83,10 @@ jobs:
           key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
+
+      - name: Create test database directory
+        run: |
+          mkdir -p /instance
 
       - name: "Run Pytest"
         run: |
