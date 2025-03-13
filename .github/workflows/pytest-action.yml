@@ -84,9 +84,9 @@ jobs:
           restore-keys: |
             venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
-      - name: Create test database directory
+      - name: "Create test database directory"
         run: |
-          mkdir -p /instance
+          mkdir -p $GITHUB_WORKSPACE/instance/testdb.sqlite
 
       - name: "Run Pytest"
         run: |
