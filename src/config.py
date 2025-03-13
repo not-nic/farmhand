@@ -29,7 +29,7 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "development":
             return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         if self.ENVIRONMENT == "testing":
-            return "sqlite:///./testdb.sqlite"
+            return "sqlite:///./instance/testdb.sqlite"
 
     LOG_FORMATTER: str = (
         "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - [%(levelname)s] - %(message)s"
