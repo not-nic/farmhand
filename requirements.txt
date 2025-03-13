@@ -5,6 +5,7 @@ alembic==1.15.1
 SQLAlchemy==2.0.38
 psycopg2-binary==2.9.10
 pytest==8.3.5
+pytest-mock==3.14.0
 pytest-cov==6.0.0
 uvicorn==0.34.0
 passlib==1.7.4
@@ -15,3 +16,4 @@ ruff==0.9.9
 StrEnum==0.4.15
 requests==2.32.3
 beautifulsoup4==4.13.3
+httpx==0.28.1
