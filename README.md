@@ -93,7 +93,7 @@ pytest pytest tests/api/services/test_modhub_service.py::TestModHubService::test
 ```
 > Note: you can also use -s for standard output (prints, log messages, etc.) or -vv to produce a very verbose output.
 
-### Running with test coverage
+### Test Coverage
 
 To check the test coverage of the repository use the following command:
 ```bash
