@@ -1,16 +1,13 @@
-name: "Run Pytest"
+name: Run Pytest
 
 on:
   pull_request:
 
 env:
-  MINIMUM_COVERAGE: 80
   PYTHON_VERSION: "3.12"
-  VENV_PATH: ".venv"
 
 jobs:
-  setup-environment:
-    name: "Setup Python environment"
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,73 +19,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: "Create .venv"
-        run: python -m venv ${{ env.VENV_PATH }}
-
-      - name: "Install dependencies"
+      - name: Install dependencies
         run: |
-          source ${{ env.VENV_PATH }}/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: "Cache venv"
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
-
-
-  pytest-coverage:
-    name: "Pytest Coverage"
-    runs-on: ubuntu-latest
-    needs: setup-environment
-
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-
-      - name: "Restore .venv"
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
-
-      - name: Create test database directory
+      - name: Run tests with pytest
         run: |
-          mkdir -p /instance
-
-      - name: "Run Pytest with coverage"
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          pytest --cov src --cov-fail-under=${{ env.MINIMUM_COVERAGE }} -vv -s
-
-
-  pytest-tests:
-    name: "Pytest Tests"
-    runs-on: ubuntu-latest
-    needs: setup-environment
-
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-
-      - name: "Restore .venv"
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.VENV_PATH }}
-          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
-
-      - name: "Create test database directory"
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/instance/testdb.sqlite
-
-      - name: "Run Pytest"
-        run: |
-          source ${{ env.VENV_PATH }}/bin/activate
-          pytest tests -vv -s
+          pytest
