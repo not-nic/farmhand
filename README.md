@@ -99,3 +99,4 @@ To check the test coverage of the repository use the following command:
 ```bash
 pytest --cov src 
 ```
+
