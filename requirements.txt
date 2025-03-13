@@ -1,6 +1,7 @@
 fastapi==0.115.11
 sqlalchemy==2.0.38
 pydantic==2.10.6
+alembic==1.15.1
 SQLAlchemy==2.0.38
 psycopg2-binary==2.9.10
 pytest==8.3.5
