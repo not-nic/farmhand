@@ -11,7 +11,12 @@ load_dotenv()
 
 from src.api.core.db import Base
 from src.config import settings
+
+# As using repository pattern Base.metadata requires models to be imported
+
 from src.api.core.db_models import User, Map, Farm
+
+#
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

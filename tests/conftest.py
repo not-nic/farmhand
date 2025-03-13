@@ -3,6 +3,9 @@ from typing import Optional
 import pytest
 
 from collections.abc import Generator
+
+from alembic import command
+from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -30,6 +33,11 @@ def client() -> Generator[TestClient, None, None]:
     :return:
     """
     settings.ENVIRONMENT = "testing"
+
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+    Base.metadata.create_all(bind=engine)
 
     with TestClient(app) as c:
         yield c
