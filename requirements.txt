@@ -15,3 +15,4 @@ ruff==0.9.9
 StrEnum==0.4.15
 requests==2.32.3
 beautifulsoup4==4.13.3
+httpx==0.28.1
