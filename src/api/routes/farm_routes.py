@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import HTTPException, APIRouter, Depends, status
 
 from src.api.core.models import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
@@ -74,7 +76,7 @@ async def get_farm_by_id(farm: Farm = Depends(get_users_farm)) -> FarmResponse:
 @router.put(
     "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
-async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_farm)) -> FarmResponse:
+async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_farm)) -> None:
     """
     Update a farm for the current logged-in user.
     :param farm_update: Farm update model
@@ -83,8 +85,6 @@ async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_users_fa
     """
     update_data = farm_update.model_dump(exclude_unset=True)
     farm.update(farm.id, **update_data)
-
-    return FarmResponse(**farm.to_dict())
 
 
 @router.delete(
