@@ -12,7 +12,7 @@ router = APIRouter(tags=["auth"])
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(login_request: LoginRequest, response: Response):
+async def login(login_request: LoginRequest, response: Response) -> dict:
     """
     Endpoint for logging into the service with a username and password
     :param login_request: login request pydantic model
@@ -40,7 +40,7 @@ async def login(login_request: LoginRequest, response: Response):
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(current_user: dict = Depends(get_current_user)):
+async def logout(current_user: dict = Depends(get_current_user)) -> Response:
     """
     Endpoint to log out and delete the session cookie.
     :param current_user: the current logged-in user.

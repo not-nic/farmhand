@@ -13,7 +13,7 @@ log_handler.setFormatter(logging.Formatter(settings.LOG_FORMATTER, datefmt="%Y-%
 logger.addHandler(log_handler)
 
 
-def generate_session_token():
+def generate_session_token() -> str:
     """
     Util function to generate a session token.
     :return: a randomised 128 character string.
