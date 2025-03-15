@@ -16,3 +16,8 @@ class MapFilters(StrEnum):
 class GameVersions(StrEnum):
     FS_2025 = "fs2025"
     FS_2022 = "fs2022"
+
+
+class FarmTypes(StrEnum):
+    BASE = "base"
+    PRECISION_FARMING = "precision_farming"

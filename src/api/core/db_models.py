@@ -1,9 +1,10 @@
 import uuid
 import datetime
 
-from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey, Integer
+from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey, Integer, Enum
 from sqlalchemy.orm import relationship
 
+from src.api.constants import FarmTypes
 from src.api.core.repositories import UserRepository, Repository
 
 
@@ -44,6 +45,8 @@ class Farm(Repository):
     owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
     map_id = Column(Integer(), ForeignKey("maps.id"), nullable=True)
 
+    farm_type = Column(Enum(FarmTypes, native_enum=False), nullable=False, default=FarmTypes.BASE)
+
     user = relationship("User", back_populates="farms")
 
     map = relationship("Map", back_populates="farms")
@@ -67,3 +70,14 @@ class Map(Repository):
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
 
     farms = relationship("Farm", back_populates="map")
+
+
+# class Field(Repository):
+#     """
+#     DB model for Fields
+#     """
+#
+#     __tablename__ = "fields"
+#
+#     id = Column(UUID(), primary_key=True, default=uuid.uuid4())
+#

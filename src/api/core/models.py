@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator, model_validator, Field
 
+from src.api.constants import FarmTypes
 from src.api.core.validators import Validators
 
 
@@ -34,6 +35,7 @@ class FarmRequest(BaseModel):
 
     name: str
     description: str
+    farm_type: FarmTypes = Field(default=FarmTypes.BASE)
     map_name: Optional[str] = None
     map_id: Optional[int] = None
 
@@ -59,6 +61,7 @@ class FarmResponse(BaseModel):
 
     id: uuid.UUID
     name: str
+    farm_type: FarmTypes
     map_name: str
     map_id: Optional[int]
     description: str
