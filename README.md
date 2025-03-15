@@ -1,6 +1,6 @@
 # Farmhand API
 
-![farmhand_logo_dark](https://github.com/user-attachments/assets/295abba9-c953-4cee-abd9-b2b68076555d)
+![farmhand-logo-dark](https://github.com/user-attachments/assets/f93546cb-1fbe-4044-84ae-bbe849b580e4)
 
 This is the backend API for the Farmhand application written in Python & FastAPI. Farmhand is a companion service that can be used alongside Farming Simulator 2025 (and 2022!) to track, manage and plan your farm, vehicles, crops and more. 🌾
 
