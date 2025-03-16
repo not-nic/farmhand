@@ -1,6 +1,7 @@
 from src.api.constants import MapFilters
 from src.api.core.db_models import Map
 from src.api.services.modhub_service import ModHubService
+from src.api.utils import logger
 
 
 class MapService:
@@ -23,6 +24,7 @@ class MapService:
         # iterate over all the collected mod ids and scrape the mod page data.
         for mod_id in map_ids:
             mod_detail = self.mod_hub_service.scrape_mod(mod_id)
+            logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id}) in database")
 
             Map.create(
                 id=mod_detail.id,

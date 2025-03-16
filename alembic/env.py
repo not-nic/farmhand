@@ -14,7 +14,7 @@ from src.config import settings
 
 # As using repository pattern Base.metadata requires models to be imported
 
-from src.api.core.db_models import User, Map, Farm
+import src.api.core.db_models
 
 #
 

@@ -1,4 +1,5 @@
-from src.api.core.db_models import User
+from src.api.constants import FarmTypes, WeedStates, SoilTypes, FertilizerStates, FieldTypes
+from src.api.core.db_models import User, Farm, BaseField, PrecisionFarmingField
 from src.api.core.security import Security
 from src.api.utils import logger
 from src.config import settings
@@ -32,3 +33,7 @@ class Fixtures:
             service_user.update(id=service_user.id, **user_data)
 
         return service_user
+
+    @staticmethod
+    def create_crop_data() -> None:
+        pass

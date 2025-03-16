@@ -29,12 +29,13 @@ async def create_farm(farm_request: FarmRequest, current_user: User = Depends(ge
 
         farm_request.map_name = map.name
 
-    farm = Farm.create(
+    farm: Farm = Farm.create(
         name=farm_request.name,
         description=farm_request.description,
         map_name=farm_request.map_name,
         owner_id=current_user.id,
-        map_id=farm_request.map_id
+        map_id=farm_request.map_id,
+        farm_type=farm_request.farm_type
     )
 
     return FarmResponse(**farm.to_dict())
