@@ -1,10 +1,8 @@
 from typing import Optional, TypeVar, TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from src.api.constants import FarmTypes
 from src.api.core.db import Base, db_session
 
 
