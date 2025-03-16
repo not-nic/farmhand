@@ -2,7 +2,7 @@ import uuid
 import datetime
 
 from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey, Integer, Enum, Double
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FarmTypes, SoilTypes, FertilizerStates, WeedStates, FieldTypes
 from src.api.core.repositories import UserRepository, Repository, FieldRepository
@@ -86,7 +86,7 @@ class Field(FieldRepository):
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
     ground_type = Column(String(50), nullable=True)  # Ground Type Enum
 
-    farm_id = Column(UUID(), ForeignKey("farms.id"), nullable=False)
+    farm_id: Mapped[UUID] = mapped_column(UUID(), ForeignKey("farms.id"), nullable=False)
     farm = relationship("Farm", back_populates="fields")
 
     field_type = Column(Enum(FieldTypes, native_enum=False), nullable=False, default=FieldTypes.BASE_FIELD)
