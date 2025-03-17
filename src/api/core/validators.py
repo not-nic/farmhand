@@ -60,3 +60,9 @@ class Validators:
         if not map_id and not map_name:
             raise ValueError("Either `map_id` or `map_name` must be provided.")
         return values
+
+    @staticmethod
+    def validate_months(value):
+        if isinstance(value, list):
+            return ", ".join(value)
+        return value

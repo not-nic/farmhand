@@ -1,10 +1,10 @@
 import datetime
 import uuid
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, field_validator, model_validator, Field
 
-from src.api.constants import FarmTypes
+from src.api.constants import FarmTypes, Months
 from src.api.core.validators import Validators
 
 
@@ -77,7 +77,7 @@ class FarmsResponse(BaseModel):
     count: int
 
 
-class Mod(BaseModel):
+class ModModel(BaseModel):
     """
     Pydantic model for a Farming Simulator Mod Hub mod.
     """
@@ -104,3 +104,25 @@ class Mod(BaseModel):
     @field_validator("platform")
     def validate_platform(cls, value):
         return Validators.validate_platform(value)
+
+
+class CropModel(BaseModel):
+    """
+    Pydantic model for Farming Simulator Crops.
+    """
+
+    type: str
+    yield_per_ha: int
+    seeds_per_ha: int
+    price: float
+
+    growth_stages: int
+    growth_duration: int
+    root_crop: bool
+
+    planted_in: str
+    harvested_in: str
+
+    @field_validator("planted_in", "harvested_in", mode="before")
+    def validate_months(cls, value):
+        return Validators.validate_months(value)
