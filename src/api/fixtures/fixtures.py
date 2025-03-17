@@ -1,5 +1,6 @@
 from src.api.core.db_models import User
 from src.api.core.security import Security
+from src.api.services.crop_service import CropService
 from src.api.utils import logger
 from src.config import settings
 
@@ -34,5 +35,9 @@ class Fixtures:
         return service_user
 
     @staticmethod
-    def create_crop_data() -> None:
-        pass
+    async def create_crop_data() -> None:
+        """
+        Python Fixture for creating crop data on application startup if it does not exist.
+        """
+        crop_service = CropService()
+        await crop_service.load_crops()

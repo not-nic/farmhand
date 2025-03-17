@@ -13,6 +13,7 @@ from src.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Fixtures.create_service_user()
+    await Fixtures.create_crop_data()
     yield  # Continue running the app
 
 
