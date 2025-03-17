@@ -27,7 +27,7 @@ class CropService:
                 logger.info(f"[Crop Service]: Creating new crop '{crop_data.type}'")
                 Crop.create(**crop_dict)
 
-        logger.info(f"[Crop Service]: All Crops created, updated values successfully if any changed.")
+        logger.info("[Crop Service]: All Crops created, updated values successfully if any changed.")
 
     @staticmethod
     def _load_crop_data_from_fixture() -> dict:

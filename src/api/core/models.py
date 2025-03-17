@@ -1,10 +1,10 @@
 import datetime
 import uuid
-from typing import Optional, List
+from typing import Optional
 
 from pydantic import BaseModel, field_validator, model_validator, Field
 
-from src.api.constants import FarmTypes, Months
+from src.api.constants import FarmTypes
 from src.api.core.validators import Validators
 
 
