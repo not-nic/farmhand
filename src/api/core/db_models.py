@@ -5,7 +5,7 @@ from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FarmTypes, SoilTypes, FertilizerStates, WeedStates, FieldTypes
-from src.api.core.repositories import UserRepository, Repository, FieldRepository
+from src.api.core.repositories import UserRepository, Repository, FieldRepository, CropRepository
 
 
 class User(UserRepository):
@@ -161,7 +161,7 @@ class PrecisionFarmingField(Field):
         )
 
 
-class Crop(Repository):
+class Crop(CropRepository):
     """
     Crops available for fields.
     """
@@ -169,7 +169,16 @@ class Crop(Repository):
     __tablename__ = "crops"
 
     id = Column(Integer(), primary_key=True, autoincrement=True)
-    name = Column(String(255), unique=True, nullable=False)
+    type = Column(String(50), unique=True, nullable=False)
+    yield_per_ha = Column(Integer(), nullable=False)
+    seeds_per_ha = Column(Integer(), nullable=False)
+    price = Column(Double(), nullable=False)
+    growth_stages = Column(Integer(), nullable=False)
+    growth_duration = Column(Integer(), nullable=False)
+    root_crop = Column(Boolean(), nullable=False)
+
+    planted_in = Column(String(255), nullable=False)
+    harvested_in = Column(String(255), nullable=False)
 
     def __repr__(self):
         return f"<Crop: {self.name}>"

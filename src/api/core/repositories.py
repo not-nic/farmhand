@@ -7,7 +7,7 @@ from src.api.core.db import Base, db_session
 
 
 if TYPE_CHECKING:
-    from src.api.core.db_models import User, Field
+    from src.api.core.db_models import User, Field, Crop
 
 T = TypeVar("T", bound="Repository")
 
@@ -75,7 +75,7 @@ class Repository(Base):
         return obj
 
     @classmethod
-    def update(cls, id: UUID, **kwargs) -> Optional[T]:
+    def update(cls, id: Optional[UUID | int], **kwargs) -> Optional[T]:
         """
         Update an existing record in the database.
         :param id: the id of the record to update.
@@ -123,6 +123,23 @@ class UserRepository(Repository):
         :return: the user that matches the email, or none.
         """
         return cls.get_session().query(cls).filter(cls.email_address == email).first()
+
+
+class CropRepository(Repository):
+    """
+    User Repository for interaction with the DB
+    """
+
+    __abstract__ = True
+
+    @classmethod
+    def get_by_type(cls: "Crop", type: str) -> Optional["Crop"]:
+        """
+        get a user by their username
+        :param type: the type of crop.
+        :return: the user that matches the username, or none.
+        """
+        return cls.get_session().query(cls).filter(cls.type == type).first()
 
 
 class FieldRepository(Repository):
