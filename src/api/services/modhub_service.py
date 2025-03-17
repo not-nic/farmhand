@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup, Tag
 from requests import HTTPError
 
 from src.api.constants import URLs
-from src.api.core.models import Mod
+from src.api.core.models import ModModel
 from src.api.utils import logger
 
 
@@ -15,7 +15,7 @@ class ModHubService:
     Module to scrape the Farming Simulator ModHub and get information about Mods.
     """
 
-    def scrape_mod(self, mod_id: int) -> Mod:
+    def scrape_mod(self, mod_id: int) -> ModModel:
         """
         Scrape a mod page and return a pydantic model of the mod details
         :param mod_id: the id of the mod to scrape
@@ -42,7 +42,7 @@ class ModHubService:
 
             logger.info(f"Found mod information for {mod_name} ({mod_id})")
 
-            mod_detail = Mod(**mod_details)
+            mod_detail = ModModel(**mod_details)
             return mod_detail
         else:
             logger.warning(
