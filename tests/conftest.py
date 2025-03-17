@@ -11,7 +11,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from requests import Response
 
-from tests.utils import load_test_resource
+from tests.utils import load_test_resource, crop_data
 
 load_dotenv("tests/fixtures/test.env", override=True)
 
@@ -27,17 +27,23 @@ UNIT_TESTING_PASSWORD = "unit-testing-password"
 
 
 @pytest.fixture(scope="module")
-def client() -> Generator[TestClient, None, None]:
+def create_database():
+    """
+    Fixture to create database and tables
+    """
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+    Base.metadata.create_all(bind=engine)
+
+
+@pytest.fixture(scope="module")
+def client(create_database) -> Generator[TestClient, None, None]:
     """
     Fixture for the FastAPI test client
     :return:
     """
     settings.ENVIRONMENT = "testing"
-
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
-
-    Base.metadata.create_all(bind=engine)
 
     with TestClient(app) as c:
         yield c
@@ -96,3 +102,12 @@ def mock_mod_hub_page(mocker) -> callable:
         mocker.patch("requests.get", return_value=mock_response)
 
     return _mock_page
+
+
+@pytest.fixture
+def mock_crop_data(mocker) -> None:
+    """
+    Fixture for mocking the crop data JSON.
+    :param mocker: pytest mocker
+    """
+    mocker.patch("src.api.services.crop_service.CropService._load_crop_data_from_fixture").return_value = crop_data()

@@ -1,0 +1,302 @@
+[
+  {
+    "type": "Wheat",
+    "yield_per_ha": 8900,
+    "seeds_per_ha": 500,
+    "price": 0.377,
+    "growth_stages": 7,
+    "growth_duration": 10,
+    "root_crop": false,
+
+    "planted_in": ["September", "October"],
+    "harvested_in": ["July", "August", "September"]
+  },
+  {
+    "type": "Barley",
+    "yield_per_ha": 9600,
+    "seeds_per_ha": 500,
+    "price": 0.313,
+    "growth_stages": 6,
+    "growth_duration": 9,
+    "root_crop": false,
+
+    "planted_in": ["September", "October"],
+    "harvested_in": ["June", "July"]
+  },
+  {
+    "type": "Oats",
+    "yield_per_ha": 5700,
+    "seeds_per_ha": 500,
+    "price": 0.532,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": false,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["July", "August"]
+  },
+  {
+    "type": "Canola",
+    "yield_per_ha": 5800,
+    "seeds_per_ha": 200,
+    "price": 0.645,
+    "growth_stages": 8,
+    "growth_duration": 11,
+    "root_crop": false,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["July", "August"]
+  },
+  {
+    "type": "Sorghum",
+    "yield_per_ha": 8200,
+    "seeds_per_ha": 200,
+    "price": 0.482,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": false,
+
+    "planted_in": ["April", "May"],
+    "harvested_in": ["August", "September"]
+  },
+  {
+    "type": "Soybeans",
+    "yield_per_ha": 4500,
+    "seeds_per_ha": 300,
+    "price": 0.770,
+    "growth_stages": 6,
+    "growth_duration": 6,
+    "root_crop": false,
+
+    "planted_in": ["April", "May"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Sunflowers",
+    "yield_per_ha": 5200,
+    "seeds_per_ha": 300,
+    "price": 0.808,
+    "growth_stages": 6,
+    "growth_duration": 7,
+    "root_crop": false,
+
+    "planted_in": ["April", "May"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Maize",
+    "yield_per_ha": 9200,
+    "seeds_per_ha": 400,
+    "price": 0.808,
+    "growth_stages": 6,
+    "growth_duration": 6,
+    "root_crop": true,
+
+    "planted_in": ["April", "May"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Long Grain Rice",
+    "yield_per_ha": 18000,
+    "seeds_per_ha": 500,
+    "price": 0.498,
+    "growth_stages": 6,
+    "growth_duration": 5,
+    "root_crop": false,
+
+    "planted_in": ["April"],
+    "harvested_in": ["September"]
+  },
+  {
+    "type": "Rice",
+    "yield_per_ha": 13200,
+    "seeds_per_ha": 156,
+    "price": 0.498,
+    "growth_stages": 6,
+    "growth_duration": 4,
+    "root_crop": false,
+
+    "planted_in": ["April", "May"],
+    "harvested_in": ["August", "September"]
+  },
+  {
+    "type": "Spinach",
+    "yield_per_ha": 46200,
+    "seeds_per_ha": 10,
+    "price": 0.207,
+    "growth_stages": 3,
+    "growth_duration": 3,
+    "root_crop": false,
+
+    "planted_in": ["March", "April", "May"],
+    "harvested_in": ["All"]
+  },
+  {
+    "type": "Peas",
+    "yield_per_ha": 9600,
+    "seeds_per_ha": 250,
+    "price": 1.019,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": false,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["July", "August", "September"]
+  },
+  {
+    "type": "Green Beans",
+    "yield_per_ha": 13950,
+    "seeds_per_ha": 280,
+    "price": 0.667,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": false,
+
+    "planted_in": ["April", "May", "June"],
+    "harvested_in": ["August", "September", "October", "November"]
+  },
+  {
+    "type": "Grapes",
+    "yield_per_ha": 9200,
+    "seeds_per_ha": 0,
+    "price": 0.663,
+    "growth_stages": 4,
+    "growth_duration": 6,
+    "root_crop": false,
+
+    "planted_in": ["March", "April", "May"],
+    "harvested_in": ["September", "October"]
+  },
+  {
+    "type": "Olives",
+    "yield_per_ha": 9200,
+    "seeds_per_ha": 0,
+    "price": 0.430,
+    "growth_stages": 4,
+    "growth_duration": 7,
+    "root_crop": false,
+
+    "planted_in": ["March", "April", "May", "June"],
+    "harvested_in": ["October"]
+  },
+  {
+    "type": "Potatoes",
+    "yield_per_ha": 41300,
+    "seeds_per_ha": 3800,
+    "price": 0.222,
+    "growth_stages": 4,
+    "growth_duration": 5,
+    "root_crop": true,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["August", "September"]
+  },
+  {
+    "type": "Sugar Beets",
+    "yield_per_ha": 57800,
+    "seeds_per_ha": 400,
+    "price": 0.172,
+    "growth_stages": 4,
+    "growth_duration": 7,
+    "root_crop": true,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Cotton",
+    "yield_per_ha": 4970,
+    "seeds_per_ha": 500,
+    "price": 1.390,
+    "growth_stages": 4,
+    "growth_duration": 8,
+    "root_crop": true,
+
+    "planted_in": ["February", "March"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Sugarcane",
+    "yield_per_ha": 113400,
+    "seeds_per_ha": 12000,
+    "price": 0.112,
+    "growth_stages": 4,
+    "growth_duration": 7,
+    "root_crop": true,
+
+    "planted_in": ["March", "April"],
+    "harvested_in": ["October", "November"]
+  },
+  {
+    "type": "Poplar",
+    "yield_per_ha": 0,
+    "seeds_per_ha": 1500,
+    "price": 0,
+    "growth_stages": 13,
+    "growth_duration": 13,
+    "root_crop": true,
+
+    "planted_in": ["March", "April", "May", "June", "July", "August"],
+    "harvested_in": ["All"]
+  },
+  {
+    "type": "Carrots",
+    "yield_per_ha": 77000,
+    "seeds_per_ha": 10,
+    "price": 0.139,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": true,
+
+    "planted_in": ["April", "May", "June", "July"],
+    "harvested_in": ["August", "September", "October", "November"]
+  },
+  {
+    "type": "Parsnips",
+    "yield_per_ha": 69500,
+    "seeds_per_ha": 10,
+    "price": 0.138,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": true,
+
+    "planted_in": ["April", "May", "June"],
+    "harvested_in": ["August", "September", "October"]
+  },
+  {
+    "type": "Beetroot",
+    "yield_per_ha": 57800,
+    "seeds_per_ha": 40,
+    "price": 0.128,
+    "growth_stages": 4,
+    "growth_duration": 4,
+    "root_crop": true,
+
+    "planted_in": ["April", "May", "June"],
+    "harvested_in": ["August", "September", "October"]
+  },
+  {
+    "type": "Grass",
+    "yield_per_ha": 43700,
+    "seeds_per_ha": 300,
+    "price": 0.047,
+    "growth_stages": 3,
+    "growth_duration": 3,
+    "root_crop": false,
+
+    "planted_in": ["March", "April", "May", "June", "July", "August", "September", "October", "November"],
+    "harvested_in": ["All"]
+  },
+  {
+    "type": "Oilseed Radish",
+    "yield_per_ha": 0,
+    "seeds_per_ha": 300,
+    "price": 0,
+    "growth_stages": 3,
+    "growth_duration": 3,
+    "root_crop": false,
+
+    "planted_in": ["March", "April", "May", "June", "July", "August", "September", "October"],
+    "harvested_in": ["All"]
+  }
+]

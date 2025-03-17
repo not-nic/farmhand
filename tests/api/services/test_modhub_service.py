@@ -4,7 +4,7 @@ import pytest
 from requests import HTTPError
 from fastapi import status
 
-from src.api.core.models import Mod
+from src.api.core.models import ModModel
 from src.api.services.modhub_service import ModHubService
 
 
@@ -21,7 +21,7 @@ class TestModHubService:
         mod_hub_service = ModHubService()
         result = mod_hub_service.scrape_mod(mod_id=12345)
 
-        assert isinstance(result, Mod)
+        assert isinstance(result, ModModel)
         assert result.game == "Farming Simulator 25"
         assert result.manufacturer == "Lizard"
         assert result.category == "Yield Improvements - Fertilizer Spreaders"
