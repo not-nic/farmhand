@@ -62,7 +62,37 @@ class Validators:
         return values
 
     @staticmethod
-    def validate_months(value):
+    def validate_months(value) -> str:
+        """
+        Validator to split months from a list into a string of months separated by a ','
+        :param value: the crops months list
+        :return: (str) of crop months
+        """
         if isinstance(value, list):
             return ", ".join(value)
         return value
+
+    @staticmethod
+    def validate_field_request_model(values):
+        """
+        Validator to ensure that a Base game field request doesn't contain precision farming field values
+        and vice versa.
+        :param values: the request object to check values for.
+        :return: the field_request model of a raise a Value Error.
+        """
+        nitrogen_level = values.get("nitrogen_level")
+        ph_level = values.get("ph_level")
+        soil_type = values.get("soil_type")
+        fertilized = values.get("fertilized")
+        limed = values.get("limed")
+
+        precision_farming_fields = [nitrogen_level, ph_level, soil_type]
+        base_field_fields = [fertilized, limed]
+
+        if any(precision_farming_fields) and any(base_field_fields):
+            raise ValueError(
+                "Precision Farming field values (nitrogen_level, ph_level, soil_type) "
+                "cannot be used with Base Game Field specific fields (fertilized, limed)."
+            )
+
+        return values
