@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from src.api.core.db import Base, db_session
 
-
 if TYPE_CHECKING:
     from src.api.core.db_models import User, Field, Crop
 
@@ -148,6 +147,18 @@ class FieldRepository(Repository):
     """
 
     __abstract__ = True
+
+    @classmethod
+    def get_field_details(cls: "Field", id: UUID) -> dict:
+        """
+        Get all the details of a field + plus its field type data.
+        :return: (dict) of all field details
+        """
+        field_inst = cls.get(id)
+        field_details = {column.name: getattr(field_inst, column.name) for column in cls.__table__.columns}
+        field_details.update(field_inst.to_dict())
+
+        return field_details
 
     @classmethod
     def current_crop(cls: "Field"):
