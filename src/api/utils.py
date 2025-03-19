@@ -25,3 +25,18 @@ def generate_session_token() -> str:
     :return: a randomised 128 character string.
     """
     return "".join(random.choices(string.ascii_letters + string.digits, k=128))
+
+
+def is_base_game_field(field_request: FieldRequest, current_farm: Farm) -> bool:
+    """
+    Check if the request is for creating a base game field on a base game farm.
+    """
+    return field_request.field_type == FieldTypes.BASE_FIELD and current_farm.farm_type == FarmTypes.BASE
+
+
+def is_precision_farming_field(field_request: FieldRequest, current_farm: Farm) -> bool:
+    """
+    check if the request is creating a precision farming field
+    """
+    return (field_request.field_type == FieldTypes.PRECISION_FARMING_FIELD and
+            current_farm.farm_type == FarmTypes.PRECISION_FARMING)
