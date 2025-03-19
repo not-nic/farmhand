@@ -12,7 +12,7 @@ from tests.conftest import UNIT_TESTING_USER
 
 
 class TestFarmRoutes:
-    url = f"{settings.API_V1_STR}/farm"
+    url = f"{settings.API_V1_STR}/farms"
 
     @staticmethod
     def post(url: str, json: dict, client: TestClient):

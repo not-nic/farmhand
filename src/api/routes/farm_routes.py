@@ -5,7 +5,7 @@ from src.api.core.models import FarmRequest, FarmResponse, FarmsResponse, FarmUp
 from src.api.core.db_models import User, Farm, Map
 from src.api.deps import get_current_user, get_users_farm
 
-router = APIRouter(prefix="/farm", tags=["farms"])
+router = APIRouter(prefix="/farms", tags=["farms"])
 
 
 @router.post(
