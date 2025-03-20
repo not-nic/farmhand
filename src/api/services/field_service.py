@@ -1,4 +1,4 @@
-from typing import Union, Type
+from typing import Union, Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
@@ -18,10 +18,11 @@ class FieldService:
         current_farm: Farm
     ) -> Union[BaseGameFieldModel, PrecisionFarmingFieldModel]:
         """
-
-        :param field_request:
-        :param current_farm:
-        :return:
+        Create a field based on the current farm type.
+        Precision Farm's cannot create a 'Base' field and vice versa.
+        :param current_farm: the id of the farm in the request
+        :param field_request: the field request object.
+        :return: Pydantic Model for Base Game Field, Precision Farming Field
         """
 
         if self._is_base_game_field(field_request, current_farm):
@@ -37,10 +38,10 @@ class FieldService:
                 field_request, current_farm.id, PrecisionFarmingField, PrecisionFarmingFieldModel
             )
         else:
-            raise ValueError(f"Attempted to create a {field_request.field_type} on a {current_farm.farm_type} farm.")
+            raise ValueError(f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm.")
 
     @staticmethod
-    def get_field_details(field_id: UUID) -> Union[BaseGameFieldModel, PrecisionFarmingFieldModel]:
+    def get_field_details(field_id: UUID) -> Optional[Union[BaseGameFieldModel, PrecisionFarmingFieldModel]]:
         """
         get the Pydantic model of field details for a requested field.
         :param field_id: the ID of the field.
@@ -57,11 +58,8 @@ class FieldService:
         if field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
             return PrecisionFarmingFieldModel(**field_details)
 
-        elif field.field_type == FieldTypes.BASE_FIELD:
+        if field.field_type == FieldTypes.BASE_FIELD:
             return BaseGameFieldModel(**field_details)
-
-        else:
-            raise ValueError("Field Type not implemented")
 
     @staticmethod
     def _is_base_game_field(field_request: FieldRequest, current_farm: Farm) -> bool:
@@ -83,7 +81,7 @@ class FieldService:
     def _create_field_and_get_details(
         field_request: FieldRequest,
         farm_id: UUID,
-        field_object: Type[BaseField | PrecisionFarmingField],
+        field_object: [BaseField | PrecisionFarmingField],
         field_model: [BaseGameFieldModel | PrecisionFarmingFieldModel]
     ) -> [BaseGameFieldModel | PrecisionFarmingFieldModel]:
         """
