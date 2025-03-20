@@ -105,11 +105,22 @@ class FieldRequest(BaseModel):
         return Validators.validate_field_request_model(values)
 
 
-class FieldResponse(BaseModel):
-    """
-    Response Model for returning a Base Game / Precision Farming Field.
-    """
+class PrecisionFarmingFieldModel(BaseModel):
+    id: uuid.UUID
+    number: int
+    ground_type: str
+    size: float
+    plowed: bool
+    rolled: bool
+    mulched: bool
+    nitrogen_level: Optional[int] = None
+    ph_level: Optional[float] = None
+    soil_type: Optional[SoilTypes] = None
+    weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
+    created_at: datetime.datetime
 
+
+class BaseGameFieldModel(BaseModel):
     id: uuid.UUID
     number: int
     ground_type: str
@@ -119,11 +130,6 @@ class FieldResponse(BaseModel):
     mulched: bool
     limed: Optional[bool] = None
     fertilized: Optional[FertilizerStates] = None
-
-    nitrogen_level: Optional[int] = None
-    ph_level: Optional[float] = None
-    soil_type: Optional[SoilTypes] = None
-
     weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
     created_at: datetime.datetime
 
@@ -133,7 +139,7 @@ class FieldsResponse(BaseModel):
     Response model for returning a list of farms.
     """
 
-    fields: list[FieldResponse]
+    fields: list[PrecisionFarmingFieldModel | BaseGameFieldModel]
     count: int
 
 
