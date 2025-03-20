@@ -157,7 +157,6 @@ class FieldRepository(Repository):
         field_inst = cls.get(id)
         field_details = {column.name: getattr(field_inst, column.name) for column in cls.__table__.columns}
         field_details.update(field_inst.to_dict())
-
         return field_details
 
     @classmethod
