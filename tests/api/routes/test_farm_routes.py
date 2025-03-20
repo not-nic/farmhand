@@ -2,7 +2,6 @@ from uuid import UUID, uuid4
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from tests.fixtures import farms, farm_map, user_id
 from src.api.core.db_models import Farm
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER

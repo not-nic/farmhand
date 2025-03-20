@@ -1,12 +1,10 @@
-import pprint
 from typing import Optional, List, Union
 from uuid import UUID
 from fastapi import status
 
 from src.api.constants import FertilizerStates, WeedStates, SoilTypes
 from src.api.core.db_models import Field, BaseField, PrecisionFarmingField
-from tests.conftest import TestClient, session
-from tests.fixtures import farms, fields, user_id
+from tests.conftest import TestClient
 from src.config import settings
 
 

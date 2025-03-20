@@ -25,6 +25,8 @@ from src.api.core.security import Security
 UNIT_TESTING_USER = "unit-testing-user"
 UNIT_TESTING_PASSWORD = "unit-testing-password"
 
+pytest_plugins = "tests.fixtures"
+
 
 @pytest.fixture(scope="module")
 def create_database():
