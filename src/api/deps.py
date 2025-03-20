@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Request, HTTPException, status, Depends
+from fastapi import Request, HTTPException, status, Depends, Path
 from fastapi.security import OAuth2PasswordBearer
 
 from src.api.core.db_models import User, Farm
@@ -61,7 +61,10 @@ def is_service_user(current_user: CurrentUser) -> bool:
     return True
 
 
-def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
+def get_users_farm(
+    id: Annotated[UUID, Path(title="The ID of the farm to get")],
+    current_user: CurrentUser
+) -> Farm:
     """
     Get the farm for the current logged-in user
     :param id: the id of the farm to get

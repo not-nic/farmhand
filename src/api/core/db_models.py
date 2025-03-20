@@ -182,7 +182,7 @@ class Crop(CropRepository):
     harvested_in = Column(String(255), nullable=False)
 
     def __repr__(self):
-        return f"<Crop: {self.name}>"
+        return f"<Crop: {self.type}>"
 
 
 class FieldCrop(Repository):
