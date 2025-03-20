@@ -13,7 +13,7 @@ from requests import Response
 
 from tests.utils import load_test_resource, crop_data
 
-load_dotenv("tests/fixtures/test.env", override=True)
+load_dotenv("tests/resources/test.env", override=True)
 
 # ruff: noqa: E402
 from main import app
