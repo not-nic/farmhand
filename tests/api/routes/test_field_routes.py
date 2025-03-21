@@ -199,7 +199,7 @@ class TestFieldRoutes:
         :param farms: fixture to create farms on test run
         :param fields: fixture to create fields on test run
         """
-        base_fields: List[BaseGameField]
+        base_fields: List[BaseGameFieldModel]
         base_fields, _ = fields
 
         base_fields_results = self.get(self.field_url(farm_id=farms[0].id), client)
