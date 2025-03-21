@@ -1,14 +1,15 @@
 import pytest
 
 from typing import Optional, List, Union
-from uuid import UUID
+from uuid import UUID, uuid4
 from fastapi import status
 
-from src.api.constants import FertilizerStates, WeedStates, SoilTypes
-from src.api.core.db_models import Field
+from src.api.constants import FertilizerStates, WeedStates, SoilTypes, FieldTypes
+from src.api.core.db_models import Field, Farm
 from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel
 from tests.conftest import TestClient
 from src.config import settings
+from tests.fixtures import user_id
 
 
 @pytest.mark.usefixtures("client", "session")
@@ -209,6 +210,40 @@ class TestFieldRoutes:
         result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
+    def test_delete_base_game_field(self, client, session, farms, fields):
+        """
+        Test deleting a base game field record
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param farms: create farms fixture
+        :param fields: create fields fixture
+        """
+        expected_farm = farms[0]
+
+        base_fields: List[BaseGameFieldModel]
+        base_fields, _ = fields
+        expected_field = base_fields[0]
+
+        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_delete_precision_farming_field(self, client, session, farms, fields):
+        """
+        Test deleting a precision farming field record
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param farms: create farms fixture
+        :param fields: create fields fixture
+        """
+        expected_farm = farms[1]
+
+        precision_farming_fields: List[PrecisionFarmingFieldModel]
+        _, precision_farming_fields = fields
+        expected_field = precision_farming_fields[0]
+
+        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
+
     def test_get_field_by_id(self, client, session, farms, fields):
         """
         Test that a single farm record can be retrieved from the get endpoint.
@@ -245,6 +280,32 @@ class TestFieldRoutes:
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Field not found"}
+
+    def test_get_field_for_a_different_farm(self, client, session, farms):
+        """
+        Test that when getting a farm for a different user it returns a 403 forbidden error.
+        :param client: FastAPI test client
+        :param session: the user's session
+        """
+        expected_farm = farms[0]
+
+        expected_field = Field.create(
+            number=123,
+            size=5.0,
+            ground_type="unit-test-ground-type",
+            farm_id=uuid4(),
+            field_type=FieldTypes.BASE_FIELD
+        )
+
+        result = self.get(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_field.id),
+            client
+        )
+
+        assert result.status_code == status.HTTP_403_FORBIDDEN
+        assert result.json() == {
+            "detail": f"You do not have permission to access this field; it belongs to a different farm."
+        }
 
     def test_get_all_fields_for_a_base_game_farm(self, client, session, farms, fields):
         """
