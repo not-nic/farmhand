@@ -171,11 +171,13 @@ class FieldRepository(Repository):
         base_field_values = ["fertilized", "limed"]
         precision_field_values = ["nitrogen_level", "ph_level", "soil_type"]
 
+        # Check if the field is a base_game_field and get any kwargs from the update object and apply them.
         if field.base_game_field:
             base_field_kwargs = {key: kwargs[key] for key in base_field_values if key in kwargs}
             if base_field_kwargs:
                 field.base_game_field.update(field.id, **base_field_kwargs)
 
+        # Check if the field is a precision_farming_field and get any kwargs from the update object and apply them.
         if field.precision_farming_field:
             precision_field_kwargs = {key: kwargs[key] for key in precision_field_values if key in kwargs}
             if precision_field_kwargs:
@@ -183,6 +185,27 @@ class FieldRepository(Repository):
 
         session.commit()
 
+        return field
+
+    @classmethod
+    def delete(cls: "Field", id: UUID) -> Optional[T]:
+        """
+        delete a field and its associated field type object by its ID
+        :param id: the id of the record to be deleted
+        :return: the deleted object
+        """
+        session = cls.get_session()
+        field: Field = cls.get(id)
+        if field:
+
+            if field.base_game_field:
+                field.base_game_field.delete(field.id)
+
+            if field.precision_farming_field:
+                field.precision_farming_field.delete(field.id)
+
+            session.delete(field)
+            session.commit()
         return field
 
     def get_field_details(self: "Field") -> dict:

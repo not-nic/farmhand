@@ -70,11 +70,23 @@ async def get_field_by_id(field: CurrentField) -> Union[PrecisionFarmingFieldMod
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def update_field(field_update: FieldUpdate, field_id: UUID):
+async def update_field(field: CurrentField, field_update: FieldUpdate):
     """
     Update a field by its id.
     :param field_update: the update field request model
-    :param field_id: the id of the field
+    :param field: the field to update
     """
-    update_data = field_update.model_dump(exclude_unset=True)
-    Field.update(field_id, **update_data)
+    FieldService.update_field(field, field_update)
+
+
+@router.delete(
+    "/{field_id}",
+    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def update_field(field: CurrentField):
+    """
+    Delete a field and its associated field type by its id.
+    :param field: the field to delete
+    """
+    FieldService.delete_field(field)
