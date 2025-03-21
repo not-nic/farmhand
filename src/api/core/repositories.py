@@ -148,15 +148,26 @@ class FieldRepository(Repository):
 
     __abstract__ = True
 
-    @classmethod
-    def get_field_details(cls: "Field", id: UUID) -> dict:
+    def get_field_details(self: "Field") -> dict:
         """
         Get all the details of a field + plus its field type data.
         :return: (dict) of all field details
         """
-        field_inst = cls.get(id)
-        field_details = {column.name: getattr(field_inst, column.name) for column in cls.__table__.columns}
-        field_details.update(field_inst.to_dict())
+        field_details = {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
+        base_game_field_details = {
+            "fertilized": self.base_game_field.fertilized if self.base_game_field else None,
+            "limed": self.base_game_field.limed if self.base_game_field else None,
+        }
+
+        precision_farm_details = {
+            "nitrogen_level": self.precision_farming_field.nitrogen_level if self.precision_farming_field else None,
+            "ph_level": self.precision_farming_field.ph_level if self.precision_farming_field else None,
+            "soil_type": self.precision_farming_field.soil_type if self.precision_farming_field else None,
+        }
+
+        field_details.update(base_game_field_details)
+        field_details.update(precision_farm_details)
         return field_details
 
     @classmethod

@@ -1,7 +1,7 @@
 """
 Fixtures module for reusable pytest fixtures to be used across tests.
 """
-from typing import Tuple
+from decimal import Decimal
 
 import pytest
 import datetime
@@ -9,7 +9,9 @@ import datetime
 from uuid import UUID
 
 from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
-from src.api.core.db_models import User, Map, Farm, Field, BaseField, PrecisionFarmingField
+from src.api.core.db_models import User, Map, Farm, Field, BaseGameField, PrecisionFarmingField
+from src.api.core.models import FieldRequest, BaseGameFieldModel, PrecisionFarmingFieldModel
+from src.api.services.field_service import FieldService
 from tests.conftest import UNIT_TESTING_USER
 
 
@@ -51,91 +53,103 @@ def user_id() -> UUID:
 
 
 @pytest.fixture
-def fields(farms) -> Tuple[list[Field], list[Field]]:
+def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldModel]]:
     base_fields = [
-        BaseField.create(
-            number=1,
-            size=15,
-            ground_type="planted",
-            farm_id=farms[0].id,
-            field_type=FieldTypes.BASE_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            fertilized=FertilizerStates.FIFTY_PERCENT,
-            limed=True
+        FieldService._create_base_game_field(
+            field_request=FieldRequest(
+                number=1,
+                size=Decimal(15.0),
+                ground_type="planted",
+                field_type=FieldTypes.BASE_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                fertilized=FertilizerStates.FIFTY_PERCENT,
+                limed=True
+            ),
+            farm_id=farms[0].id
         ),
-        BaseField.create(
-            number=2,
-            size=20,
-            ground_type="growing",
-            farm_id=farms[0].id,
-            field_type=FieldTypes.BASE_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            fertilized=FertilizerStates.FIFTY_PERCENT,
-            limed=True
+        FieldService._create_base_game_field(
+            field_request=FieldRequest(
+                number=2,
+                size=20,
+                ground_type="growing",
+                field_type=FieldTypes.BASE_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                fertilized=FertilizerStates.FIFTY_PERCENT,
+                limed=True
+            ),
+            farm_id=farms[0].id
         ),
-        BaseField.create(
-            number=3,
-            size=10.5,
-            ground_type="ready to harvest",
-            farm_id=farms[0].id,
-            field_type=FieldTypes.BASE_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            fertilized=FertilizerStates.FIFTY_PERCENT,
-            limed=True
-        )
+        FieldService._create_base_game_field(
+            field_request=FieldRequest(
+                number=3,
+                size=10.5,
+                ground_type="ready to harvest",
+                field_type=FieldTypes.BASE_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                fertilized=FertilizerStates.FIFTY_PERCENT,
+                limed=True
+            ),
+            farm_id=farms[0].id
+        ),
     ]
 
     precision_fields = [
-        PrecisionFarmingField.create(
-            number=1,
-            size=15,
-            ground_type="planted",
-            farm_id=farms[1].id,
-            field_type=FieldTypes.PRECISION_FARMING_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            nitrogen_level=100,
-            ph_level=5.0,
-            soil_type=SoilTypes.SANDY_LOAM
+        FieldService._create_precision_farming_field(
+            field_request=FieldRequest(
+                number=1,
+                size=15,
+                ground_type="planted",
+                field_type=FieldTypes.PRECISION_FARMING_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                nitrogen_level=100,
+                ph_level=5.0,
+                soil_type=SoilTypes.SANDY_LOAM
+            ),
+            farm_id=farms[1].id
         ),
-        PrecisionFarmingField.create(
-            number=2,
-            size=20,
-            ground_type="growing",
-            farm_id=farms[1].id,
-            field_type=FieldTypes.PRECISION_FARMING_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            nitrogen_level=100,
-            ph_level=5.0,
-            soil_type=SoilTypes.LOAM
+        FieldService._create_precision_farming_field(
+            field_request=FieldRequest(
+                number=2,
+                size=20,
+                ground_type="growing",
+                field_type=FieldTypes.PRECISION_FARMING_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                nitrogen_level=100,
+                ph_level=5.0,
+                soil_type=SoilTypes.LOAM
+            ),
+            farm_id=farms[1].id
         ),
-        PrecisionFarmingField.create(
-            number=3,
-            size=10.5,
-            ground_type="ready to harvest",
-            farm_id=farms[1].id,
-            field_type=FieldTypes.PRECISION_FARMING_FIELD,
-            plowed=True,
-            rolled=True,
-            mulched=False,
-            weeds=WeedStates.MEDIUM_WEEDS,
-            nitrogen_level=100,
-            ph_level=5.0,
-            soil_type=SoilTypes.SILTY_CLAY
+        FieldService._create_precision_farming_field(
+            field_request=FieldRequest(
+                number=3,
+                size=10.5,
+                ground_type="ready to harvest",
+                field_type=FieldTypes.PRECISION_FARMING_FIELD,
+                plowed=True,
+                rolled=True,
+                mulched=False,
+                weeds=WeedStates.MEDIUM_WEEDS,
+                nitrogen_level=100,
+                ph_level=5.0,
+                soil_type=SoilTypes.SILTY_CLAY
+            ),
+            farm_id=farms[1].id
         )
     ]
 
