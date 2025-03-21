@@ -200,7 +200,6 @@ class FieldUpdate(BaseModel):
     soil_type: Optional[SoilTypes] = None
 
 
-
 class ModModel(BaseModel):
     """
     Pydantic model for a Farming Simulator Mod Hub mod.
