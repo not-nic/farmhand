@@ -157,6 +157,58 @@ class TestFieldRoutes:
         result_json = result.json()
         assert result_json["detail"] == "Cannot create a base_field on a precision_farming farm."
 
+    def test_updating_field_on_base_game_farm(self, client, session, farms, fields):
+        """
+        Test updating a base game field on a base game farm.
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param farms: create farms fixture
+        :param fields: create fields fixture
+        """
+        expected_farm = farms[0]
+
+        base_fields: List[BaseGameFieldModel]
+        base_fields, _ = fields
+        expected_field = base_fields[0]
+
+        payload = {
+            "number": 999,
+            "ground_type": "test-ground-type",
+            "size": 15,
+            "fertilized": 100,
+            "weeds": 4,
+        }
+
+        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), payload, client)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_update_field_on_precision_farm(self, client, session, farms, fields):
+        """
+        Test updating a precision farming field on a precision farm.
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param farms: create farms fixture
+        :param fields: create fields fixture
+        """
+        expected_farm = farms[1]
+
+        precision_farming_fields: List[PrecisionFarmingFieldModel]
+        _, precision_farming_fields = fields
+        expected_field = precision_farming_fields[0]
+
+        payload = {
+            "number": 999,
+            "ground_type": "test-ground-type",
+            "size": 15,
+            "weeds": 4,
+            "nitrogen_level": 123,
+            "ph_level": 9.0,
+            "soil_type": SoilTypes.SILTY_CLAY
+        }
+
+        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), payload, client)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
+
     def test_get_field_by_id(self, client, session, farms, fields):
         """
         Test that a single farm record can be retrieved from the get endpoint.
