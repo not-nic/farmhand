@@ -1,11 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
-from fastapi import Request, HTTPException, status, Depends
+from fastapi import Request, HTTPException, status, Depends, Path
 from fastapi.security import OAuth2PasswordBearer
 
-from src.api.core.db_models import User, Farm
+from src.api.core.db_models import User, Farm, Field
 from src.api.core.repositories import sessions
+from src.api.services.field_service import FieldService
 from src.config import settings
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login")
@@ -51,8 +52,8 @@ def is_service_user(current_user: CurrentUser) -> bool:
     """
 
     if (
-        current_user.username != settings.SERVICE_USER_USERNAME
-        or current_user.email_address != settings.SERVICE_USER_EMAIL
+            current_user.username != settings.SERVICE_USER_USERNAME
+            or current_user.email_address != settings.SERVICE_USER_EMAIL
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -61,7 +62,10 @@ def is_service_user(current_user: CurrentUser) -> bool:
     return True
 
 
-def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
+def get_users_farm(
+        id: Annotated[UUID, Path(title="The ID of the farm to get")],
+        current_user: CurrentUser
+) -> Farm:
     """
     Get the farm for the current logged-in user
     :param id: the id of the farm to get
@@ -80,3 +84,30 @@ def get_users_farm(id: UUID, current_user: CurrentUser) -> Farm:
         )
 
     return farm
+
+
+CurrentFarm = Annotated[Farm, Depends(get_users_farm)]
+
+
+def get_field(
+    current_farm: CurrentFarm,
+    field_id: Annotated[UUID, Path(title="The ID of the field to get")],
+) -> Optional[Field]:
+    """
+    dependency to get the current field by its ID or return
+    a 404 if it doesn't exist.
+    :param current_farm: the farm requested with the field.
+    :param field_id: the id of the field to get
+    """
+    try:
+        return FieldService.get_field(field_id=field_id, farm_id=current_farm.id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Field not found")
+    except PermissionError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this field; it belongs to a different farm."
+        )
+
+
+CurrentField = Annotated[Field, Depends(get_field)]

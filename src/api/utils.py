@@ -10,6 +10,9 @@ logger.setLevel(logging.INFO)
 log_handler = logging.StreamHandler()
 log_handler.setFormatter(logging.Formatter(settings.LOG_FORMATTER, datefmt="%Y-%m-%d %H:%M:%S"))
 
+# Passlib raises an error about not being able to find an attribute in bcrypt.
+logging.getLogger('passlib').setLevel(logging.ERROR)
+
 logger.addHandler(log_handler)
 
 
@@ -19,3 +22,5 @@ def generate_session_token() -> str:
     :return: a randomised 128 character string.
     """
     return "".join(random.choices(string.ascii_letters + string.digits, k=128))
+
+

@@ -5,6 +5,7 @@ alembic==1.15.1
 SQLAlchemy==2.0.38
 psycopg2-binary==2.9.10
 bcrypt==4.3.0
+passlib[bcrypt]==1.7.4
 pytest==8.3.5
 pytest-mock==3.14.0
 pytest-cov==6.0.0

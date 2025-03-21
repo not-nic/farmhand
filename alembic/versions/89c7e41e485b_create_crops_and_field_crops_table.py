@@ -1,7 +1,7 @@
 """Create Crops and Field Crops table
 
 Revision ID: 89c7e41e485b
-Revises: 4cd61e0650b8
+Revises: 9b7d1a55eae7
 Create Date: 2025-03-17 19:44:39.685141
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '89c7e41e485b'
-down_revision: Union[str, None] = '4cd61e0650b8'
+down_revision: Union[str, None] = '9b7d1a55eae7'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -2,9 +2,10 @@ import datetime
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, field_validator, model_validator, Field
+from pydantic import BaseModel, field_validator, model_validator, Field, conint, condecimal
+from decimal import Decimal
 
-from src.api.constants import FarmTypes
+from src.api.constants import FarmTypes, WeedStates, FertilizerStates, SoilTypes, FieldTypes
 from src.api.core.validators import Validators
 
 
@@ -75,6 +76,87 @@ class FarmsResponse(BaseModel):
 
     farms: list[FarmResponse]
     count: int
+
+
+class FieldRequest(BaseModel):
+    """
+    Request model for creating a field.
+    """
+
+    number: conint(ge=0, le=1000)
+    field_type: FieldTypes
+    ground_type: str
+    size: condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)
+    plowed: bool
+    rolled: bool
+    mulched: bool
+    limed: Optional[bool] = None
+    fertilized: Optional[FertilizerStates] = None
+    weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
+    nitrogen_level: Optional[int] = None
+    ph_level: Optional[float] = None
+    soil_type: Optional[SoilTypes] = None
+
+    class Config:
+        exclude_none = True
+
+    @model_validator(mode="before")
+    def validate_field_model(cls, values):
+        return Validators.validate_field_request_model(values)
+
+
+class PrecisionFarmingFieldModel(BaseModel):
+    id: uuid.UUID
+    number: int
+    ground_type: str
+    size: float
+    plowed: bool
+    rolled: bool
+    mulched: bool
+    nitrogen_level: Optional[int] = None
+    ph_level: Optional[float] = None
+    soil_type: Optional[SoilTypes] = None
+    weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
+    created_at: datetime.datetime
+
+
+class BaseGameFieldModel(BaseModel):
+    id: uuid.UUID
+    number: int
+    ground_type: str
+    size: float
+    plowed: bool
+    rolled: bool
+    mulched: bool
+    limed: Optional[bool] = None
+    fertilized: Optional[FertilizerStates] = None
+    weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
+    created_at: datetime.datetime
+
+
+class FieldsResponse(BaseModel):
+    """
+    Response model for returning a list of farms.
+    """
+
+    fields: list[PrecisionFarmingFieldModel | BaseGameFieldModel]
+    count: int
+
+
+class FieldUpdate(BaseModel):
+    number: Optional[conint(ge=0, le=1000)] = None
+    ground_type: Optional[str] = None
+    size: Optional[condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)] = None
+    plowed: Optional[bool] = None
+    rolled: Optional[bool] = None
+    mulched: Optional[bool] = None
+    limed: Optional[bool] = None
+    fertilized: Optional[FertilizerStates] = None
+    weeds: Optional[WeedStates] = None
+    nitrogen_level: Optional[int] = None
+    ph_level: Optional[float] = None
+    soil_type: Optional[SoilTypes] = None
+
 
 
 class ModModel(BaseModel):

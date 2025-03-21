@@ -1,18 +1,17 @@
-import datetime
+from uuid import UUID, uuid4
 
 import pytest
-
-from uuid import UUID, uuid4
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from src.api.core.db_models import User, Farm, Map
+from src.api.core.db_models import Farm
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 
 
+@pytest.mark.usefixtures("client", "session")
 class TestFarmRoutes:
-    url = f"{settings.API_V1_STR}/farm"
+    url = f"{settings.API_V1_STR}/farms"
 
     @staticmethod
     def post(url: str, json: dict, client: TestClient):
@@ -30,62 +29,32 @@ class TestFarmRoutes:
     def delete(url: str, client: TestClient):
         return client.delete(url)
 
-    @pytest.fixture
-    def create_farms(self, user_id) -> list[Farm]:
-        farms = [
-            Farm.create(
-                name="farm 1", description="description 1", map_name="map 1", owner_id=user_id
-            ),
-            Farm.create(
-                name="farm 2", description="description 2", map_name="map 3", owner_id=user_id
-            ),
-            Farm.create(
-                name="farm 3", description="description 3", map_name="map 3", owner_id=user_id
-            )
-        ]
-        return farms
-
-    @pytest.fixture
-    def map_fixture(self):
-        expected_map = Map.create(
-            id=12345,
-            name="custom-map-1",
-            category="European Map",
-            author="Simon Pegg",
-            release_date=datetime.date(year=2025, month=3, day=11)
-        )
-        return expected_map
-
-    @pytest.fixture
-    def user_id(self) -> UUID:
-        return User.get_by_username(UNIT_TESTING_USER).id
-
-    def test_get_multiple_farms(self, client, session, create_farms):
+    def test_get_multiple_farms(self, client, session, farms):
         """
         Test that multiple created farms can be retrieved from the get endpoint.
         :param client: FastAPI test client
         :param session: the user's session
-        :param create_farms: create farms fixture
+        :param farms: create farms fixture
         """
         result = self.get(self.url, client)
 
         assert result.status_code == status.HTTP_200_OK
-        assert result.json()["count"] == len(create_farms)
+        assert result.json()["count"] == len(farms)
 
-        for expected_farm, farm_data in zip(create_farms, result.json()["farms"]):
+        for expected_farm, farm_data in zip(farms, result.json()["farms"]):
             assert farm_data["name"] == expected_farm.name
             assert farm_data["description"] == expected_farm.description
             assert farm_data["map_name"] == expected_farm.map_name
             assert farm_data["created_at"] is not None
 
-    def test_get_farm(self, client, session, create_farms):
+    def test_get_farm(self, client, session, farms):
         """
         Test that a single farm record can be retrieved from the get endpoint.
         :param client: FastAPI test client
         :param session: the user's session
-        :param create_farms: create farms fixture
+        :param farms: create farms fixture
         """
-        expected_farm = create_farms[0]
+        expected_farm = farms[0]
 
         result = self.get(f"{self.url}/{expected_farm.id}", client)
         result_json = result.json()
@@ -145,12 +114,12 @@ class TestFarmRoutes:
         for key, value in payload.items():
             assert expected_farm.get(key) == value
 
-    def test_create_farm_by_map_id(self, client, session, map_fixture):
+    def test_create_farm_by_map_id(self, client, session, farm_map):
         """
         Test creating a farm by a map_id and validate it is in the database.
         :param client: FastAPI test client
         :param session: the user's session
-        :param map_fixture: fixture to create a map
+        :param farm_map: fixture to create a map
         """
 
         payload = {
@@ -169,8 +138,8 @@ class TestFarmRoutes:
         for key, value in payload.items():
             assert expected_farm_dict.get(key) == value
 
-        assert expected_farm.map_name == map_fixture.name
-        assert expected_farm.map.id == map_fixture.id
+        assert expected_farm.map_name == farm_map.name
+        assert expected_farm.map.id == farm_map.id
 
     def test_create_farm_returns_404_if_no_map_is_found(self, client, session):
         """
