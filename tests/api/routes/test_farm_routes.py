@@ -1,4 +1,6 @@
 from uuid import UUID, uuid4
+
+import pytest
 from fastapi.testclient import TestClient
 from fastapi import status
 
@@ -7,6 +9,7 @@ from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 
 
+@pytest.mark.usefixtures("client", "session")
 class TestFarmRoutes:
     url = f"{settings.API_V1_STR}/farms"
 

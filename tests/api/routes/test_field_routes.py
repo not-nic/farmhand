@@ -1,3 +1,5 @@
+import pytest
+
 from typing import Optional, List, Union
 from uuid import UUID
 from fastapi import status
@@ -9,6 +11,7 @@ from tests.conftest import TestClient
 from src.config import settings
 
 
+@pytest.mark.usefixtures("client", "session")
 class TestFieldRoutes:
 
     @staticmethod
