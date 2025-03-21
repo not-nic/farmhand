@@ -1,9 +1,8 @@
 from typing import Union
-from uuid import UUID
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.db_models import Farm, Field
+from src.api.core.db_models import Farm
 from src.api.core.models import FieldRequest, FieldsResponse, PrecisionFarmingFieldModel, \
     BaseGameFieldModel, FieldUpdate
 from src.api.deps import get_current_user, get_users_farm, CurrentField

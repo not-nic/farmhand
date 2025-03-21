@@ -5,11 +5,10 @@ from uuid import UUID, uuid4
 from fastapi import status
 
 from src.api.constants import FertilizerStates, WeedStates, SoilTypes, FieldTypes
-from src.api.core.db_models import Field, Farm
+from src.api.core.db_models import Field
 from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel
 from tests.conftest import TestClient
 from src.config import settings
-from tests.fixtures import user_id
 
 
 @pytest.mark.usefixtures("client", "session")
@@ -304,7 +303,7 @@ class TestFieldRoutes:
 
         assert result.status_code == status.HTTP_403_FORBIDDEN
         assert result.json() == {
-            "detail": f"You do not have permission to access this field; it belongs to a different farm."
+            "detail": "You do not have permission to access this field; it belongs to a different farm."
         }
 
     def test_get_all_fields_for_a_base_game_farm(self, client, session, farms, fields):
