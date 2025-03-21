@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import status
 
 from src.api.constants import FertilizerStates, WeedStates, SoilTypes
-from src.api.core.db_models import Field, BaseGameField
+from src.api.core.db_models import Field
 from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel
 from tests.conftest import TestClient
 from src.config import settings
