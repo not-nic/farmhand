@@ -3,7 +3,8 @@ from uuid import UUID
 from fastapi import status
 
 from src.api.constants import FertilizerStates, WeedStates, SoilTypes
-from src.api.core.db_models import Field, BaseField, PrecisionFarmingField
+from src.api.core.db_models import Field, BaseGameField, PrecisionFarmingField
+from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel
 from tests.conftest import TestClient
 from src.config import settings
 
@@ -55,7 +56,7 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_field = Field.get_field_details(UUID(result_json["id"]))
+        expected_field: dict = Field.get(UUID(result_json["id"])).get_field_details()
 
         for key, value in payload.items():
             if key == "fertilized":
@@ -92,7 +93,7 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_field = Field.get_field_details(UUID(result_json["id"]))
+        expected_field: dict = Field.get(UUID(result_json["id"])).get_field_details()
 
         for key, value in payload.items():
             assert expected_field.get(key) == value
@@ -162,7 +163,7 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        base_fields: List[BaseField]
+        base_fields: List[BaseGameFieldModel]
         base_fields, _ = fields
         expected_field = base_fields[0]
 
@@ -198,7 +199,7 @@ class TestFieldRoutes:
         :param farms: fixture to create farms on test run
         :param fields: fixture to create fields on test run
         """
-        base_fields: List[BaseField]
+        base_fields: List[BaseGameField]
         base_fields, _ = fields
 
         base_fields_results = self.get(self.field_url(farm_id=farms[0].id), client)
@@ -216,7 +217,7 @@ class TestFieldRoutes:
         :param farms: fixture to create farms on test run
         :param fields: fixture to create fields on test run
         """
-        precision_farming_fields: List[PrecisionFarmingField]
+        precision_farming_fields: List[PrecisionFarmingFieldModel]
         _, precision_farming_fields = fields
 
         precision_farming_results = self.get(self.field_url(farm_id=farms[1].id), client)
@@ -228,7 +229,7 @@ class TestFieldRoutes:
 
     def assert_fields_equal(
             self,
-            expected_fields: Union[List[BaseField], List[PrecisionFarmingField]],
+            expected_fields: Union[List[BaseGameFieldModel], List[PrecisionFarmingFieldModel]],
             field_data_list: list[dict]
     ) -> None:
         """
@@ -241,7 +242,7 @@ class TestFieldRoutes:
 
     @staticmethod
     def assert_field_info_matches(
-            expected_field: Union[BaseField, PrecisionFarmingField],
+            expected_field: Union[BaseGameFieldModel, PrecisionFarmingFieldModel],
             field_data: dict
     ) -> None:
         """
