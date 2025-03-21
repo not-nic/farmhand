@@ -37,15 +37,23 @@ class FieldService:
             raise ValueError(f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm.")
 
     @staticmethod
-    def get_field(field_id: UUID) -> Optional[Field]:
+    def get_field(field_id: UUID, farm_id: UUID) -> Optional[Field]:
         """
         Get the field from the database and raise an error it doesn't exist
+        :param farm_id: the id of the farm that requested the field
         :param field_id: the id of the field to retrieve
         :return: the field if it exists.
         """
-        field = Field.get(field_id)
+        field: Field = Field.get(field_id)
+
+        # ensure that the field exists.
         if not field:
             raise ValueError("Field not found")
+
+        # ensure that the field belongs to the farm that requested it.
+        if field.farm_id != farm_id:
+            raise PermissionError("You dont have access to view this field.")
+
         return field
 
     @staticmethod
@@ -60,6 +68,26 @@ class FieldService:
 
         if field.field_type == FieldTypes.BASE_FIELD:
             return BaseGameFieldModel(**field.get_field_details())
+
+    @staticmethod
+    def update_field(field: Field, field_update: FieldUpdate) -> None:
+        """
+        Update a field and its associated field types with FieldUpdate data.
+        :param field: the field to update
+        :param field_update: the field update request
+        """
+        logger.info(f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}")
+        update_data = field_update.model_dump(exclude_unset=True)
+        Field.update(field.id, **update_data)
+
+    @staticmethod
+    def delete_field(field: Field) -> None:
+        """
+        delete a field and its associated field type by its id.
+        :param field: the field to delete
+        """
+        logger.info(f"Deleting Field: {field.number} ({field.id})")
+        Field.delete(field.id)
 
     @staticmethod
     def _is_base_game_field(field_request: FieldRequest, current_farm: Farm) -> bool:
