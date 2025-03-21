@@ -83,7 +83,7 @@ async def update_field(field: CurrentField, field_update: FieldUpdate):
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def update_field(field: CurrentField):
+async def delete_field(field: CurrentField):
     """
     Delete a field and its associated field type by its id.
     :param field: the field to delete
