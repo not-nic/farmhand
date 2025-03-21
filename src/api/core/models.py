@@ -143,6 +143,22 @@ class FieldsResponse(BaseModel):
     count: int
 
 
+class FieldUpdate(BaseModel):
+    number: Optional[conint(ge=0, le=1000)] = None
+    ground_type: Optional[str] = None
+    size: Optional[condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)] = None
+    plowed: Optional[bool] = None
+    rolled: Optional[bool] = None
+    mulched: Optional[bool] = None
+    limed: Optional[bool] = None
+    fertilized: Optional[FertilizerStates] = None
+    weeds: Optional[WeedStates] = None
+    nitrogen_level: Optional[int] = None
+    ph_level: Optional[float] = None
+    soil_type: Optional[SoilTypes] = None
+
+
+
 class ModModel(BaseModel):
     """
     Pydantic model for a Farming Simulator Mod Hub mod.

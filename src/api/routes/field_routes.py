@@ -3,10 +3,10 @@ from uuid import UUID
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.db_models import Farm
+from src.api.core.db_models import Farm, Field
 from src.api.core.models import FieldRequest, FieldsResponse, PrecisionFarmingFieldModel, \
-    BaseGameFieldModel
-from src.api.deps import get_current_user, get_users_farm
+    BaseGameFieldModel, FieldUpdate
+from src.api.deps import get_current_user, get_users_farm, CurrentField
 from src.api.services.field_service import FieldService
 
 router = APIRouter(prefix="/{id}/fields", tags=["Fields"])
@@ -44,7 +44,7 @@ async def get_fields(
     """
     fields = []
     for field in current_farm.fields:
-        field_model_inst = field_service.get_field_details(field.id)
+        field_model_inst = field_service.get_field_details(field)
         fields.append(field_model_inst.model_dump(exclude_none=True))
 
     fields_count = len(fields)
@@ -56,16 +56,25 @@ async def get_fields(
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
     status_code=status.HTTP_200_OK
 )
-async def get_field_by_id(field_id: UUID) -> Union[PrecisionFarmingFieldModel, BaseGameFieldModel]:
+async def get_field_by_id(field: CurrentField) -> Union[PrecisionFarmingFieldModel, BaseGameFieldModel]:
     """
     Get a field by its id.
-    :param field_id: the id of the field
+    :param field: the field to get all details for
     :return: Pydantic PrecisionFarmingField or BaseFieldModel
     """
-    try:
-        return field_service.get_field_details(field_id)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc)
-        )
+    return field_service.get_field_details(field)
+
+
+@router.put(
+    "/{field_id}",
+    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def update_field(field_update: FieldUpdate, field_id: UUID):
+    """
+    Update a field by its id.
+    :param field_update: the update field request model
+    :param field_id: the id of the field
+    """
+    update_data = field_update.model_dump(exclude_unset=True)
+    Field.update(field_id, **update_data)
