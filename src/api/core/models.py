@@ -83,10 +83,10 @@ class FieldRequest(BaseModel):
     Request model for creating a field.
     """
 
-    number: conint(ge=0, le=99999)
+    number: conint(ge=0, le=1000)
     field_type: FieldTypes
     ground_type: str
-    size: condecimal(ge=0, le=Decimal(999.999), max_digits=6, decimal_places=3)
+    size: condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)
     plowed: bool
     rolled: bool
     mulched: bool

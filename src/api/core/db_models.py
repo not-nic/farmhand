@@ -78,7 +78,6 @@ class Field(FieldRepository):
     """
     Base DB class for fields which store all the common attributes.
     """
-
     __tablename__ = "fields"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
@@ -104,21 +103,18 @@ class Field(FieldRepository):
     weeds = Column(Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS)
     mulched = Column(Boolean, nullable=True)
 
-    __mapper_args__ = {
-        "polymorphic_identity": "field",
-        "polymorphic_on": field_type
-    }
+    base_game_field = relationship("BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan")
+    precision_farming_field = relationship("PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Field {self.number} in Farm {self.farm_id} | Current Crop: {self.current_crop()}>"
 
 
-class BaseField(Field):
+class BaseGameField(Repository):
     """
     DB Model for standard fields (Base Game).
     """
-
-    __tablename__ = "base_fields"
+    __tablename__ = "base_game_fields"
 
     id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
     fertilized = Column(
@@ -128,19 +124,16 @@ class BaseField(Field):
     )
     limed = Column(Boolean, nullable=True)
 
-    __mapper_args__ = {
-        "polymorphic_identity": FieldTypes.BASE_FIELD.value
-    }
+    field = relationship("Field", back_populates="base_game_field")
 
     def __repr__(self):
-        return f"<BaseField {self.number}, Fertilized: {self.fertilized}, Limed: {self.limed}>"
+        return f"<BaseGameField {self.field.number}, Fertilized: {self.fertilized}, Limed: {self.limed}>"
 
 
-class PrecisionFarmingField(Field):
+class PrecisionFarmingField(Repository):
     """
     DB Model for fields using Precision Farming mod.
     """
-
     __tablename__ = "precision_farming_fields"
 
     id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
@@ -149,13 +142,11 @@ class PrecisionFarmingField(Field):
     ph_level = Column(Double, nullable=True)
     soil_type = Column(Enum(SoilTypes, native_enum=False), nullable=True, default=SoilTypes.LOAM)
 
-    __mapper_args__ = {
-        "polymorphic_identity": FieldTypes.PRECISION_FARMING_FIELD.value
-    }
+    field = relationship("Field", back_populates="precision_farming_field")
 
     def __repr__(self):
         return (
-            f"<PrecisionField {self.number}, "
+            f"<PrecisionFarmingField {self.field.number}, "
             f"Nitrogen: {self.nitrogen_level}, "
             f"pH: {self.ph_level}, "
             f"Soil: {self.soil_type}>"
