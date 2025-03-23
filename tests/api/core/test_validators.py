@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from src.api.core.models import GithubUser
 from src.api.core.validators import Validators
 
 
@@ -96,3 +97,71 @@ class TestValidators:
         values = {"description": "value"}
         with pytest.raises(ValueError, match="Either `map_id` or `map_name` must be provided."):
             Validators.validate_map_id_or_name_exists(values)
+
+    def test_validate_months(self):
+        """
+        Test that when given a list of months its split into a comma separated string.
+        """
+        months = ["August", "September", "October"]
+        expected_output = "August, September, October"
+        assert Validators.validate_months(months) == expected_output
+
+        input_string = "January, February, March"
+        assert Validators.validate_months(input_string) == input_string
+        assert Validators.validate_months([]) == ""
+
+
+    def test_validate_field_request_model_pass(self):
+        """
+        Test that when given the correct field values separately
+        the validation is correct.
+        """
+        precision_farming_values = {
+            "nitrogen_level": 50,
+            "ph_level": 6.5,
+            "soil_type": "loamy"
+        }
+
+        base_game_values = {
+            "number"
+            "fertilized": True,
+            "limed": False
+        }
+
+        assert Validators.validate_field_request_model(precision_farming_values) == precision_farming_values
+        assert Validators.validate_field_request_model(base_game_values) == base_game_values
+
+    def test_validate_field_request_model_fail(self):
+        """
+        Test that the validator raises a ValueError when both values of fields
+        are used together.
+        """
+        invalid_input = {
+            "nitrogen_level": 50,
+            "ph_level": 6.5,
+            "soil_type": "loamy",
+            "fertilized": True
+        }
+
+        with pytest.raises(ValueError, match="Precision Farming field values.*cannot be used with Base Game Field.* "):
+            Validators.validate_field_request_model(invalid_input)
+
+    def test_validate_github_email_if_exists(self):
+        """
+        Test that when validating an existing email it remains unchanged.
+        """
+        user = GithubUser(id=1234, login="spegg", email="simon-pegg@hotfuzz.com", name="simon pegg")
+
+        updated_user = Validators.validate_github_email_if_not_exists(user)
+
+        assert updated_user.email == "simon-pegg@hotfuzz.com"
+
+    def test_validate_github_email_if_not_exists(self):
+        """
+        Test that a GitHub email is created when one does not exist.
+        """
+        user = GithubUser(id=1234, login="spegg", name="simon pegg")
+
+        updated_user = Validators.validate_github_email_if_not_exists(user)
+
+        assert updated_user.email == "spegg@github.com"

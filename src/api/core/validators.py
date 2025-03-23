@@ -111,7 +111,5 @@ class Validators:
         appending the username to a @github.com domain.
         :return: the GitHub user object.
         """
-        if not github_user.email:
-            github_user.email = f"{github_user.username}@github.com"
-
+        github_user.email = github_user.email or f"{github_user.username}@github.com"
         return github_user
