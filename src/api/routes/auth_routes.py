@@ -65,7 +65,7 @@ async def authenticate_github(request: Request) -> Response:
      requests to the service.
 
     :param request: the users request
-    :return:
+    :return: (jwt) session token containing the users GitHub id.
     """
     token = await github.authorize_access_token(request)
     response = await github.get("https://api.github.com/user", token=token)
