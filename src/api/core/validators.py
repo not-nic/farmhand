@@ -1,8 +1,15 @@
 import datetime
 import re
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from src.api.core.models import GithubUser
 
 class Validators:
+    """
+    Farmhand Data validators to be used alongside the pydantic models.
+    """
+
     @staticmethod
     def validate_release_date(value) -> datetime:
         """
@@ -96,3 +103,15 @@ class Validators:
             )
 
         return values
+
+    @staticmethod
+    def validate_github_email_if_not_exists(github_user: "GithubUser"):
+        """
+        Validator to create a GitHub email if one does not exist by
+        appending the username to a @github.com domain.
+        :return: the GitHub user object.
+        """
+        if not github_user.email:
+            github_user.email = f"{github_user.username}@github.com"
+
+        return github_user
