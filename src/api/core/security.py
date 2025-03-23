@@ -1,8 +1,24 @@
 from passlib.context import CryptContext
+from authlib.integrations.starlette_client import OAuth
+
+from src.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-ALGORITHM = "HS256"
 
+oauth = OAuth()
+
+oauth.register(
+    name="github",
+    client_id=settings.GITHUB_CLIENT_ID,
+    client_secret=settings.GITHUB_CLIENT_SECRET,
+    authorize_url="https://github.com/login/oauth/authorize",
+    authorize_params=None,
+    access_token_url="https://github.com/login/oauth/access_token",
+    access_token_params=None,
+    client_kwargs={"scope": "user:email"},
+)
+
+github = oauth.github
 
 class Security:
     """
