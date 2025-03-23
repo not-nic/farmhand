@@ -8,14 +8,18 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me")
-async def get_user_info(current_user: dict = Depends(get_current_user)) -> dict:
+async def get_user_info(current_user: User = Depends(get_current_user)) -> dict:
     """
     (Temp) Get the information of a current logged-in user.
     :param current_user:
     :return:
     """
-    current_user.pop("session", None)
-    return current_user
+    return {
+        "email": current_user.email_address,
+        "username": current_user.username,
+        "name": current_user.name,
+        "created_at": current_user.created_at
+    }
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

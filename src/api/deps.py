@@ -1,72 +1,45 @@
-import pprint
+"""
+Module for FastAPI Dependencies that need to be called / injected before methods can be called.
+"""
 
 import jwt
+
 from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import Request, HTTPException, status, Depends, Path
-from fastapi.security import OAuth2PasswordBearer
 
 from src.api.core.db_models import User, Farm, Field
-from src.api.core.models import GithubUser
+from src.api.core.security import Security
 from src.api.services.field_service import FieldService
 from src.config import settings
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login")
 
+async def get_current_user(request: Request) -> User:
+    """
+    Function to get the current user based on the JWT token stored in the user's
+    session.
+    :param request: the users request object
+    :return: (User) the user associated with the request.
+    """
+    session_token = request.cookies.get("farmhand_user")
 
-async def get_current_user(request: Request):
-    user_token = request.cookies.get("farmhand_user")
-
-    pprint.pprint(user_token)
-
-    if not user_token:
+    if not session_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token")
 
     try:
-        payload = jwt.decode(user_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        github_user = GithubUser(**payload)
+        token = Security.decode_jwt(session_token)
+        user = Security.get_user_by_auth_type(token)
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-    except jwt.InvalidTokenError as exc:
-        print(exc)
+    except jwt.InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
-
-    user = User.get_by_github_id(github_user.id)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return user
-
-
-
-# def get_current_user(request: Request) -> User:
-#     """
-#     dependency to get the current user by their session token
-#     :param request: the incoming request object.
-#     :return: the current logged-in user object.
-#     """
-#     session_token = request.cookies.get("session")
-#
-#     if not session_token:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Session token missing or invalid"
-#         )
-#
-#     session_data = sessions.get(session_token)
-#     if not session_data:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token"
-#         )
-#
-#     username = session_data["username"]
-#     user = User.get_by_username(username)
-#
-#     if not user:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     return user
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
