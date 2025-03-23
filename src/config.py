@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -23,6 +25,14 @@ class Settings(BaseSettings):
     SERVICE_USER_USERNAME: str
     SERVICE_USER_EMAIL: str
     SERVICE_USER_PASSWORD: str
+
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+    GITHUB_OAUTH_CALLBACK_URL: str
+
+    JWT_EXPIRATION_TIME: timedelta = timedelta(days=7)
+    ALGORITHM: str = "HS256"
+    SECRET_KEY: str = "your-secret-key"
 
     @computed_field(return_type=str)
     def DATABASE_URL(self):
