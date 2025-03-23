@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     JWT_EXPIRATION_TIME: timedelta = timedelta(days=7)
     ALGORITHM: str = "HS256"
-    SECRET_KEY: str = "your-secret-key"
+    SECRET_KEY: str
 
     @computed_field(return_type=str)
     def DATABASE_URL(self):
