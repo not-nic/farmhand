@@ -123,6 +123,15 @@ class UserRepository(Repository):
         """
         return cls.get_session().query(cls).filter(cls.email_address == email).first()
 
+    @classmethod
+    def get_by_github_id(cls: "User", github_id: int) -> Optional["User"]:
+        """
+        get a user by their email
+        :param github_id: the users GitHub ID.
+        :return: the user that matches the email, or none.
+        """
+        return cls.get_session().query(cls).filter(cls.github_id == github_id).first()
+
 
 class CropRepository(Repository):
     """
