@@ -29,6 +29,22 @@ class UserCreate(BaseModel):
     name: str
 
 
+class GithubUser(BaseModel):
+    id: int
+    username: str = Field(aliases=["login", "username"])
+    name: str
+    email: Optional[str] = None
+
+    @model_validator(mode="after")
+    def set_email(self):
+        username = self.username
+        email = self.email
+
+        if not email:
+            self.email = f"{username}@github.com"
+
+        return self
+
 class FarmRequest(BaseModel):
     """
     Request model for creating a farm.
