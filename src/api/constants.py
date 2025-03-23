@@ -1,11 +1,22 @@
+"""
+Collection of Enums used within the Farmhand service.
+"""
 from enum import Enum
 
 from strenum import StrEnum
 
 
+class AuthTypes(StrEnum):
+    """
+    Constants for authentication types, i.e. default (username/password)
+    and oauth e.g. GitHub.
+    """
+    DEFAULT = "default"
+    GITHUB = "github"
+
 class URLs(StrEnum):
     """
-    Modhub URLs
+    ModHub URLs
      - mods_url: The page that displays multiple mods
      - mod_url: a page for an individual mod
     """
@@ -78,4 +89,3 @@ class SoilTypes(StrEnum):
     LOAMY_SAND = "loamy sand"
     SILTY_CLAY = "silty clay"
     LOAM = "loam"
-
