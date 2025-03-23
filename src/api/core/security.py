@@ -81,7 +81,7 @@ class Security:
         :return: (str) JWT token of encoded data.
         """
         return jwt.encode(
-            payload=payload.model_dump(mode="json"),
+            payload=payload.model_dump(mode="json", by_alias=True),
             key=settings.JWT_SECRET_KEY,
             algorithm=settings.JWT_ALGORITHM
         )

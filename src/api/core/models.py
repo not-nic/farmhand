@@ -6,10 +6,11 @@ from typing import Optional, Union
 
 from datetime import datetime, date
 from uuid import UUID
-from pydantic import BaseModel, field_validator, model_validator, Field, conint, condecimal
+from pydantic import BaseModel, field_validator, field_serializer, model_validator, Field, conint, condecimal
 from decimal import Decimal
 
 from src.api.constants import FarmTypes, WeedStates, FertilizerStates, SoilTypes, FieldTypes, AuthTypes
+from src.api.core.serializers import Serializers
 from src.api.core.validators import Validators
 
 
@@ -43,6 +44,10 @@ class TokenModel(BaseModel):
     auth_type: AuthTypes = Field(default=AuthTypes.DEFAULT)
     expires_at: datetime = Field(alias="exp")
     issued_at: datetime = Field(alias="iat")
+
+    @field_serializer("expires_at", "issued_at")
+    def serialize_expires_and_issued_at_values(cls, value):
+        return Serializers.serialize_datetime(value)
 
     class Config:
         populate_by_name = True
