@@ -1,11 +1,7 @@
-from typing import Optional
+from typing import Optional, Any, Generator
 
 import pytest
 
-from collections.abc import Generator
-
-from alembic import command
-from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -33,9 +29,6 @@ def create_database():
     """
     Fixture to create database and tables
     """
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
-
     Base.metadata.create_all(bind=engine)
 
 
@@ -46,14 +39,13 @@ def client(create_database) -> Generator[TestClient, None, None]:
     :return:
     """
     settings.ENVIRONMENT = "testing"
-
     with TestClient(app) as c:
         yield c
         Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="function")
-def create_test_user() -> User:
+def create_test_user() -> Generator[User | None, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
@@ -70,7 +62,7 @@ def create_test_user() -> User:
 
 
 @pytest.fixture
-def session(client, create_test_user) -> str:
+def session(client, create_test_user) -> Generator[str | None, Any, None]:
     """
     Create a session for the unit test user.
     :param create_test_user:
@@ -78,9 +70,9 @@ def session(client, create_test_user) -> str:
     :return:
     """
     payload = {"username": UNIT_TESTING_USER, "password": UNIT_TESTING_PASSWORD}
-    result = client.post(url=f"{settings.API_V1_STR}/login", json=payload)
-    session_token = result.cookies.get("session")
-    client.cookies["session"] = session_token
+    result = client.post(url=f"{settings.API_V1_STR}/auth/login", json=payload)
+    session_token = result.cookies.get("farmhand_user")
+    client.cookies["farmhand_user"] = session_token
     yield session_token
 
 

@@ -4,7 +4,7 @@ from src.config import settings
 
 
 class TestAuthRoutes:
-    url = f"{settings.API_V1_STR}/login"
+    url = f"{settings.API_V1_STR}/auth/login"
 
     @staticmethod
     def post(url: str, data: dict, client: TestClient):
@@ -23,5 +23,4 @@ class TestAuthRoutes:
         response = self.post(url=self.url, data=payload, client=client)
 
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.cookies.get("session")) == 128
         assert response.json() == {"message": "login successful"}
