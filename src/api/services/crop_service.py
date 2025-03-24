@@ -3,7 +3,7 @@ import os.path
 
 from src.api.core.models import CropModel
 from src.api.core.db_models import Crop
-from src.api.utils import logger
+from src.api.logger import logger
 
 
 class CropService:

@@ -11,7 +11,7 @@ from src.api.constants import AuthTypes
 from src.api.core.models import LoginRequest, GithubUser, TokenModel
 from src.api.core.db_models import User
 from src.api.core.security import Security, github
-from src.api.utils import logger
+from src.api.logger import logger
 from src.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -92,7 +92,7 @@ async def authenticate_github(request: Request) -> Response:
         iat=datetime.datetime.now(datetime.UTC)
     )
 
-    session_token = Security.encode_jwt(payload.model_dump())
+    session_token = Security.encode_jwt(payload)
 
     # TODO: Have this redirect to either the URL the user had last visited or the frontend.
     response = RedirectResponse(url="/docs")

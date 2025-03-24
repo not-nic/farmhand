@@ -4,7 +4,7 @@ from uuid import UUID
 from src.api.constants import FieldTypes, FarmTypes
 from src.api.core.db_models import BaseGameField, PrecisionFarmingField, Farm, Field
 from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel, FieldRequest, FieldUpdate
-from src.api.utils import logger
+from src.api.logger import logger
 
 
 class FieldService:
