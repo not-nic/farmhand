@@ -1,3 +1,7 @@
+"""
+Utils for pytest unit tests.
+"""
+
 import os.path
 
 

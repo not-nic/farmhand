@@ -34,6 +34,7 @@ oauth.register(
 
 github = oauth.github
 
+
 class Security:
     """
     Class for security functions such as password hashing and comparison.
@@ -68,10 +69,9 @@ class Security:
 
         if token.auth_type == AuthTypes.DEFAULT:
             return User.get(token.id)
+
         if token.auth_type == AuthTypes.GITHUB:
             return User.get_by_github_id(token.id)
-        else:
-            raise ValueError("Unknown authentication type")
 
     @staticmethod
     def encode_jwt(payload: TokenModel) -> str:
