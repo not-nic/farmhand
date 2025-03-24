@@ -1,6 +1,7 @@
 """
 Module for testing Farmhand authentication routes.
 """
+from typing import Optional
 
 import pytest
 from fastapi import status
@@ -12,7 +13,7 @@ class TestAuthRoutes:
     url = f"{settings.API_V1_STR}/auth"
 
     @staticmethod
-    def post(url: str, data: dict, client: TestClient):
+    def post(url: str, client: TestClient, data: Optional[dict] = None):
         return client.post(url, json=data)
 
     @staticmethod
@@ -27,7 +28,7 @@ class TestAuthRoutes:
         """
         payload = {"username": "notauser", "password": "notapassword"}
 
-        response = self.post(url=f"{self.url}/login", data=payload, client=client)
+        response = self.post(url=f"{self.url}/login", client=client, data=payload)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Username or password is incorrect"}
 
@@ -40,7 +41,7 @@ class TestAuthRoutes:
         """
         payload = {"username": "unit-testing-user", "password": "unit-testing-password"}
 
-        response = self.post(url=f"{self.url}/login", data=payload, client=client)
+        response = self.post(url=f"{self.url}/login", client=client, data=payload)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"message": "login successful"}
@@ -66,3 +67,13 @@ class TestAuthRoutes:
         """
         response = self.get(f"{self.url}/github/callback", client)
         assert response.status_code == status.HTTP_200_OK
+
+    def test_logout_of_service(self, client, session):
+        """
+        Test logging out of the service and assert a 204 is returned.
+        :param client: FastAPI client
+        """
+
+        # Log out of the service, and delete the JWT token.
+        response = self.post(url=f"{self.url}/logout", client=client)
+        assert response.status_code == status.HTTP_204_NO_CONTENT
