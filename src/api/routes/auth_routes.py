@@ -4,13 +4,14 @@ Module for authentication routes.
 
 import datetime
 
-from fastapi import APIRouter, HTTPException, status, Request, Response
+from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
 from fastapi.responses import RedirectResponse
 
 from src.api.constants import AuthTypes
 from src.api.core.models import LoginRequest, GithubUser, TokenModel
 from src.api.core.db_models import User
 from src.api.core.security import Security, github
+from src.api.deps import get_current_user
 from src.api.logger import logger
 from src.config import settings
 
@@ -100,20 +101,17 @@ async def authenticate_github(request: Request) -> Response:
     return response
 
 
-# TODO: Create logout endpoint to expire JWTs.
-# @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-# async def logout(current_user: dict = Depends(get_current_user)) -> Response:
-#     """
-#     Endpoint to log out and delete the session cookie.
-#     :param current_user: the current logged-in user.
-#     :return: 204 No content after the user has logged out.
-#     """
-#     session_token = current_user["session"]
-#
-#     if session_token in sessions:
-#         sessions.pop(session_token)
-#
-#     response = Response(status_code=status.HTTP_204_NO_CONTENT)
-#     response.delete_cookie("session")
-#
-#     return response
+@router.post(
+    "/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(get_current_user)]
+)
+async def logout() -> Response:
+    """
+    Endpoint to log out and delete the JWT token cookie.
+    :return: 204 No content after the user has logged out.
+    """
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie("farmhand_user")
+
+    return response
