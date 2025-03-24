@@ -1,11 +1,10 @@
-from typing import Optional
+"""
+Pytest conftest.py containing test setup, TestClient Fixtures and other mocks.
+"""
+from typing import Optional, Any, Generator
 
 import pytest
 
-from collections.abc import Generator
-
-from alembic import command
-from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -20,12 +19,14 @@ from main import app
 from main import settings
 from src.api.core.db import Base, engine
 from src.api.core.db_models import User
-from src.api.core.security import Security
+from src.api.core.security import Security, github
+
+pytest_plugins = "tests.fixtures"
+
 
 UNIT_TESTING_USER = "unit-testing-user"
 UNIT_TESTING_PASSWORD = "unit-testing-password"
-
-pytest_plugins = "tests.fixtures"
+GITHUB_TESTING_USER = "github-testing-user"
 
 
 @pytest.fixture(scope="module")
@@ -33,9 +34,6 @@ def create_database():
     """
     Fixture to create database and tables
     """
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
-
     Base.metadata.create_all(bind=engine)
 
 
@@ -46,14 +44,13 @@ def client(create_database) -> Generator[TestClient, None, None]:
     :return:
     """
     settings.ENVIRONMENT = "testing"
-
     with TestClient(app) as c:
         yield c
         Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="function")
-def create_test_user() -> User:
+def unit_test_user() -> Generator[User | None, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
@@ -69,18 +66,35 @@ def create_test_user() -> User:
     User.delete(test_user.id)
 
 
+@pytest.fixture(scope="function")
+def github_user() -> Generator[User | None, Any, None]:
+    """
+    Fixture for creating a user in the 'SQLite test database'
+    :return: the user object.
+    """
+    github_test_user = User.create(
+        username=GITHUB_TESTING_USER,
+        github_id=123456,
+        email_address="github-user@github.com",
+        name="github-user"
+    )
+
+    yield User.get(github_test_user.id)
+    User.delete(github_test_user.id)
+
+
 @pytest.fixture
-def session(client, create_test_user) -> str:
+def session(client, unit_test_user) -> Generator[str | None, Any, None]:
     """
     Create a session for the unit test user.
-    :param create_test_user:
-    :param client:
+    :param unit_test_user: The mock unit test user
+    :param client: the FastAPI test client
     :return:
     """
     payload = {"username": UNIT_TESTING_USER, "password": UNIT_TESTING_PASSWORD}
-    result = client.post(url=f"{settings.API_V1_STR}/login", json=payload)
-    session_token = result.cookies.get("session")
-    client.cookies["session"] = session_token
+    result = client.post(url=f"{settings.API_V1_STR}/auth/login", json=payload)
+    session_token = result.cookies.get("farmhand_user")
+    client.cookies["farmhand_user"] = session_token
     yield session_token
 
 
@@ -113,3 +127,46 @@ def mock_crop_data(mocker) -> None:
     :param mocker: pytest mocker
     """
     mocker.patch("src.api.services.crop_service.CropService._load_crop_data_from_fixture").return_value = crop_data()
+
+
+@pytest.fixture
+async def mock_github_login(mocker):
+    """
+    Mock the '/github' login and redirect request
+    :param mocker: pytest-mocker
+    :return: the mocked authorize_redirect object.
+    """
+    async def _mock_redirect(request, redirect_uri):
+        """Mock the GitHub redirect"""
+        return None
+
+    return mocker.patch.object(
+        github, "authorize_redirect", side_effect=_mock_redirect
+    )
+
+
+@pytest.fixture
+async def mock_github_authentication(mocker, github_user):
+    """
+    Mock the GitHub authentication callback and its access token.
+    :param mocker: pytest mocker
+    :param github_user: the github user to mock
+    """
+
+    async def _mock_github_token_response(url, token):
+        """Mock the GitHub token check"""
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {
+            "id": github_user.github_id,
+            "login": github_user.username,
+            "email": github_user.email_address,
+            "name": github_user.name
+        }
+        return mock_response
+
+    # Mock the authorisation of the access token
+    mocker.patch.object(github, "authorize_access_token", return_value={"access_token": "some-token"})
+
+    # Mock the authorisation of the github user and their token
+    mocker.patch.object(github, "get", side_effect=_mock_github_token_response)
+

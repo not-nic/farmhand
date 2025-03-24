@@ -1,38 +1,40 @@
+"""
+Module for FastAPI Dependencies that need to be called / injected before methods can be called.
+"""
+
+import jwt
+
 from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import Request, HTTPException, status, Depends, Path
-from fastapi.security import OAuth2PasswordBearer
 
 from src.api.core.db_models import User, Farm, Field
-from src.api.core.repositories import sessions
+from src.api.core.security import Security
 from src.api.services.field_service import FieldService
 from src.config import settings
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login")
 
-
-def get_current_user(request: Request) -> User:
+async def get_current_user(request: Request) -> User:
     """
-    dependency to get the current user by their session token
-    :param request: the incoming request object.
-    :return: the current logged-in user object.
+    Function to get the current user based on the JWT token stored in the user's
+    session.
+    :param request: the users request object
+    :return: (User) the user associated with the request.
     """
-    session_token = request.cookies.get("session")
+    session_token = request.cookies.get("farmhand_user")
 
     if not session_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session token missing or invalid"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token")
 
-    session_data = sessions.get(session_token)
-    if not session_data:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token"
-        )
+    try:
+        token = Security.decode_jwt(session_token)
+        user = Security.get_user_by_auth_type(token)
 
-    username = session_data["username"]
-    user = User.get_by_username(username)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

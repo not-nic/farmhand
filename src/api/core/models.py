@@ -1,11 +1,16 @@
-import datetime
-import uuid
-from typing import Optional
+"""
+Python Module for Pydantic Request/Response/CRUD Models.
+"""
 
-from pydantic import BaseModel, field_validator, model_validator, Field, conint, condecimal
+from typing import Optional, Union
+
+from datetime import datetime, date
+from uuid import UUID
+from pydantic import BaseModel, field_validator, field_serializer, model_validator, Field, conint, condecimal
 from decimal import Decimal
 
-from src.api.constants import FarmTypes, WeedStates, FertilizerStates, SoilTypes, FieldTypes
+from src.api.constants import FarmTypes, WeedStates, FertilizerStates, SoilTypes, FieldTypes, AuthTypes
+from src.api.core.serializers import Serializers
 from src.api.core.validators import Validators
 
 
@@ -27,6 +32,43 @@ class UserCreate(BaseModel):
     email_address: str
     password: str
     name: str
+
+
+class TokenModel(BaseModel):
+    """
+    pydantic model for the JWT Token used in the username/password login and github
+    authentication.
+    """
+
+    id: Union[int, UUID]
+    auth_type: AuthTypes = Field(default=AuthTypes.DEFAULT)
+    expires_at: datetime = Field(alias="exp")
+    issued_at: datetime = Field(alias="iat")
+
+    @field_serializer("expires_at", "issued_at")
+    def serialize_expires_and_issued_at_values(self, value):
+        return Serializers.serialize_datetime(value)
+
+    class Config:
+        populate_by_name = True
+        by_alias = True
+
+
+class GithubUser(BaseModel):
+    """
+    Pydantic model for a user that has authenticated with GitHub.
+    """
+    id: int
+    username: str = Field(alias="login")
+    name: str
+    email: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_github_email(self):
+        Validators.validate_github_email_if_not_exists(self)
+
+    class Config:
+        populate_by_name = True
 
 
 class FarmRequest(BaseModel):
@@ -60,13 +102,13 @@ class FarmResponse(BaseModel):
     Response model for returning a singular farm.
     """
 
-    id: uuid.UUID
+    id: UUID
     name: str
     farm_type: FarmTypes
     map_name: str
     map_id: Optional[int]
     description: str
-    created_at: datetime.datetime
+    created_at: datetime
 
 
 class FarmsResponse(BaseModel):
@@ -106,7 +148,7 @@ class FieldRequest(BaseModel):
 
 
 class PrecisionFarmingFieldModel(BaseModel):
-    id: uuid.UUID
+    id: UUID
     number: int
     ground_type: str
     size: float
@@ -117,11 +159,11 @@ class PrecisionFarmingFieldModel(BaseModel):
     ph_level: Optional[float] = None
     soil_type: Optional[SoilTypes] = None
     weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
-    created_at: datetime.datetime
+    created_at: datetime
 
 
 class BaseGameFieldModel(BaseModel):
-    id: uuid.UUID
+    id: UUID
     number: int
     ground_type: str
     size: float
@@ -131,7 +173,7 @@ class BaseGameFieldModel(BaseModel):
     limed: Optional[bool] = None
     fertilized: Optional[FertilizerStates] = None
     weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
-    created_at: datetime.datetime
+    created_at: datetime
 
 
 class FieldsResponse(BaseModel):
@@ -172,7 +214,7 @@ class ModModel(BaseModel):
     author: str = Field(..., alias="Author")
     size: str = Field(..., alias="Size")
     version: str = Field(..., alias="Version")
-    release_date: Optional[datetime.date | str] = Field(..., alias="Released")
+    release_date: Optional[date | str] = Field(..., alias="Released")
     platform: Optional[list | str] = Field(..., alias="Platform")
 
     @field_validator("release_date")

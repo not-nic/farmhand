@@ -16,9 +16,10 @@ class User(UserRepository):
     __tablename__ = "users"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
+    github_id = Column(Integer, unique=True, nullable=True)
     username = Column(String(255), unique=True, nullable=False)
     email_address = Column(String(255), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=True)
     name = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,6 +26,15 @@ class Settings(BaseSettings):
     SERVICE_USER_EMAIL: str
     SERVICE_USER_PASSWORD: str
 
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+    GITHUB_OAUTH_CALLBACK_URL: str
+    GITHUB_TOKEN_EXPIRATION_TIME: timedelta = timedelta(days=7)
+
+    JWT_TOKEN_EXPIRATION_TIME: timedelta = timedelta(minutes=60)
+    JWT_ALGORITHM: str = "HS256"
+    JWT_SECRET_KEY: str
+
     @computed_field(return_type=str)
     def DATABASE_URL(self):
         if self.ENVIRONMENT == "development":
@@ -31,7 +42,7 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
 
-    LOG_FORMATTER: str = (
+    LOG_FORMAT: str = (
         "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - [%(levelname)s] - %(message)s"
     )
 

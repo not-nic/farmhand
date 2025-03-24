@@ -4,6 +4,7 @@ Entrypoint for starting the application.
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
 from src.api.fixtures.fixtures import Fixtures
 from src.api.routes import api_router
@@ -12,11 +13,17 @@ from src.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Functions that can be run on the startup and teardown
+    of an application.
+    :param app: the FastAPI application instance
+    """
     Fixtures.create_service_user()
     await Fixtures.create_crop_data()
     yield  # Continue running the app
 
 
 app = FastAPI(title=f"{settings.PROJECT_NAME}-{settings.VERSION}", lifespan=lifespan)
+app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

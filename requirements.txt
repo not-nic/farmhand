@@ -1,4 +1,5 @@
-fastapi==0.115.11
+fastapi==0.115.12
+starlette==0.46.1
 sqlalchemy==2.0.38
 pydantic==2.10.6
 alembic==1.15.1
@@ -12,11 +13,14 @@ pytest-cov==6.0.0
 pytest-asyncio==0.25.3
 uvicorn==0.34.0
 passlib==1.7.4
-pydantic-settings~=2.8.1
+pydantic-settings==2.8.1
 pydantic_core==2.27.2
 python-dotenv==1.0.1
 ruff==0.9.9
 StrEnum==0.4.15
 requests==2.32.3
 beautifulsoup4==4.13.3
+authlib==1.5.1
+itsdangerous==2.2.0
 httpx==0.28.1
+pyjwt==2.10.1
