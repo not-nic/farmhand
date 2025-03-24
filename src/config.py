@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     GITHUB_OAUTH_CALLBACK_URL: str
     GITHUB_TOKEN_EXPIRATION_TIME: timedelta = timedelta(days=7)
 
-    JWT_TOKEN_EXPIRATION_TIME: timedelta = timedelta(seconds=60)
+    JWT_TOKEN_EXPIRATION_TIME: timedelta = timedelta(minutes=60)
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
 
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
 
-    LOG_FORMATTER: str = (
+    LOG_FORMAT: str = (
         "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - [%(levelname)s] - %(message)s"
     )
 

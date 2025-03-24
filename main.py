@@ -13,6 +13,11 @@ from src.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Functions that can be run on the startup and teardown
+    of an application.
+    :param app: the FastAPI application instance
+    """
     Fixtures.create_service_user()
     await Fixtures.create_crop_data()
     yield  # Continue running the app

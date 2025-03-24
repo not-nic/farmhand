@@ -46,7 +46,7 @@ class TokenModel(BaseModel):
     issued_at: datetime = Field(alias="iat")
 
     @field_serializer("expires_at", "issued_at")
-    def serialize_expires_and_issued_at_values(cls, value):
+    def serialize_expires_and_issued_at_values(self, value):
         return Serializers.serialize_datetime(value)
 
     class Config:
