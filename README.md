@@ -2,7 +2,16 @@
 
 ![farmhand-logo-dark](https://github.com/user-attachments/assets/f93546cb-1fbe-4044-84ae-bbe849b580e4)
 
-This is the backend API for the Farmhand application written in Python & FastAPI. Farmhand is a companion service that can be used alongside Farming Simulator 2025 (and 2022!) to track, manage and plan your farm, vehicles, crops and more. 🌾
+This is the backend API for Farmhand, a companion service for Farming Simulator 2025 (and 2022)! 
+Built with Python and FastAPI, Farmhand helps you track, manage and plan your farm, vehicles,
+crops and more. 🌾
+
+This project originated from my dissertation, which focused on building a Farming Simulator dashboard using Spring Boot and Vue.js, 
+and focused on the XML processing of a save game.
+
+Visit those repos here:
+> Treadcrumb's Frontend: https://github.com/not-nic/treadcrumbs-frontend \
+> Treadcrumb's Backend: https://github.com/not-nic/treadcrumbs-backend
 
 ## Install Guide
 1. Clone this repository on your machine:
@@ -21,6 +30,13 @@ This is the backend API for the Farmhand application written in Python & FastAPI
    SERVICE_USER_USERNAME=service-user  
    SERVICE_USER_EMAIL=service-user@farmhand.uk  
    SERVICE_USER_PASSWORD=<your_password>
+   
+   JWT_SECRET_KEY=<your_secret_key>
+   
+   # Only required if using GitHub OAuth
+   GITHUB_CLIENT_ID=<your_client_id>
+   GITHUB_CLIENT_SECRET=<your_secret>
+   GITHUB_OAUTH_CALLBACK_URL=http://localhost:8000/api/v1/auth/github/callback
    ```
 3. Start the service with docker:
    ```bash
@@ -93,7 +109,7 @@ pytest pytest tests/api/services/test_modhub_service.py::TestModHubService::test
 ```
 > Note: you can also use -s for standard output (prints, log messages, etc.) or -vv to produce a very verbose output.
 
-### Running with test coverage
+### Test Coverage
 
 To check the test coverage of the repository use the following command:
 ```bash
