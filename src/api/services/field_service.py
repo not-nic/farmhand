@@ -1,22 +1,27 @@
-from typing import Union, Optional
+"""
+Field Service Module for creating and managing fields in Farmhand.
+"""
+from typing import Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
 from src.api.core.db_models import BaseGameField, PrecisionFarmingField, Farm, Field
-from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel, FieldRequest, FieldUpdate
+from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel, FieldRequest, FieldUpdate, \
+    FieldResponse, FieldsResponse, CropResponse
 from src.api.logger import logger
+from src.api.services.crop_service import CropService
 
 
 class FieldService:
     """
-    Field Service module for field CRUD methods and any additional logic.
+    Field Service class for field CRUD methods and any additional logic relating to fields.
     """
 
     def create_field_by_field_type(
         self,
         field_request: FieldRequest,
         current_farm: Farm
-    ) -> Union[BaseGameFieldModel, PrecisionFarmingFieldModel]:
+    ) -> FieldResponse:
         """
         Create a field based on the current farm type.
         Precision Farm's cannot create a 'Base' field and vice versa.
@@ -24,15 +29,30 @@ class FieldService:
         :param field_request: the field request object.
         :return: Pydantic Model for Base Game Field, Precision Farming Field
         """
+        field: Field = Field.create(
+            number=field_request.number,
+            size=field_request.size,
+            ground_type=field_request.ground_type,
+            field_type=field_request.field_type,
+            plowed=field_request.plowed,
+            rolled=field_request.rolled,
+            mulched=field_request.mulched,
+            weeds=field_request.weeds,
+            farm_id=current_farm.id
+        )
 
         if self._is_base_game_field(field_request, current_farm):
             logger.info(f"Creating base game field for farm: {current_farm.name} ({current_farm.id})")
 
-            return self._create_base_game_field(field_request, current_farm.id)
+            self._create_base_game_field(field.id, field_request)
+            return self.get_field_details(field)
+
         elif self._is_precision_farming_field(field_request, current_farm):
             logger.info(f"Creating precision farming field for farm: {current_farm.name} ({current_farm.id})")
 
-            return self._create_precision_farming_field(field_request, current_farm.id)
+            self._create_precision_farming_field(field.id, field_request)
+            return self.get_field_details(field)
+
         else:
             raise ValueError(f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm.")
 
@@ -56,18 +76,86 @@ class FieldService:
 
         return field
 
+    def get_all_fields(
+            self,
+            current_farm: Farm,
+            show_crop: Optional[bool] = False,
+            crop_type: Optional[str] = None
+    ) -> dict:
+        """
+        Get all fields associated with a farm.
+        :param current_farm: the current farm to get fields from
+        :param show_crop:
+        :param crop_type:
+        :return: a FieldsResponse object containing all the fields and the amount.
+        """
+        fields = current_farm.fields
+        fields, show_crop = self.filter_fields_by_crop(crop_type, fields, show_crop)
+
+        field_details = [self.get_field_details(field, show_crop) for field in fields]
+        fields_count = len(fields)
+        return FieldsResponse(fields=field_details, count=fields_count).model_dump(exclude_none=True)
+
+    def filter_fields_by_crop(self, crop_type: str, fields: list[Field], show_crop: bool) -> tuple[list[Field], bool]:
+        """
+        Filter the Farm's field by matching current crop type.
+        Usage: 'Get all fields growing wheat'
+        :param crop_type: The crop type to get.
+        :param fields: all fields to find matching crops in.
+        :param show_crop: Boolean to show the crops in the response
+        :return: (tuple) of fields and a 'show_crops' True.
+        """
+        if crop_type:
+            logger.info(f"Getting crop type: {crop_type}")
+            crop = CropService.get_crop_by_type(crop_type)
+
+            if not crop:
+                raise ValueError(f"Invalid crop_type: {crop_type} does not exist.")
+
+            fields = self._get_fields_by_crop_id(crop.id, fields)
+            # Set the show crop value to true to always return it in the response object.
+            show_crop = True
+        return fields, show_crop
+
     @staticmethod
-    def get_field_details(field: Field) -> Optional[Union[BaseGameFieldModel, PrecisionFarmingFieldModel]]:
+    def _get_fields_by_crop_id(crop_id: int, fields: list[Field]) -> list[Field]:
         """
-        Get the Pydantic model of field details for a requested field.
-        :param field: The field to get the details from.
-        :return: Pydantic model of the field.
+        Get fields by their crop_id
+        :param crop_id: the id of the requested crop
+        :param fields: all farm fields containing the same crop
+        :return: a list of fields that contain the same crop.
         """
-        if field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
-            return PrecisionFarmingFieldModel(**field.get_field_details())
+        fields = [
+            field for field in fields
+            if any(field_crop.crop_id == crop_id for field_crop in field.crops)
+        ]
+        return fields
+
+    @staticmethod
+    def get_field_details(field: Field, show_crops: Optional[bool] = False) -> FieldResponse:
+        """
+        Get the details of a field and its relationships to a base game field
+        or precision farming field
+        :param field: the field to get details about
+        :param show_crops:
+        :return: a FieldResponse object containing all the details.
+        """
+        field_data = FieldResponse(**field.to_dict())
 
         if field.field_type == FieldTypes.BASE_FIELD:
-            return BaseGameFieldModel(**field.get_field_details())
+            field_data.set_base_field(
+                BaseGameFieldModel(**field.base_game_field.to_dict())
+            )
+
+        if field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
+            field_data.set_precision_field(
+                PrecisionFarmingFieldModel(**field.precision_farming_field.to_dict())
+            )
+
+        if show_crops:
+            field_data.crop = CropResponse(**field.current_crop()) if field.current_crop() else None
+
+        return field_data
 
     @staticmethod
     def update_field(field: Field, field_update: FieldUpdate) -> None:
@@ -106,46 +194,28 @@ class FieldService:
                 current_farm.farm_type == FarmTypes.PRECISION_FARMING)
 
     @staticmethod
-    def _create_base_game_field(field_request: FieldRequest, farm_id: UUID) -> BaseGameFieldModel:
+    def _create_base_game_field(field_id: UUID, field_request: FieldRequest):
         """
         Helper Function to create a Precision Farming field.
-        :param field_request: the FieldRequest Object
-        :param farm_id: the current farm id
-        :return: A pydantic BaseGameField model
+        :param field_id: the field ID to assign the base game field to.
+        :param field_request: the FieldRequest object sent in the request.
         """
-        field = Field.create(
-            **field_request.model_dump(exclude_none=True, exclude={"fertilized", "limed"}),
-            farm_id=farm_id
-        )
-
-        base_game_field = BaseGameField.create(
-            id=field.id,
+        BaseGameField.create(
+            id=field_id,
             fertilized=field_request.fertilized,
             limed=field_request.limed
         )
 
-        field.base_game_field = base_game_field
-        return BaseGameFieldModel(**field.get_field_details())
-
     @staticmethod
-    def _create_precision_farming_field(field_request: FieldRequest, farm_id: UUID) -> PrecisionFarmingFieldModel:
+    def _create_precision_farming_field(field_id: UUID, field_request: FieldRequest):
         """
         Helper Function to create a Precision Farming field.
-        :param field_request: the FieldRequest Object
-        :param farm_id: the current farm id
-        :return: A pydantic PrecisionFarmingField model
+        :param field_id: the field ID to assign the precision farming field to.
+        :param field_request: the FieldRequest object sent in the request.
         """
-        field = Field.create(
-            **field_request.model_dump(exclude_none=True, exclude={"nitrogen_level", "ph_level", "soil_type"}),
-            farm_id=farm_id
-        )
-
-        precision_farming_field = PrecisionFarmingField.create(
-            id=field.id,
+        PrecisionFarmingField.create(
+            id=field_id,
             nitrogen_level=field_request.nitrogen_level,
             ph_level=field_request.ph_level,
             soil_type=field_request.soil_type
         )
-
-        field.precision_farming_field = precision_farming_field
-        return PrecisionFarmingFieldModel(**field.get_field_details())

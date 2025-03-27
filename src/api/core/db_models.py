@@ -193,4 +193,8 @@ class FieldCrop(Repository):
     crop = relationship("Crop")
 
     def __repr__(self):
-        return f"<FieldCrop: {self.crop.name} on Field {self.field_id} at {self.planted_at}>"
+        return (
+            f"<FieldCrop: {self.crop.type} "
+            f"on Field {self.field.number} ({self.field_id}) "
+            f"planted at {self.planted_at}>"
+        )

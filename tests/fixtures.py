@@ -10,7 +10,7 @@ from uuid import UUID
 
 from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
 from src.api.core.db_models import User, Map, Farm
-from src.api.core.models import FieldRequest, BaseGameFieldModel, PrecisionFarmingFieldModel
+from src.api.core.models import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from tests.conftest import UNIT_TESTING_USER
 
@@ -53,9 +53,15 @@ def user_id() -> UUID:
 
 
 @pytest.fixture
-def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldModel]]:
+def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
+    """
+    Pytest Fixture for generating fields associated with a Farm.
+    :param farms: the farms to link fields to
+    """
+    field_service = FieldService()
+
     base_fields = [
-        FieldService._create_base_game_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=1,
                 size=Decimal(15.0),
@@ -68,12 +74,12 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 fertilized=FertilizerStates.FIFTY_PERCENT,
                 limed=True
             ),
-            farm_id=farms[0].id
+            current_farm=farms[0]
         ),
-        FieldService._create_base_game_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=2,
-                size=20,
+                size=Decimal(20.0),
                 ground_type="growing",
                 field_type=FieldTypes.BASE_FIELD,
                 plowed=True,
@@ -83,12 +89,12 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 fertilized=FertilizerStates.FIFTY_PERCENT,
                 limed=True
             ),
-            farm_id=farms[0].id
+            current_farm=farms[0]
         ),
-        FieldService._create_base_game_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=3,
-                size=10.5,
+                size=Decimal(10.5),
                 ground_type="ready to harvest",
                 field_type=FieldTypes.BASE_FIELD,
                 plowed=True,
@@ -98,15 +104,15 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 fertilized=FertilizerStates.FIFTY_PERCENT,
                 limed=True
             ),
-            farm_id=farms[0].id
+            current_farm=farms[0]
         ),
     ]
 
     precision_fields = [
-        FieldService._create_precision_farming_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=1,
-                size=15,
+                size=Decimal(15.0),
                 ground_type="planted",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,
@@ -117,12 +123,12 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 ph_level=5.0,
                 soil_type=SoilTypes.SANDY_LOAM
             ),
-            farm_id=farms[1].id
+            current_farm=farms[1]
         ),
-        FieldService._create_precision_farming_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=2,
-                size=20,
+                size=Decimal(20.0),
                 ground_type="growing",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,
@@ -133,12 +139,12 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 ph_level=5.0,
                 soil_type=SoilTypes.LOAM
             ),
-            farm_id=farms[1].id
+            current_farm=farms[1]
         ),
-        FieldService._create_precision_farming_field(
+        field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=3,
-                size=10.5,
+                size=Decimal(10.5),
                 ground_type="ready to harvest",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,
@@ -149,7 +155,7 @@ def fields(farms) -> tuple[list[BaseGameFieldModel], list[PrecisionFarmingFieldM
                 ph_level=5.0,
                 soil_type=SoilTypes.SILTY_CLAY
             ),
-            farm_id=farms[1].id
+            current_farm=farms[1]
         )
     ]
 

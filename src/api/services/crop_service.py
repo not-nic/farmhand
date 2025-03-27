@@ -1,12 +1,76 @@
+"""
+Crop Service Module for interacting and managing with crops that are associated with fields
+"""
 import json
 import os.path
+from typing import Optional
 
-from src.api.core.models import CropModel
-from src.api.core.db_models import Crop
+from src.api.core.models import CropModel, CropRequest, CropResponse
+from src.api.core.db_models import Crop, FieldCrop, Field
 from src.api.logger import logger
 
 
 class CropService:
+    """
+    Crop Service:
+
+    This service is responsible for managing crops on a user's farm, including adding, updating,
+    and retrieving crop data. It also handles the initialization of crops during the application's startup.
+    """
+
+    def plant_crop(self, current_field: Field, crop_request: CropRequest) -> FieldCrop:
+        """
+        Plant (create) a crop and assign it to a field.
+        :param current_field: The current field to create a crop on.
+        :param crop_request: the crop request object.
+        :return: the new created field crop.
+        """
+        crop = self.get_crop_by_type(crop_request.crop_type)
+        Field.update(id=current_field.id, ground_type=crop_request.ground_type)
+        return FieldCrop.create(crop_id=crop.id, field_id=current_field.id)
+
+    def get_past_crops(self, current_field: Field) -> list[CropResponse]:
+        """
+        Get the 'past' crops that have been planted on a field.
+        :param current_field: the current field to get crops for.
+        :return: a list of the past crops
+        """
+        return self.format_crop_response(current_field.past_crops())
+
+    def get_current_crop(self, current_field: Field) -> list[CropResponse]:
+        """
+        Get the current crops that have been planted on a field.
+        :param current_field: the current field to get crops for.
+        :return: a list of the current crop.
+        """
+        return self.format_crop_response([current_field.current_crop()])
+
+    def get_all_crops(self, current_field: Field) -> list[CropResponse]:
+        """
+        Get all the crops that have been planted in a field.
+        :param current_field: the current field to get data for.
+        :return: a list of all the crops that have been planted on a field.
+        """
+        return self.format_crop_response(current_field.get_crops_dict())
+
+    @staticmethod
+    def get_crop_by_type(crop_type: str) -> Optional[Crop]:
+        """
+        Get a crop by its crop_type e.g. wheat, barley etc.
+        :param crop_type: the crop type to get
+        :return: the crop if it exists.
+        """
+        return Crop.get_by_type(crop_type)
+
+    @staticmethod
+    def format_crop_response(field_crops: list) -> list[CropResponse]:
+        """
+        Helper function to format crop response
+        :param field_crops: List of crops
+        :return: CropsResponse pydantic model containing the field crops and the count.
+        """
+        return [CropResponse(**crop_dict) for crop_dict in field_crops]
+
     async def load_crops(self, crop_data: dict = None) -> None:
         """
         Load crop information into the database on application start up or

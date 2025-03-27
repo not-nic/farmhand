@@ -1,4 +1,4 @@
-from typing import Optional, TypeVar, TYPE_CHECKING, Union
+from typing import Optional, TypeVar, TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from src.api.core.db import Base, db_session
 
 if TYPE_CHECKING:
-    from src.api.core.db_models import User, Field, Crop, PrecisionFarmingField, BaseGameField
+    from src.api.core.db_models import User, Field, Crop
 
 T = TypeVar("T", bound="Repository")
 
@@ -217,42 +217,29 @@ class FieldRepository(Repository):
             session.commit()
         return field
 
-    def get_field_details(self: "Field") -> dict:
+    def current_crop(self: "Field") -> Optional[dict]:
         """
-        Get all the details of a field + plus its field type data.
-        :return: (dict) of all field details
+        Get the most recent crop planted as a dictionary.
         """
-        field_details = {column.name: getattr(self, column.name) for column in self.__table__.columns}
+        crops_dict = self.get_crops_dict()
+        return crops_dict[0] if crops_dict else None
 
-        base_field_values = ["fertilized", "limed"]
-        precision_field_values = ["nitrogen_level", "ph_level", "soil_type"]
-
-        field_details.update(self._get_related_field_details(self.base_game_field, base_field_values))
-        field_details.update(self._get_related_field_details(self.precision_farming_field, precision_field_values))
-        return field_details
-
-    @staticmethod
-    def _get_related_field_details(
-        related_field: Union["BaseGameField", "PrecisionFarmingField"],
-        field_values: list
-    ) -> dict:
+    def past_crops(self: "Field") -> list[dict]:
         """
-        Helper function to extract field data from a field's field type.
-        :param related_field: The related field object (e.g., base_game_field or precision_farming_field).
-        :param field_values: List of field values to extract from the specific field.
-        :return: (dict) of the specific field values.
+        Get all previous crops (excluding the current one) as dictionaries.
         """
-        return {value: getattr(related_field, value, None) for value in field_values} if related_field else {}
+        crops_dict = self.get_crops_dict()
+        return crops_dict[1:]
 
-    @classmethod
-    def current_crop(cls: "Field"):
+    def get_crops_dict(self: "Field") -> list[dict]:
         """
-        Get the most recent crop planted.
+        Get all crops for the field as a readable dictionary.
         """
-        return cls.crops[0].crop if cls.crops else None
-
-    # def past_crops(self):
-    #     """
-    #     Get all previous crops (excluding the current one).
-    #     """
-    #     return [fc.crop for fc in self.crops[1:]]
+        return [
+            {
+                "id": field_crop.id,
+                "crop_type": field_crop.crop.type,
+                "planted_at": field_crop.planted_at
+            }
+            for field_crop in self.crops
+        ]

@@ -1,10 +1,13 @@
-from typing import Union
+"""
+API Routes for Fields.
+"""
+
+from typing import Optional
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
 from src.api.core.db_models import Farm
-from src.api.core.models import FieldRequest, FieldsResponse, PrecisionFarmingFieldModel, \
-    BaseGameFieldModel, FieldUpdate
+from src.api.core.models import FieldRequest, FieldUpdate, FieldResponse
 from src.api.deps import get_current_user, get_users_farm, CurrentField
 from src.api.services.field_service import FieldService
 
@@ -16,7 +19,7 @@ field_service = FieldService()
 async def create_field(
         field_request: FieldRequest,
         current_farm: Farm = Depends(get_users_farm)
-) -> Union[BaseGameFieldModel, PrecisionFarmingFieldModel]:
+) -> dict:
     """
     Create a field based on the current farm type.
     Precision Farm's cannot create a 'Base' field and vice versa.
@@ -24,7 +27,7 @@ async def create_field(
     :param field_request: the field request object.
     """
     try:
-        return field_service.create_field_by_field_type(field_request, current_farm)
+        return field_service.create_field_by_field_type(field_request, current_farm).model_dump(exclude_none=True)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -35,19 +38,23 @@ async def create_field(
 @router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 async def get_fields(
     current_farm: Farm = Depends(get_users_farm),
-) -> FieldsResponse:
+    show_crop: Optional[bool] = False,
+    crop_type: Optional[str] = None
+) -> dict:
     """
     Get all fields associated with a farm.
     :param current_farm: the farm for the logged-in user
+    :param show_crop: Show crops planted in the fields
+    :param crop_type: The type of crop to filter fields by
     :return: (FieldsResponse) of field information and amount of fields.
     """
-    fields = []
-    for field in current_farm.fields:
-        field_model_inst = field_service.get_field_details(field)
-        fields.append(field_model_inst.model_dump(exclude_none=True))
-
-    fields_count = len(fields)
-    return FieldsResponse(fields=fields, count=fields_count).model_dump(exclude_none=True)
+    try:
+        return field_service.get_all_fields(current_farm, show_crop, crop_type)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc)
+        )
 
 
 @router.get(
@@ -55,13 +62,14 @@ async def get_fields(
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
     status_code=status.HTTP_200_OK
 )
-async def get_field_by_id(field: CurrentField) -> Union[PrecisionFarmingFieldModel, BaseGameFieldModel]:
+async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False) -> FieldResponse:
     """
     Get a field by its id.
     :param field: the field to get all details for
+    :param show_crop: Show crops in the response from the service.
     :return: Pydantic PrecisionFarmingField or BaseFieldModel
     """
-    return field_service.get_field_details(field)
+    return field_service.get_field_details(field, show_crop)
 
 
 @router.put(
