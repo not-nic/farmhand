@@ -1,5 +1,5 @@
 """
-Module for testing Farmhand authentication routes.
+Unit Tests for the Auth API Routes.
 """
 from typing import Optional
 

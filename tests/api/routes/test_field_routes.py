@@ -1,12 +1,18 @@
+"""
+Unit Tests for the Field API Routes.
+"""
+
 import pytest
 
-from typing import Optional, List, Union
+from typing import Optional
 from uuid import UUID, uuid4
 from fastapi import status
+from pytest_asyncio import fixture
 
-from src.api.constants import FertilizerStates, WeedStates, SoilTypes, FieldTypes
+from src.api.constants import SoilTypes, FieldTypes
 from src.api.core.db_models import Field
-from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel
+from src.api.core.models import FieldResponse, FieldsResponse
+from src.api.services.field_service import FieldService
 from tests.conftest import TestClient
 from src.config import settings
 
@@ -35,6 +41,26 @@ class TestFieldRoutes:
         field_id_path = f"/{field_id}" if field_id else ""
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_id_path}"
 
+    @fixture
+    def expected_base_field(self, fields):
+        """
+        Fixture for the expected field.
+        :param fields:
+        :return:
+        """
+        base_fields, _ = fields
+        return base_fields[0]
+
+    @fixture
+    def expected_precision_field(self, fields):
+        """
+        Fixture for the expected field.
+        :param fields:
+        :return:
+        """
+        _, precision_farming_field = fields
+        return precision_farming_field[0]
+
     def test_create_base_field(self, client, session, farms):
         """
         test that a base field is created and the correct field object is returned.
@@ -59,17 +85,10 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_field: dict = Field.get(UUID(result_json["id"])).get_field_details()
+        field_service = FieldService()
+        expected_field: FieldResponse = field_service.get_field_details(Field.get(UUID(result_json["id"])))
 
-        for key, value in payload.items():
-            if key == "fertilized":
-                expected_enum_value = FertilizerStates(value)
-                assert expected_field.get(key) == expected_enum_value
-            elif key == "weeds":
-                expected_enum_value = WeedStates(value)
-                assert expected_field.get(key) == expected_enum_value
-            else:
-                assert expected_field.get(key) == value
+        assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
     def test_create_precision_farming_field(self, client, session, farms):
         """
@@ -96,10 +115,10 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_field: dict = Field.get(UUID(result_json["id"])).get_field_details()
+        field_service = FieldService()
+        expected_field: FieldResponse = field_service.get_field_details(Field.get(UUID(result_json["id"])))
 
-        for key, value in payload.items():
-            assert expected_field.get(key) == value
+        assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
     def test_validation_error_when_creating_field_with_both_types(self, client, session, farms):
         """
@@ -157,19 +176,15 @@ class TestFieldRoutes:
         result_json = result.json()
         assert result_json["detail"] == "Cannot create a base_field on a precision_farming farm."
 
-    def test_updating_field_on_base_game_farm(self, client, session, farms, fields):
+    def test_updating_field_on_base_game_farm(self, client, session, farms, expected_base_field):
         """
         Test updating a base game field on a base game farm.
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
-        :param fields: create fields fixture
+        :param expected_base_field: the expected base field fixture
         """
         expected_farm = farms[0]
-
-        base_fields: List[BaseGameFieldModel]
-        base_fields, _ = fields
-        expected_field = base_fields[0]
 
         payload = {
             "number": 999,
@@ -179,22 +194,18 @@ class TestFieldRoutes:
             "weeds": 4,
         }
 
-        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), payload, client)
+        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_update_field_on_precision_farm(self, client, session, farms, fields):
+    def test_update_field_on_precision_farm(self, client, session, farms, expected_precision_field):
         """
         Test updating a precision farming field on a precision farm.
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
-        :param fields: create fields fixture
+        :param expected_precision_field: the expected precision farming field fixture
         """
         expected_farm = farms[1]
-
-        precision_farming_fields: List[PrecisionFarmingFieldModel]
-        _, precision_farming_fields = fields
-        expected_field = precision_farming_fields[0]
 
         payload = {
             "number": 999,
@@ -206,62 +217,51 @@ class TestFieldRoutes:
             "soil_type": SoilTypes.SILTY_CLAY
         }
 
-        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), payload, client)
+        result = self.put(self.field_url(
+            farm_id=expected_farm.id, field_id=expected_precision_field.id), payload, client
+        )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_delete_base_game_field(self, client, session, farms, fields):
+    def test_delete_base_game_field(self, client, session, farms, expected_base_field):
         """
         Test deleting a base game field record
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
-        :param fields: create fields fixture
+        :param expected_base_field: the expected base field fixture
         """
         expected_farm = farms[0]
 
-        base_fields: List[BaseGameFieldModel]
-        base_fields, _ = fields
-        expected_field = base_fields[0]
-
-        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client)
+        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_delete_precision_farming_field(self, client, session, farms, fields):
+    def test_delete_precision_farming_field(self, client, session, farms, expected_precision_field):
         """
         Test deleting a precision farming field record
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
-        :param fields: create fields fixture
+        :param expected_precision_field: the expected precision farming field fixture
         """
         expected_farm = farms[1]
 
-        precision_farming_fields: List[PrecisionFarmingFieldModel]
-        _, precision_farming_fields = fields
-        expected_field = precision_farming_fields[0]
-
-        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client)
+        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id), client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_get_field_by_id(self, client, session, farms, fields):
+    def test_get_field_by_id(self, client, session, farms, fields, expected_base_field):
         """
         Test that a single farm record can be retrieved from the get endpoint.
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
+        :param expected_base_field: the expected base field
         """
         expected_farm = farms[0]
 
-        base_fields: List[BaseGameFieldModel]
-        base_fields, _ = fields
-        expected_field = base_fields[0]
-
-        result = self.get(self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client)
-        result_json = result.json()
+        result = self.get(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client)
 
         assert result.status_code == status.HTTP_200_OK
-
-        self.assert_field_info_matches(expected_field, result_json)
+        assert result.json() == expected_base_field.model_dump(mode="json")
 
     def test_get_field_that_does_not_exist(self, client, session, farms):
         """
@@ -314,7 +314,6 @@ class TestFieldRoutes:
         :param farms: fixture to create farms on test run
         :param fields: fixture to create fields on test run
         """
-        base_fields: List[BaseGameFieldModel]
         base_fields, _ = fields
 
         base_fields_results = self.get(self.field_url(farm_id=farms[0].id), client)
@@ -322,7 +321,12 @@ class TestFieldRoutes:
         assert base_fields_results.status_code == status.HTTP_200_OK
         assert base_fields_results.json()["count"] == len(base_fields)
 
-        self.assert_fields_equal(base_fields, base_fields_results.json()["fields"])
+        expected_field_json = FieldsResponse(
+            fields=base_fields,
+            count=len(base_fields)
+        ).model_dump(mode="json", exclude_none=True)
+
+        assert base_fields_results.json() == expected_field_json
 
     def test_get_all_fields_for_a_precision_farming_farm(self, client, session, farms, fields):
         """
@@ -332,7 +336,7 @@ class TestFieldRoutes:
         :param farms: fixture to create farms on test run
         :param fields: fixture to create fields on test run
         """
-        precision_farming_fields: List[PrecisionFarmingFieldModel]
+        precision_farming_fields: list[FieldResponse]
         _, precision_farming_fields = fields
 
         precision_farming_results = self.get(self.field_url(farm_id=farms[1].id), client)
@@ -340,47 +344,9 @@ class TestFieldRoutes:
         assert precision_farming_results.status_code == status.HTTP_200_OK
         assert precision_farming_results.json()["count"] == len(precision_farming_fields)
 
-        self.assert_fields_equal(precision_farming_fields, precision_farming_results.json()["fields"])
+        expected_field_json = FieldsResponse(
+            fields=precision_farming_fields,
+            count=len(precision_farming_fields)
+        ).model_dump(mode="json", exclude_none=True)
 
-    def assert_fields_equal(
-            self,
-            expected_fields: Union[List[BaseGameFieldModel], List[PrecisionFarmingFieldModel]],
-            field_data_list: list[dict]
-    ) -> None:
-        """
-        Util function to assert that each field in the response matches the expected values.
-        :param expected_fields: List of expected fields (BaseField or PrecisionFarmingField)
-        :param field_data_list: List of field data from the API response
-        """
-        for expected_field, field_data in zip(expected_fields, field_data_list):
-            self.assert_field_info_matches(expected_field, field_data)
-
-    @staticmethod
-    def assert_field_info_matches(
-            expected_field: Union[BaseGameFieldModel, PrecisionFarmingFieldModel],
-            field_data: dict
-    ) -> None:
-        """
-        Helper function to compare a single field's data.
-        :param expected_field: The expected field (BaseField or PrecisionFarmingField)
-        :param field_data: The field data from the API response
-        """
-        assert field_data["number"] == expected_field.number
-        assert field_data["ground_type"] == expected_field.ground_type
-        assert field_data["size"] == expected_field.size
-        assert field_data["plowed"] == expected_field.plowed
-        assert field_data["rolled"] == expected_field.rolled
-        assert field_data["mulched"] == expected_field.mulched
-        assert field_data["created_at"] is not None
-
-        # Add specific checks for precision farming fields
-        if hasattr(expected_field, 'nitrogen_level'):
-            assert field_data["nitrogen_level"] == expected_field.nitrogen_level
-        if hasattr(expected_field, 'ph_level'):
-            assert field_data["ph_level"] == expected_field.ph_level
-        if hasattr(expected_field, 'soil_type'):
-            assert field_data["soil_type"] == expected_field.soil_type
-        if hasattr(expected_field, 'fertilized'):
-            assert FertilizerStates(field_data["fertilized"]) == expected_field.fertilized
-        if hasattr(expected_field, 'limed'):
-            assert field_data["limed"] == expected_field.limed
+        assert precision_farming_results.json() == expected_field_json

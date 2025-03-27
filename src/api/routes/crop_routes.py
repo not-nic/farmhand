@@ -5,7 +5,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, status
 
-from src.api.core.models import CropRequest, CropsResponse
+from src.api.core.models import CropRequest, CropResponse
 from src.api.deps import CurrentField, get_current_user, get_users_farm
 from src.api.services.crop_service import CropService
 
@@ -36,13 +36,13 @@ async def get_crops(
     field: CurrentField,
     current: Optional[bool] = False,
     past: Optional[bool] = False
-) -> CropsResponse:
+) -> list[CropResponse]:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
     :param field: the current field
     :param current: the current crop planted in the field
     :param past: the past crops that have been planted in the field.
-    :return: (CropsResponse) Pydantic model showing the id, crop_type and when it was planted.
+    :return: Pydantic model showing the id, crop_type and when it was planted.
     """
 
     if current:
