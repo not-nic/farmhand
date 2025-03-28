@@ -1,3 +1,7 @@
+"""
+Module containing the config / settings for the Farmhand Application.
+"""
+
 from datetime import timedelta
 
 from pydantic import computed_field

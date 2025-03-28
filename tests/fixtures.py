@@ -1,6 +1,7 @@
 """
 Fixtures module for reusable pytest fixtures to be used across tests.
 """
+
 from decimal import Decimal
 
 import pytest
@@ -18,19 +19,14 @@ from tests.conftest import UNIT_TESTING_USER
 @pytest.fixture
 def farms(user_id) -> list[Farm]:
     farms = [
-        Farm.create(
-            name="farm 1",
-            description="description 1",
-            map_name="map 1",
-            owner_id=user_id
-        ),
+        Farm.create(name="farm 1", description="description 1", map_name="map 1", owner_id=user_id),
         Farm.create(
             name="farm 2",
             description="description 2",
             farm_type=FarmTypes.PRECISION_FARMING,
             map_name="map 3",
-            owner_id=user_id
-        )
+            owner_id=user_id,
+        ),
     ]
     return farms
 
@@ -42,7 +38,7 @@ def farm_map():
         name="custom-map-1",
         category="European Map",
         author="Simon Pegg",
-        release_date=datetime.date(year=2025, month=3, day=11)
+        release_date=datetime.date(year=2025, month=3, day=11),
     )
     return expected_map
 
@@ -72,9 +68,9 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 mulched=False,
                 weeds=WeedStates.MEDIUM_WEEDS,
                 fertilized=FertilizerStates.FIFTY_PERCENT,
-                limed=True
+                limed=True,
             ),
-            current_farm=farms[0]
+            current_farm=farms[0],
         ),
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
@@ -87,9 +83,9 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 mulched=False,
                 weeds=WeedStates.MEDIUM_WEEDS,
                 fertilized=FertilizerStates.FIFTY_PERCENT,
-                limed=True
+                limed=True,
             ),
-            current_farm=farms[0]
+            current_farm=farms[0],
         ),
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
@@ -102,9 +98,9 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 mulched=False,
                 weeds=WeedStates.MEDIUM_WEEDS,
                 fertilized=FertilizerStates.FIFTY_PERCENT,
-                limed=True
+                limed=True,
             ),
-            current_farm=farms[0]
+            current_farm=farms[0],
         ),
     ]
 
@@ -121,9 +117,9 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 weeds=WeedStates.MEDIUM_WEEDS,
                 nitrogen_level=100,
                 ph_level=5.0,
-                soil_type=SoilTypes.SANDY_LOAM
+                soil_type=SoilTypes.SANDY_LOAM,
             ),
-            current_farm=farms[1]
+            current_farm=farms[1],
         ),
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
@@ -137,9 +133,9 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 weeds=WeedStates.MEDIUM_WEEDS,
                 nitrogen_level=100,
                 ph_level=5.0,
-                soil_type=SoilTypes.LOAM
+                soil_type=SoilTypes.LOAM,
             ),
-            current_farm=farms[1]
+            current_farm=farms[1],
         ),
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
@@ -153,10 +149,10 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
                 weeds=WeedStates.MEDIUM_WEEDS,
                 nitrogen_level=100,
                 ph_level=5.0,
-                soil_type=SoilTypes.SILTY_CLAY
+                soil_type=SoilTypes.SILTY_CLAY,
             ),
-            current_farm=farms[1]
-        )
+            current_farm=farms[1],
+        ),
     ]
 
     return base_fields, precision_fields

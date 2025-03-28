@@ -1,6 +1,7 @@
 """
 Pytest conftest.py containing test setup, TestClient Fixtures and other mocks.
 """
+
 from typing import Optional, Any, Generator
 
 import pytest
@@ -59,7 +60,7 @@ def unit_test_user() -> Generator[User | None, Any, None]:
         username=UNIT_TESTING_USER,
         password=Security.get_password_hash(UNIT_TESTING_PASSWORD),
         email_address="unit-test@mail.com",
-        name="unit-tester"
+        name="unit-tester",
     )
 
     yield User.get(test_user.id)
@@ -76,7 +77,7 @@ def github_user() -> Generator[User | None, Any, None]:
         username=GITHUB_TESTING_USER,
         github_id=123456,
         email_address="github-user@github.com",
-        name="github-user"
+        name="github-user",
     )
 
     yield User.get(github_test_user.id)
@@ -126,7 +127,9 @@ def mock_crop_data(mocker) -> None:
     Fixture for mocking the crop data JSON.
     :param mocker: pytest mocker
     """
-    mocker.patch("src.api.services.crop_service.CropService._load_crop_data_from_fixture").return_value = crop_data()
+    mocker.patch(
+        "src.api.services.crop_service.CropService._load_crop_data_from_fixture"
+    ).return_value = crop_data()
 
 
 @pytest.fixture
@@ -136,13 +139,12 @@ async def mock_github_login(mocker):
     :param mocker: pytest-mocker
     :return: the mocked authorize_redirect object.
     """
+
     async def _mock_redirect(request, redirect_uri):
         """Mock the GitHub redirect"""
         return None
 
-    return mocker.patch.object(
-        github, "authorize_redirect", side_effect=_mock_redirect
-    )
+    return mocker.patch.object(github, "authorize_redirect", side_effect=_mock_redirect)
 
 
 @pytest.fixture
@@ -160,13 +162,14 @@ async def mock_github_authentication(mocker, github_user):
             "id": github_user.github_id,
             "login": github_user.username,
             "email": github_user.email_address,
-            "name": github_user.name
+            "name": github_user.name,
         }
         return mock_response
 
     # Mock the authorisation of the access token
-    mocker.patch.object(github, "authorize_access_token", return_value={"access_token": "some-token"})
+    mocker.patch.object(
+        github, "authorize_access_token", return_value={"access_token": "some-token"}
+    )
 
     # Mock the authorisation of the github user and their token
     mocker.patch.object(github, "get", side_effect=_mock_github_token_response)
-

@@ -25,7 +25,9 @@ async def get_current_user(request: Request) -> User:
     session_token = request.cookies.get("farmhand_user")
 
     if not session_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authentication token"
+        )
 
     try:
         token = Security.decode_jwt(session_token)
@@ -34,7 +36,9 @@ async def get_current_user(request: Request) -> User:
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token"
+        )
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -54,19 +58,18 @@ def is_service_user(current_user: CurrentUser) -> bool:
     """
 
     if (
-            current_user.username != settings.SERVICE_USER_USERNAME
-            or current_user.email_address != settings.SERVICE_USER_EMAIL
+        current_user.username != settings.SERVICE_USER_USERNAME
+        or current_user.email_address != settings.SERVICE_USER_EMAIL
     ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to access this resource."
+            detail="You do not have permission to access this resource.",
         )
     return True
 
 
 def get_users_farm(
-        id: Annotated[UUID, Path(title="The ID of the farm to get")],
-        current_user: CurrentUser
+    id: Annotated[UUID, Path(title="The ID of the farm to get")], current_user: CurrentUser
 ) -> Farm:
     """
     Get the farm for the current logged-in user
@@ -108,7 +111,7 @@ def get_field(
     except PermissionError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to access this field; it belongs to a different farm."
+            detail="You do not have permission to access this field; it belongs to a different farm.",
         )
 
 

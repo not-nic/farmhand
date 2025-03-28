@@ -1,3 +1,8 @@
+"""
+Map Service Module currently used for manually scraping map data
+when new maps are released.
+"""
+
 from src.api.constants import MapFilters
 from src.api.core.db_models import Map
 from src.api.services.modhub_service import ModHubService
@@ -5,6 +10,11 @@ from src.api.logger import logger
 
 
 class MapService:
+    """
+    Map Service used for getting map information from the ModHub
+    and creating map entries in the database.
+    """
+
     def __init__(self):
         self.mod_hub_service = ModHubService()
 
