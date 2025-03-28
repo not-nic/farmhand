@@ -1,10 +1,17 @@
 """
-Module for creating the FastAPI router
+Module for the FastAPI routes and the routers
+each set of routes should be appened too.
 """
 
 from fastapi import APIRouter
-from src.api.routes import auth_routes, user_routes, farm_routes, scrape_routes, \
-    field_routes, crop_routes
+from src.api.routes import (
+    auth_routes,
+    user_routes,
+    farm_routes,
+    scrape_routes,
+    field_routes,
+    crop_routes,
+)
 
 api_router = APIRouter()
 api_router.include_router(auth_routes.router)

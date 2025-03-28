@@ -1,3 +1,20 @@
+"""
+API Routes for CRUD operations on a Farm.
+
+This module defines the API routes for interacting with farms in the service,
+everything is attached to a farm, for example fields.
+
+Routes:
+    - POST /farms: Create a new farm.
+    - GET /farms: Get all farms belonging to a user
+    - GET /farms/{farm_id}: get a farm by its UUID.
+    - PUT /farms/{farm_id}: update a farm.
+    - DELETE /farms/{farm_id} delete a farm.
+
+Dependencies:
+    - get_current_user: Fetches the current authenticated user.
+    - get_user_farm: Fetches the Farm for the given farm_id.
+"""
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
@@ -14,7 +31,9 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
     dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_201_CREATED,
 )
-async def create_farm(farm_request: FarmRequest, current_user: User = Depends(get_current_user)) -> FarmResponse:
+async def create_farm(
+    farm_request: FarmRequest, current_user: User = Depends(get_current_user)
+) -> FarmResponse:
     """
     Create a farm linked for the logged-in user.
     :param current_user: current logged-in user
@@ -35,7 +54,7 @@ async def create_farm(farm_request: FarmRequest, current_user: User = Depends(ge
         map_name=farm_request.map_name,
         owner_id=current_user.id,
         map_id=farm_request.map_id,
-        farm_type=farm_request.farm_type
+        farm_type=farm_request.farm_type,
     )
 
     return FarmResponse(**farm.to_dict())
