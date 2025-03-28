@@ -3,9 +3,9 @@ API Routes for Crops.
 """
 from typing import Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 
-from src.api.core.models import CropRequest, CropResponse
+from src.api.core.models import CropRequest, CropsResponse
 from src.api.deps import CurrentField, get_current_user, get_users_farm
 from src.api.services.crop_service import CropService
 
@@ -24,7 +24,13 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     :param crop_request:
     :param field:
     """
-    crop_service.plant_crop(current_field=field, crop_request=crop_request)
+    try:
+        crop_service.plant_crop(current_field=field, crop_request=crop_request)
+    except ValueError as exc:
+        raise HTTPException(
+            detail=str(exc),
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @router.get(
@@ -36,7 +42,7 @@ async def get_crops(
     field: CurrentField,
     current: Optional[bool] = False,
     past: Optional[bool] = False
-) -> list[CropResponse]:
+) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
     :param field: the current field
@@ -46,11 +52,14 @@ async def get_crops(
     """
 
     if current:
-        return crop_service.get_current_crop(field)
+        crops = crop_service.get_current_crop(field)
+        return CropsResponse(crops=crops, count=len(crops))
 
     if past:
-        return crop_service.get_past_crops(field)
+        crops = crop_service.get_past_crops(field)
+        return CropsResponse(crops=crops, count=len(crops))
 
-    return crop_service.get_all_crops(field)
+    crops = crop_service.get_all_crops(field)
+    return CropsResponse(crops=crops, count=len(crops))
 
 

@@ -60,7 +60,11 @@ class CropService:
         :param crop_type: the crop type to get
         :return: the crop if it exists.
         """
-        return Crop.get_by_type(crop_type)
+        crop = Crop.get_by_type(crop_type)
+
+        if not crop:
+            raise ValueError(f"Invalid crop: '{crop_type}' not found")
+        return crop
 
     @staticmethod
     def format_crop_response(field_crops: list) -> list[CropResponse]:
