@@ -10,7 +10,7 @@ from fastapi import status
 from pytest_asyncio import fixture
 
 from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.db_models import Field
+from src.api.core.db_models import Field, FieldCrop
 from src.api.core.models import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
 from tests.conftest import TestClient
@@ -350,3 +350,61 @@ class TestFieldRoutes:
         ).model_dump(mode="json", exclude_none=True)
 
         assert precision_farming_results.json() == expected_field_json
+
+    def test_getting_fields_with_the_current_crop(self, client, session, farms, expected_base_field):
+        """
+        test getting a field with the query 'show_crops' true and assert that a crop
+        object exists in the response.
+        :param client: FastAPI Test Client
+        :param session: Unit test session
+        :param farms: farms fixture
+        :param expected_base_field: base field fixture
+        :return:
+        """
+
+        FieldCrop.create(field_id=expected_base_field.id, crop_id=1)
+
+        url = f"{self.field_url(farm_id=farms[0].id, field_id=expected_base_field.id)}?show_crop=true"
+        response = self.get(url=url, client=client)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert "crop" in response.json()
+
+    def test_getting_fields_that_have_the_same_crop(self, client, session, farms, fields):
+        """
+        test getting a field with the query 'show_crops' true and assert that a crop
+        object exists in the response and a 200 response code is asserted.
+        :param client: FastAPI Test Client
+        :param session: Unit test session
+        :param farms: farms fixture
+        :param fields: base field fixture
+        :return:
+        """
+        base_fields, _ = fields
+
+        FieldCrop.create(field_id=base_fields[0].id, crop_id=1)
+        FieldCrop.create(field_id=base_fields[1].id, crop_id=1)
+        FieldCrop.create(field_id=base_fields[2].id, crop_id=1)
+
+        url = f"{self.field_url(farm_id=farms[0].id)}?crop_type=Wheat"
+        response = self.get(url=url, client=client)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        for field in response.json()["fields"]:
+            assert field["crop"]["crop_type"] == "Wheat"
+
+    def test_getting_fields_with_an_invalid_crop(self, client, session, farms):
+        """
+        test getting fields with an invalid crop type and assert a 400 error is
+        raised.
+        :param client: FastAPI Test Client
+        :param session: Unit test session
+        :param farms: farms fixture
+        """
+        invalid_crop = "Invalid-Crop-Type"
+        url = f"{self.field_url(farm_id=farms[0].id)}?crop_type={invalid_crop}"
+        response = self.get(url=url, client=client)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"detail": f"Invalid crop: '{invalid_crop}' not found"}
