@@ -109,9 +109,6 @@ class FieldService:
             logger.info(f"Getting crop type: {crop_type}")
             crop = CropService.get_crop_by_type(crop_type)
 
-            if not crop:
-                raise ValueError(f"Invalid crop_type: {crop_type} does not exist.")
-
             fields = self._get_fields_by_crop_id(crop.id, fields)
             # Set the show crop value to true to always return it in the response object.
             show_crop = True
