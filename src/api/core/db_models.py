@@ -1,7 +1,22 @@
+"""
+Python Module for the Farmhand database models using the SQLAlchemy ORM.
+"""
+
 import uuid
 import datetime
 
-from sqlalchemy import Column, UUID, String, DateTime, Boolean, Text, ForeignKey, Integer, Enum, Double
+from sqlalchemy import (
+    Column,
+    UUID,
+    String,
+    DateTime,
+    Boolean,
+    Text,
+    ForeignKey,
+    Integer,
+    Enum,
+    Double,
+)
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FarmTypes, SoilTypes, FertilizerStates, WeedStates, FieldTypes
@@ -10,7 +25,19 @@ from src.api.core.repositories import UserRepository, Repository, FieldRepositor
 
 class User(UserRepository):
     """
-    DB model for a user
+    Database Model for the User.
+
+    Attributes:
+        id: the UUID of the user.
+        github_id: the GitHub ID of the user (only populated if signed up with GitHub OAuth).
+        username: the username of the user.
+        email_address: the email_address of the user.
+        password: the hashed password of the user.
+        name: the name of the user.
+        created_at: the timestamp the user was created.
+        is_active: boolean for if the user is active.
+
+    Required fields when creating a new user: username, email_address, password, name.
     """
 
     __tablename__ = "users"
@@ -32,7 +59,19 @@ class User(UserRepository):
 
 class Farm(Repository):
     """
-    DB Model for farms.
+    Database Model for a User's Farm.
+
+    Attributes:
+        id: the UUID of the Farm.
+        name: the user generated name of the farm.
+        description: the long description of the farm
+        map_name: the name of the map they are playing on.
+        created_at: timestamp the farm was created.
+        owner_id: the user who owns the farm.
+        map_id: the id of the map they are playing on (if scraped).
+        farm_type: type of farm which defines which fields can be created (Base Game vs Precision Farming).
+
+    Required fields when creating a new farm: name, map_name or map_id and owner_id.
     """
 
     __tablename__ = "farms"
@@ -60,7 +99,17 @@ class Farm(Repository):
 
 class Map(Repository):
     """
-    DB Model for Maps.
+    Database Model for a ModHub Map.
+
+    Attributes:
+        id: the ModHub ID of the Map.
+        name: The Map name.
+        category: The category on ModHub the map is in.
+        author: The Author of the map.
+        release_date: The date the map was released.
+        created_at: timestamp the map was created.
+
+    Required fields when creating a new map: id and name.
     """
 
     __tablename__ = "maps"
@@ -77,8 +126,24 @@ class Map(Repository):
 
 class Field(FieldRepository):
     """
-    Base DB class for fields which store all the common attributes.
+    Database Model for a Field.
+
+    Attributes:
+        id: the UUID of the field.
+        number: The field number
+        created_at: Timestamp of when the field was created
+        size: The size of the map in Hectares
+        ground_type: The current field ground type.
+        farm_id: the id of the farm the field belongs too
+        field_type: the type of field (Base Game or Precision Farming)
+        plowed: boolean if the field is plowed.
+        rolled: boolean if the field is rolled.
+        mulched: boolean if the field is mulched.
+        weeds: Value of the type of weeds in the field (0 - None, 1 - Small, 2 - Medium, 3 - Large, 4 - Sprayed)
+
+    Required fields when creating a new field: number.
     """
+
     __tablename__ = "fields"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
@@ -90,22 +155,28 @@ class Field(FieldRepository):
     farm_id: Mapped[UUID] = mapped_column(UUID(), ForeignKey("farms.id"), nullable=False)
     farm = relationship("Farm", back_populates="fields")
 
-    field_type = Column(Enum(FieldTypes, native_enum=False), nullable=False, default=FieldTypes.BASE_FIELD)
+    field_type = Column(
+        Enum(FieldTypes, native_enum=False), nullable=False, default=FieldTypes.BASE_FIELD
+    )
 
     crops = relationship(
         "FieldCrop",
         back_populates="field",
         order_by="desc(FieldCrop.planted_at)",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     plowed = Column(Boolean, nullable=True)
     rolled = Column(Boolean, nullable=True)
-    weeds = Column(Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS)
     mulched = Column(Boolean, nullable=True)
+    weeds = Column(Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS)
 
-    base_game_field = relationship("BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan")
-    precision_farming_field = relationship("PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan")
+    base_game_field = relationship(
+        "BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan"
+    )
+    precision_farming_field = relationship(
+        "PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Field {self.number} in Farm {self.farm_id} | Current Crop: {self.current_crop()}>"
@@ -113,15 +184,24 @@ class Field(FieldRepository):
 
 class BaseGameField(Repository):
     """
-    DB Model for standard fields (Base Game).
+    Database Model for a BaseGameField.
+
+    Attributes:
+        id: the UUID of the base game field.
+        fertilized: The fertilized state (0 - None, 50 - 50% fertilized, 100 - 100% fertilized)
+        limed: boolean if the field is limed,
+        field: The field this is related too.
+
+    Required fields when creating a new base game field: fertilized, limed, field.
     """
+
     __tablename__ = "base_game_fields"
 
     id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
     fertilized = Column(
         Enum(FertilizerStates, native_enum=False),
         nullable=False,
-        default=FertilizerStates.ZER0_PERCENT
+        default=FertilizerStates.ZER0_PERCENT,
     )
     limed = Column(Boolean, nullable=True)
 
@@ -133,8 +213,18 @@ class BaseGameField(Repository):
 
 class PrecisionFarmingField(Repository):
     """
-    DB Model for fields using Precision Farming mod.
+    Database Model for a PrecisionFarmingField.
+
+    Attributes:
+        id: the UUID of the precision farming field.
+        nitrogen_level: The nitrogen level of the field in kg/ha
+        ph_level: the ph level of the field
+        soil_type: the soil type of the field: (Silty Clay, Loam, Sandy Loam, Loamy Sand)
+        field: The field this is related too.
+
+    Required fields when creating a new base game field: nitrogen_level, ph_level, soil_type.
     """
+
     __tablename__ = "precision_farming_fields"
 
     id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
@@ -156,7 +246,21 @@ class PrecisionFarmingField(Repository):
 
 class Crop(CropRepository):
     """
-    Crops available for fields.
+    Database Model for a Crop.
+
+    Attributes:
+        id: the auto-incremented integer.
+        type: the type of crop e.g. wheat, barley etc.
+        yield_per_ha: the yield per hectare.
+        seeds_per_ha: the seeds required per hectare.
+        price: the base price of the crop (Hard difficulty).
+        growth_stages: the stages of its growth.
+        growth_duration: how long it takes to grow in months.
+        root_crop: boolean if this is a root crop.
+        planted_in: the months it can be planted in.
+        harvested_in: the months it can be harvested in.
+
+    Required fields when creating a new crop: All values.
     """
 
     __tablename__ = "crops"
@@ -179,7 +283,16 @@ class Crop(CropRepository):
 
 class FieldCrop(Repository):
     """
-    Tracks all crops ever planted on a field.
+    Database Model for a FieldCrop, which tracks all crops planted in
+    an associated field.
+
+    Attributes:
+        id: the auto-incremented integer.
+        field_id: the field the crop is planted in.
+        crop_id: the id of the crop planted in the field.
+        planted_at: the timestamp of when the crop was planted.
+
+    Required fields when creating a new crop: field_id, crop_id.
     """
 
     __tablename__ = "field_crops"

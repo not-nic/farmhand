@@ -1,6 +1,7 @@
 """
 Module for Farmhand Data serializers to be used alongside the pydantic models.
 """
+
 from datetime import datetime
 
 

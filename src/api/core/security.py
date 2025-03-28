@@ -83,7 +83,7 @@ class Security:
         return jwt.encode(
             payload=payload.model_dump(mode="json", by_alias=True),
             key=settings.JWT_SECRET_KEY,
-            algorithm=settings.JWT_ALGORITHM
+            algorithm=settings.JWT_ALGORITHM,
         )
 
     @staticmethod
@@ -94,7 +94,9 @@ class Security:
         :return: (TokenModel) of the decoded JWT data.
         """
         try:
-            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+            payload = jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
             return TokenModel(**payload)
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             raise
