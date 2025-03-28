@@ -1,6 +1,7 @@
 """
 Unit Tests for the Crops API Routes.
 """
+
 import pytest
 
 from typing import Optional
@@ -66,7 +67,9 @@ class TestCropRoutes:
         expected_crops = crop_service.get_all_crops(field)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == CropsResponse(crops=expected_crops, count=len(expected_crops)).model_dump(mode="json")
+        assert response.json() == CropsResponse(
+            crops=expected_crops, count=len(expected_crops)
+        ).model_dump(mode="json")
 
     def test_get_field_with_no_crops(self, client, session, farm, field):
         """
@@ -101,7 +104,9 @@ class TestCropRoutes:
         expected_crops = crop_service.get_current_crop(field)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == CropsResponse(crops=expected_crops, count=len(expected_crops)).model_dump(mode="json")
+        assert response.json() == CropsResponse(
+            crops=expected_crops, count=len(expected_crops)
+        ).model_dump(mode="json")
 
     def test_getting_the_past_field_crops(self, client, session, farm, field):
         """
@@ -123,7 +128,9 @@ class TestCropRoutes:
         expected_crops = crop_service.get_past_crops(field)
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == CropsResponse(crops=expected_crops, count=len(expected_crops)).model_dump(mode="json")
+        assert response.json() == CropsResponse(
+            crops=expected_crops, count=len(expected_crops)
+        ).model_dump(mode="json")
 
     def test_planting_crop_in_field(self, client, session, farm: Farm, field: Field):
         """
@@ -133,11 +140,11 @@ class TestCropRoutes:
         :param session: The unit-test user session
         :param farm: a farm fixture
         """
-        payload = {
-            "type": "Canola"
-        }
+        payload = {"type": "Canola"}
 
-        response = self.put(self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client)
+        response = self.put(
+            self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client
+        )
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert field.current_crop()["crop_type"] == "Canola"
@@ -149,11 +156,11 @@ class TestCropRoutes:
         :param session: The unit-test user session
         :param farm: a farm fixture
         """
-        payload = {
-            "type": "invalid-crop-type"
-        }
+        payload = {"type": "invalid-crop-type"}
 
-        response = self.put(self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client)
+        response = self.put(
+            self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client
+        )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == {"detail": f"Invalid crop: '{payload["type"]}' not found"}
+        assert response.json() == {"detail": f"Invalid crop: '{payload['type']}' not found"}

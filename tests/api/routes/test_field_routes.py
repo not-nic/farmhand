@@ -19,7 +19,6 @@ from src.config import settings
 
 @pytest.mark.usefixtures("client", "session")
 class TestFieldRoutes:
-
     @staticmethod
     def post(url: str, json: dict, client: TestClient):
         return client.post(url, json=json)
@@ -77,7 +76,7 @@ class TestFieldRoutes:
             "rolled": False,
             "mulched": True,
             "fertilized": 50,
-            "weeds": 1
+            "weeds": 1,
         }
 
         result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
@@ -86,7 +85,9 @@ class TestFieldRoutes:
 
         result_json = result.json()
         field_service = FieldService()
-        expected_field: FieldResponse = field_service.get_field_details(Field.get(UUID(result_json["id"])))
+        expected_field: FieldResponse = field_service.get_field_details(
+            Field.get(UUID(result_json["id"]))
+        )
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
@@ -107,7 +108,7 @@ class TestFieldRoutes:
             "mulched": True,
             "nitrogen_level": 125,
             "ph_level": 5.5,
-            "soil_type": SoilTypes.LOAM
+            "soil_type": SoilTypes.LOAM,
         }
 
         result = self.post(self.field_url(farm_id=farms[1].id), payload, client)
@@ -116,7 +117,9 @@ class TestFieldRoutes:
 
         result_json = result.json()
         field_service = FieldService()
-        expected_field: FieldResponse = field_service.get_field_details(Field.get(UUID(result_json["id"])))
+        expected_field: FieldResponse = field_service.get_field_details(
+            Field.get(UUID(result_json["id"]))
+        )
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
@@ -139,7 +142,7 @@ class TestFieldRoutes:
             "weeds": 1,
             "nitrogen_level": 125,
             "ph_level": 5.5,
-            "soil_type": SoilTypes.LOAM
+            "soil_type": SoilTypes.LOAM,
         }
 
         result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
@@ -194,7 +197,11 @@ class TestFieldRoutes:
             "weeds": 4,
         }
 
-        result = self.put(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), payload, client)
+        result = self.put(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id),
+            payload,
+            client,
+        )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_update_field_on_precision_farm(self, client, session, farms, expected_precision_field):
@@ -214,11 +221,13 @@ class TestFieldRoutes:
             "weeds": 4,
             "nitrogen_level": 123,
             "ph_level": 9.0,
-            "soil_type": SoilTypes.SILTY_CLAY
+            "soil_type": SoilTypes.SILTY_CLAY,
         }
 
-        result = self.put(self.field_url(
-            farm_id=expected_farm.id, field_id=expected_precision_field.id), payload, client
+        result = self.put(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id),
+            payload,
+            client,
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -232,7 +241,9 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client)
+        result = self.delete(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client
+        )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_delete_precision_farming_field(self, client, session, farms, expected_precision_field):
@@ -245,7 +256,9 @@ class TestFieldRoutes:
         """
         expected_farm = farms[1]
 
-        result = self.delete(self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id), client)
+        result = self.delete(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id), client
+        )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_get_field_by_id(self, client, session, farms, fields, expected_base_field):
@@ -258,7 +271,9 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.get(self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client)
+        result = self.get(
+            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client
+        )
 
         assert result.status_code == status.HTTP_200_OK
         assert result.json() == expected_base_field.model_dump(mode="json")
@@ -273,8 +288,10 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = self.get(
-            self.field_url(farm_id=expected_farm.id, field_id=UUID("f5a22bb2-d768-4cbd-a684-4826670d452f")),
-            client
+            self.field_url(
+                farm_id=expected_farm.id, field_id=UUID("f5a22bb2-d768-4cbd-a684-4826670d452f")
+            ),
+            client,
         )
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
@@ -293,12 +310,11 @@ class TestFieldRoutes:
             size=5.0,
             ground_type="unit-test-ground-type",
             farm_id=uuid4(),
-            field_type=FieldTypes.BASE_FIELD
+            field_type=FieldTypes.BASE_FIELD,
         )
 
         result = self.get(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_field.id),
-            client
+            self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client
         )
 
         assert result.status_code == status.HTTP_403_FORBIDDEN
@@ -321,10 +337,9 @@ class TestFieldRoutes:
         assert base_fields_results.status_code == status.HTTP_200_OK
         assert base_fields_results.json()["count"] == len(base_fields)
 
-        expected_field_json = FieldsResponse(
-            fields=base_fields,
-            count=len(base_fields)
-        ).model_dump(mode="json", exclude_none=True)
+        expected_field_json = FieldsResponse(fields=base_fields, count=len(base_fields)).model_dump(
+            mode="json", exclude_none=True
+        )
 
         assert base_fields_results.json() == expected_field_json
 
@@ -345,13 +360,14 @@ class TestFieldRoutes:
         assert precision_farming_results.json()["count"] == len(precision_farming_fields)
 
         expected_field_json = FieldsResponse(
-            fields=precision_farming_fields,
-            count=len(precision_farming_fields)
+            fields=precision_farming_fields, count=len(precision_farming_fields)
         ).model_dump(mode="json", exclude_none=True)
 
         assert precision_farming_results.json() == expected_field_json
 
-    def test_getting_fields_with_the_current_crop(self, client, session, farms, expected_base_field):
+    def test_getting_fields_with_the_current_crop(
+        self, client, session, farms, expected_base_field
+    ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
         object exists in the response.
@@ -364,7 +380,9 @@ class TestFieldRoutes:
 
         FieldCrop.create(field_id=expected_base_field.id, crop_id=1)
 
-        url = f"{self.field_url(farm_id=farms[0].id, field_id=expected_base_field.id)}?show_crop=true"
+        url = (
+            f"{self.field_url(farm_id=farms[0].id, field_id=expected_base_field.id)}?show_crop=true"
+        )
         response = self.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_200_OK

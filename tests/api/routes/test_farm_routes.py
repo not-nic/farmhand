@@ -188,7 +188,7 @@ class TestFarmRoutes:
             name="Old farm name",
             description="test description",
             map_name="test map",
-            owner_id=user_id
+            owner_id=user_id,
         )
 
         payload = {"map_name": "New farm name"}

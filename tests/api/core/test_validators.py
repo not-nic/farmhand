@@ -110,25 +110,19 @@ class TestValidators:
         assert Validators.validate_months(input_string) == input_string
         assert Validators.validate_months([]) == ""
 
-
     def test_validate_field_request_model_pass(self):
         """
         Test that when given the correct field values separately
         the validation is correct.
         """
-        precision_farming_values = {
-            "nitrogen_level": 50,
-            "ph_level": 6.5,
-            "soil_type": "loamy"
-        }
+        precision_farming_values = {"nitrogen_level": 50, "ph_level": 6.5, "soil_type": "loamy"}
 
-        base_game_values = {
-            "number"
-            "fertilized": True,
-            "limed": False
-        }
+        base_game_values = {"numberfertilized": True, "limed": False}
 
-        assert Validators.validate_field_request_model(precision_farming_values) == precision_farming_values
+        assert (
+            Validators.validate_field_request_model(precision_farming_values)
+            == precision_farming_values
+        )
         assert Validators.validate_field_request_model(base_game_values) == base_game_values
 
     def test_validate_field_request_model_fail(self):
@@ -140,10 +134,13 @@ class TestValidators:
             "nitrogen_level": 50,
             "ph_level": 6.5,
             "soil_type": "loamy",
-            "fertilized": True
+            "fertilized": True,
         }
 
-        with pytest.raises(ValueError, match="Precision Farming field values.*cannot be used with Base Game Field.* "):
+        with pytest.raises(
+            ValueError,
+            match="Precision Farming field values.*cannot be used with Base Game Field.* ",
+        ):
             Validators.validate_field_request_model(invalid_input)
 
     def test_validate_github_email_if_exists(self):

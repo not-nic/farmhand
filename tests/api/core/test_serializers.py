@@ -1,6 +1,7 @@
 """
 Module for testing the farmhand data serialization classes
 """
+
 from datetime import datetime
 
 import pytest

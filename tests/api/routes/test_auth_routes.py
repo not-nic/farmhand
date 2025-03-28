@@ -1,6 +1,7 @@
 """
 Unit Tests for the Auth API Routes.
 """
+
 from typing import Optional
 
 import pytest
@@ -58,7 +59,9 @@ class TestAuthRoutes:
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
     @pytest.mark.asyncio
-    async def test_github_callback_existing_user(self, client, mock_github_authentication, github_user):
+    async def test_github_callback_existing_user(
+        self, client, mock_github_authentication, github_user
+    ):
         """
         Test github callback and mock logging in a github user.
         :param client: FastAPI test client

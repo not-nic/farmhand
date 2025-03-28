@@ -1,3 +1,7 @@
+"""
+ModHub Service Unit Tests.
+"""
+
 import datetime
 import pytest
 

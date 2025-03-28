@@ -1,3 +1,7 @@
+"""
+Crop Service Unit Tests.
+"""
+
 import pytest
 
 from src.api.core.db_models import Crop
@@ -5,7 +9,6 @@ from src.api.services.crop_service import CropService
 
 
 class TestCropService:
-
     @pytest.mark.asyncio
     async def test_load_crops(self, create_database, mock_crop_data):
         """
@@ -17,4 +20,3 @@ class TestCropService:
         await crop_service.load_crops()
 
         assert len(Crop.all()) == 3
-
