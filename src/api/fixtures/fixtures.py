@@ -1,3 +1,8 @@
+"""
+Module for initialisation scripts (fixtures) to be run
+on the start-up of the application.
+"""
+
 from src.api.core.db_models import User
 from src.api.core.security import Security
 from src.api.services.crop_service import CropService
@@ -20,7 +25,7 @@ class Fixtures:
             "username": settings.SERVICE_USER_USERNAME,
             "email_address": settings.SERVICE_USER_EMAIL,
             "password": Security.get_password_hash(settings.SERVICE_USER_PASSWORD),
-            "name": "service-user"
+            "name": "service-user",
         }
 
         service_user = User.get_by_username(username=settings.SERVICE_USER_USERNAME)

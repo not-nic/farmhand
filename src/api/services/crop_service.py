@@ -1,6 +1,7 @@
 """
 Crop Service Module for interacting and managing with crops that are associated with fields
 """
+
 import json
 import os.path
 from typing import Optional
@@ -95,7 +96,9 @@ class CropService:
                 logger.info(f"[Crop Service]: Creating new crop '{crop_data.type}'")
                 Crop.create(**crop_dict)
 
-        logger.info("[Crop Service]: All Crops created, updated values successfully if any changed.")
+        logger.info(
+            "[Crop Service]: All Crops created, updated values successfully if any changed."
+        )
 
     @staticmethod
     def _load_crop_data_from_fixture() -> dict:

@@ -1,13 +1,21 @@
 """
 Field Service Module for creating and managing fields in Farmhand.
 """
+
 from typing import Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
 from src.api.core.db_models import BaseGameField, PrecisionFarmingField, Farm, Field
-from src.api.core.models import BaseGameFieldModel, PrecisionFarmingFieldModel, FieldRequest, FieldUpdate, \
-    FieldResponse, FieldsResponse, CropResponse
+from src.api.core.models import (
+    BaseGameFieldModel,
+    PrecisionFarmingFieldModel,
+    FieldRequest,
+    FieldUpdate,
+    FieldResponse,
+    FieldsResponse,
+    CropResponse,
+)
 from src.api.logger import logger
 from src.api.services.crop_service import CropService
 
@@ -18,9 +26,7 @@ class FieldService:
     """
 
     def create_field_by_field_type(
-        self,
-        field_request: FieldRequest,
-        current_farm: Farm
+        self, field_request: FieldRequest, current_farm: Farm
     ) -> FieldResponse:
         """
         Create a field based on the current farm type.
@@ -38,23 +44,29 @@ class FieldService:
             rolled=field_request.rolled,
             mulched=field_request.mulched,
             weeds=field_request.weeds,
-            farm_id=current_farm.id
+            farm_id=current_farm.id,
         )
 
         if self._is_base_game_field(field_request, current_farm):
-            logger.info(f"Creating base game field for farm: {current_farm.name} ({current_farm.id})")
+            logger.info(
+                f"Creating base game field for farm: {current_farm.name} ({current_farm.id})"
+            )
 
             self._create_base_game_field(field.id, field_request)
             return self.get_field_details(field)
 
         elif self._is_precision_farming_field(field_request, current_farm):
-            logger.info(f"Creating precision farming field for farm: {current_farm.name} ({current_farm.id})")
+            logger.info(
+                f"Creating precision farming field for farm: {current_farm.name} ({current_farm.id})"
+            )
 
             self._create_precision_farming_field(field.id, field_request)
             return self.get_field_details(field)
 
         else:
-            raise ValueError(f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm.")
+            raise ValueError(
+                f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm."
+            )
 
     @staticmethod
     def get_field(field_id: UUID, farm_id: UUID) -> Optional[Field]:
@@ -77,10 +89,7 @@ class FieldService:
         return field
 
     def get_all_fields(
-            self,
-            current_farm: Farm,
-            show_crop: Optional[bool] = False,
-            crop_type: Optional[str] = None
+        self, current_farm: Farm, show_crop: Optional[bool] = False, crop_type: Optional[str] = None
     ) -> dict:
         """
         Get all fields associated with a farm.
@@ -94,9 +103,13 @@ class FieldService:
 
         field_details = [self.get_field_details(field, show_crop) for field in fields]
         fields_count = len(fields)
-        return FieldsResponse(fields=field_details, count=fields_count).model_dump(exclude_none=True)
+        return FieldsResponse(fields=field_details, count=fields_count).model_dump(
+            exclude_none=True
+        )
 
-    def filter_fields_by_crop(self, crop_type: str, fields: list[Field], show_crop: bool) -> tuple[list[Field], bool]:
+    def filter_fields_by_crop(
+        self, crop_type: str, fields: list[Field], show_crop: bool
+    ) -> tuple[list[Field], bool]:
         """
         Filter the Farm's field by matching current crop type.
         Usage: 'Get all fields growing wheat'
@@ -123,7 +136,8 @@ class FieldService:
         :return: a list of fields that contain the same crop.
         """
         fields = [
-            field for field in fields
+            field
+            for field in fields
             if any(field_crop.crop_id == crop_id for field_crop in field.crops)
         ]
         return fields
@@ -140,9 +154,7 @@ class FieldService:
         field_data = FieldResponse(**field.to_dict())
 
         if field.field_type == FieldTypes.BASE_FIELD:
-            field_data.set_base_field(
-                BaseGameFieldModel(**field.base_game_field.to_dict())
-            )
+            field_data.set_base_field(BaseGameFieldModel(**field.base_game_field.to_dict()))
 
         if field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
             field_data.set_precision_field(
@@ -161,7 +173,9 @@ class FieldService:
         :param field: the field to update
         :param field_update: the field update request
         """
-        logger.info(f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}")
+        logger.info(
+            f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}"
+        )
         update_data = field_update.model_dump(exclude_unset=True)
         Field.update(field.id, **update_data)
 
@@ -179,16 +193,20 @@ class FieldService:
         """
         Helper function to check if the request is for creating a base game field on a base game farm.
         """
-        return (field_request.field_type == FieldTypes.BASE_FIELD and
-                current_farm.farm_type == FarmTypes.BASE)
+        return (
+            field_request.field_type == FieldTypes.BASE_FIELD
+            and current_farm.farm_type == FarmTypes.BASE
+        )
 
     @staticmethod
     def _is_precision_farming_field(field_request: FieldRequest, current_farm: Farm) -> bool:
         """
         Helper function to check if the request is creating a precision farming field
         """
-        return (field_request.field_type == FieldTypes.PRECISION_FARMING_FIELD and
-                current_farm.farm_type == FarmTypes.PRECISION_FARMING)
+        return (
+            field_request.field_type == FieldTypes.PRECISION_FARMING_FIELD
+            and current_farm.farm_type == FarmTypes.PRECISION_FARMING
+        )
 
     @staticmethod
     def _create_base_game_field(field_id: UUID, field_request: FieldRequest):
@@ -198,9 +216,7 @@ class FieldService:
         :param field_request: the FieldRequest object sent in the request.
         """
         BaseGameField.create(
-            id=field_id,
-            fertilized=field_request.fertilized,
-            limed=field_request.limed
+            id=field_id, fertilized=field_request.fertilized, limed=field_request.limed
         )
 
     @staticmethod
@@ -214,5 +230,5 @@ class FieldService:
             id=field_id,
             nitrogen_level=field_request.nitrogen_level,
             ph_level=field_request.ph_level,
-            soil_type=field_request.soil_type
+            soil_type=field_request.soil_type,
         )

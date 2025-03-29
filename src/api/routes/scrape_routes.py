@@ -1,3 +1,17 @@
+"""
+API Routes for Scraping Data from ModHub.
+
+This module defines the API routes for manually triggering scraping operations.
+It allows the 'Service User' to scrape data from the ModHub.
+
+Routes:
+    - GET /scrape/{id}: Manually trigger scraping of an individual mod by its mod_id.
+    - GET /scrape/maps: Manually trigger scraping of all maps from the ModHub website.
+
+Dependencies:
+    - is_service_user: Ensures that the request is coming from a service user.
+"""
+
 from fastapi import APIRouter, BackgroundTasks, status, Depends
 
 from src.api.deps import is_service_user
@@ -20,7 +34,7 @@ async def scrape_data(id: int, background_tasks: BackgroundTasks) -> dict:
     return {"detail": "Started Scraping Task"}
 
 
-@router.get("/", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+@router.get("/maps", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger the scraping of maps from the Farming Simulator ModHub website.

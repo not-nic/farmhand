@@ -1,5 +1,21 @@
 """
-API Routes for Fields.
+API Routes for CRUD operations relating to a field.
+
+This module defines the API routes for integrating with fields
+associated with a users farm.
+
+Routes:
+    - POST /fields: Create a new field.
+    - GET /fields: Get all fields belonging to a farm and apply any filters such as getting fields by
+      the same growing crop.
+    - GET /fields/{field_id}: get a field by its UUID and apply any filters such as show_crops.
+    - PUT /fields/{field_id}: update a field.
+    - DELETE /fields/{field_idd} delete a field.
+
+Dependencies:
+    - get_current_user: Fetches the current authenticated user.
+    - get_user_farm: Fetches the Farm for the given farm_id.
+    - CurrentField: Fetches the Field for the given field_id.
 """
 
 from typing import Optional
@@ -17,8 +33,7 @@ field_service = FieldService()
 
 @router.post("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 async def create_field(
-        field_request: FieldRequest,
-        current_farm: Farm = Depends(get_users_farm)
+    field_request: FieldRequest, current_farm: Farm = Depends(get_users_farm)
 ) -> dict:
     """
     Create a field based on the current farm type.
@@ -27,19 +42,18 @@ async def create_field(
     :param field_request: the field request object.
     """
     try:
-        return field_service.create_field_by_field_type(field_request, current_farm).model_dump(exclude_none=True)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc)
+        return field_service.create_field_by_field_type(field_request, current_farm).model_dump(
+            exclude_none=True
         )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 async def get_fields(
     current_farm: Farm = Depends(get_users_farm),
     show_crop: Optional[bool] = False,
-    crop_type: Optional[str] = None
+    crop_type: Optional[str] = None,
 ) -> dict:
     """
     Get all fields associated with a farm.
@@ -51,16 +65,13 @@ async def get_fields(
     try:
         return field_service.get_all_fields(current_farm, show_crop, crop_type)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.get(
     "/{field_id}",
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False) -> FieldResponse:
     """
@@ -75,7 +86,7 @@ async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False
 @router.put(
     "/{field_id}",
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def update_field(field: CurrentField, field_update: FieldUpdate):
     """
@@ -89,7 +100,7 @@ async def update_field(field: CurrentField, field_update: FieldUpdate):
 @router.delete(
     "/{field_id}",
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_field(field: CurrentField):
     """

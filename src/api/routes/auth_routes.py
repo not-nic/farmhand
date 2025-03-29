@@ -1,5 +1,18 @@
 """
-Module for authentication routes.
+API Routes for Authentication using either username and password
+or GitHub OAuth.
+
+This module defines the authentication routes for logging in users with their
+username and password or via GitHub OAuth.
+
+Routes:
+    - POST /auth/login: Log in using a username and password.
+    - GET /auth/github: Redirect to GitHub OAuth for authentication.
+    - GET /auth/github/callback: Callback from GitHub to authenticate the user and create a JWT token.
+    - POST /auth/logout: Log out and delete the JWT token cookie.
+
+Dependencies:
+    - get_current_user: Fetches the current authenticated user.
 """
 
 import datetime
@@ -36,7 +49,7 @@ async def login(login_request: LoginRequest, response: Response) -> dict:
     payload = TokenModel(
         id=user.id,
         exp=datetime.datetime.now(datetime.UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
-        iat=datetime.datetime.now(datetime.UTC)
+        iat=datetime.datetime.now(datetime.UTC),
     )
 
     session_token = Security.encode_jwt(payload)
@@ -55,10 +68,7 @@ async def github_login(request: Request) -> Response:
     return await github.authorize_redirect(request, settings.GITHUB_OAUTH_CALLBACK_URL)
 
 
-@router.get(
-    "/github/callback",
-    status_code=status.HTTP_302_FOUND
-)
+@router.get("/github/callback", status_code=status.HTTP_302_FOUND)
 async def authenticate_github(request: Request) -> Response:
     """
     Authenticate the user with a GitHub access token and create a user if
@@ -83,14 +93,14 @@ async def authenticate_github(request: Request) -> Response:
             github_id=github_user.id,
             email_address=github_user.email,
             username=github_user.username,
-            name=github_user.name
+            name=github_user.name,
         )
 
     payload = TokenModel(
         id=github_user.id,
         auth_type=AuthTypes.GITHUB,
         exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-        iat=datetime.datetime.now(datetime.UTC)
+        iat=datetime.datetime.now(datetime.UTC),
     )
 
     session_token = Security.encode_jwt(payload)
@@ -102,9 +112,7 @@ async def authenticate_github(request: Request) -> Response:
 
 
 @router.post(
-    "/logout",
-    status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(get_current_user)]
+    "/logout", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user)]
 )
 async def logout() -> Response:
     """

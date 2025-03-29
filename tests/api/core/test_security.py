@@ -1,6 +1,7 @@
 """
 Module for testing the Farmhand Security class.
 """
+
 import datetime
 import time
 from datetime import timedelta
@@ -15,7 +16,6 @@ from src.config import settings
 
 
 class TestSecurity:
-
     def test_get_user_by_default_auth_type(self, create_database, unit_test_user):
         """
         Test that when passed a TokenModel containing a 'default' AuthType claim
@@ -27,7 +27,7 @@ class TestSecurity:
             id=unit_test_user.id,
             auth_type=AuthTypes.DEFAULT,
             exp=datetime.datetime.now(datetime.UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC)
+            iat=datetime.datetime.now(datetime.UTC),
         )
 
         expected_user = Security.get_user_by_auth_type(token=expected_token)
@@ -45,7 +45,7 @@ class TestSecurity:
             id=github_user.github_id,
             auth_type=AuthTypes.GITHUB,
             exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC)
+            iat=datetime.datetime.now(datetime.UTC),
         )
 
         expected_user = Security.get_user_by_auth_type(token=expected_token)
@@ -60,7 +60,7 @@ class TestSecurity:
             id=12345,
             auth_type=AuthTypes.GITHUB,
             exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC)
+            iat=datetime.datetime.now(datetime.UTC),
         )
 
         encoded_token = Security.encode_jwt(token_payload)
@@ -88,7 +88,7 @@ class TestSecurity:
             id=12345,
             auth_type=AuthTypes.DEFAULT,
             exp=datetime.datetime.now(datetime.UTC) + timedelta(milliseconds=5),
-            iat=datetime.datetime.now(datetime.UTC)
+            iat=datetime.datetime.now(datetime.UTC),
         )
 
         with pytest.raises(jwt.ExpiredSignatureError):

@@ -1,16 +1,33 @@
 """
-Pydantic validation / serialization models for farmhand.
+Pydantic Validation and Serialisation models used in the Farmhand
+request routes and services.
 """
 
 from typing import Optional, Union
 
 from datetime import datetime, date
 from uuid import UUID
-from pydantic import BaseModel, field_validator, field_serializer, model_validator, Field, conint, condecimal, \
-    computed_field, PrivateAttr
+from pydantic import (
+    BaseModel,
+    field_validator,
+    field_serializer,
+    model_validator,
+    Field,
+    conint,
+    condecimal,
+    computed_field,
+    PrivateAttr,
+)
 from decimal import Decimal
 
-from src.api.constants import FarmTypes, WeedStates, FertilizerStates, SoilTypes, FieldTypes, AuthTypes
+from src.api.constants import (
+    FarmTypes,
+    WeedStates,
+    FertilizerStates,
+    SoilTypes,
+    FieldTypes,
+    AuthTypes,
+)
 from src.api.core.serializers import Serializers
 from src.api.core.validators import Validators
 
@@ -59,6 +76,7 @@ class GithubUser(BaseModel):
     """
     Pydantic model for a user that has authenticated with GitHub.
     """
+
     id: int
     username: str = Field(alias="login")
     name: str
@@ -251,6 +269,7 @@ class FieldResponse(BaseModel):
     Field Response model containing
 
     """
+
     id: UUID
     created_at: datetime
     number: int

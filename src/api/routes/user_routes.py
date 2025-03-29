@@ -1,3 +1,17 @@
+"""
+API Routes for User Management.
+
+This module defines the API routes for managing user-related actions.
+It allows fetching the current logged-in user's information and creating new users.
+
+Routes:
+    - GET /users/me: Get the information of the current logged-in user.
+    - POST /users: Create a new user with a username, email, and password.
+
+Dependencies:
+    - get_current_user: Fetches the current authenticated user.
+"""
+
 from fastapi import APIRouter, Depends, status, HTTPException
 from src.api.deps import get_current_user
 from src.api.core.models import UserCreate
@@ -18,7 +32,7 @@ async def get_user_info(current_user: User = Depends(get_current_user)) -> dict:
         "email": current_user.email_address,
         "username": current_user.username,
         "name": current_user.name,
-        "created_at": current_user.created_at
+        "created_at": current_user.created_at,
     }
 
 

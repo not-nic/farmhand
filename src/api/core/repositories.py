@@ -1,3 +1,13 @@
+"""
+Python module containing farmhand repositories.
+
+Farmhand follows the repository pattern and each database model should
+inherit from a repository and if any custom database logic is required
+
+e.g. getting all fields that share the same crop it should be written
+as a method within its own <model_name>Repository.
+"""
+
 from typing import Optional, TypeVar, TYPE_CHECKING
 from uuid import UUID
 
@@ -154,6 +164,7 @@ class FieldRepository(Repository):
     """
     Field Repository for interacting with the DB and making queries
     """
+
     __abstract__ = True
 
     @classmethod
@@ -188,7 +199,9 @@ class FieldRepository(Repository):
 
         # Check if the field is a precision_farming_field and get any kwargs from the update object and apply them.
         if field.precision_farming_field:
-            precision_field_kwargs = {key: kwargs[key] for key in precision_field_values if key in kwargs}
+            precision_field_kwargs = {
+                key: kwargs[key] for key in precision_field_values if key in kwargs
+            }
             if precision_field_kwargs:
                 field.precision_farming_field.update(field.id, **precision_field_kwargs)
 
@@ -206,7 +219,6 @@ class FieldRepository(Repository):
         session = cls.get_session()
         field: Field = cls.get(id)
         if field:
-
             if field.base_game_field:
                 field.base_game_field.delete(field.id)
 
@@ -239,7 +251,7 @@ class FieldRepository(Repository):
             {
                 "id": field_crop.id,
                 "crop_type": field_crop.crop.type,
-                "planted_at": field_crop.planted_at
+                "planted_at": field_crop.planted_at,
             }
             for field_crop in self.crops
         ]

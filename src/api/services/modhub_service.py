@@ -1,3 +1,8 @@
+"""
+Mod Hub Service Module for generic scraping of the Farming Simulator ModHub
+pages.
+"""
+
 import requests
 
 from typing import Optional

@@ -26,4 +26,3 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=f"{settings.PROJECT_NAME}-{settings.VERSION}", lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=settings.JWT_SECRET_KEY)
 app.include_router(api_router, prefix=settings.API_V1_STR)
-

@@ -1,6 +1,19 @@
 """
-API Routes for Crops.
+API Routes for managing crops in a field.
+
+This module defines the API routes for interacting with crops in a given field. It allows for
+planting new crops, retrieving current crops, past crops, or all crops in a field.
+
+Routes:
+    - PUT /{field_id}/crops: Plant a new crop in the specified field.
+    - GET /{field_id}/crops: Get a list of crops in the specified field with optional filters.
+
+Dependencies:
+    - get_current_user: Fetches the current authenticated user.
+    - get_users_farm: Fetches the current user's farm.
+    - CurrentField: Represents the specific field being referenced.
 """
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -16,7 +29,7 @@ crop_service = CropService()
 @router.put(
     "",
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     """
@@ -27,21 +40,16 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     try:
         crop_service.plant_crop(current_field=field, crop_request=crop_request)
     except ValueError as exc:
-        raise HTTPException(
-            detail=str(exc),
-            status_code=status.HTTP_400_BAD_REQUEST
-        )
+        raise HTTPException(detail=str(exc), status_code=status.HTTP_400_BAD_REQUEST)
 
 
 @router.get(
     "",
     dependencies=[Depends(get_current_user), Depends(get_users_farm)],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 async def get_crops(
-    field: CurrentField,
-    current: Optional[bool] = False,
-    past: Optional[bool] = False
+    field: CurrentField, current: Optional[bool] = False, past: Optional[bool] = False
 ) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
@@ -61,5 +69,3 @@ async def get_crops(
 
     crops = crop_service.get_all_crops(field)
     return CropsResponse(crops=crops, count=len(crops))
-
-

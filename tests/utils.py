@@ -26,9 +26,8 @@ def crop_data():
             "growth_stages": 7,
             "growth_duration": 10,
             "root_crop": False,
-
             "planted_in": "September, October",
-            "harvested_in": "July, August, September"
+            "harvested_in": "July, August, September",
         },
         {
             "type": "Barley",
@@ -38,9 +37,8 @@ def crop_data():
             "growth_stages": 6,
             "growth_duration": 9,
             "root_crop": False,
-
             "planted_in": "September, October",
-            "harvested_in": "June, July"
+            "harvested_in": "June, July",
         },
         {
             "type": "Maize",
@@ -50,8 +48,7 @@ def crop_data():
             "growth_stages": 6,
             "growth_duration": 6,
             "root_crop": True,
-
             "planted_in": "April, May",
-            "harvested_in": "October, November"
-        }
+            "harvested_in": "October, November",
+        },
     ]

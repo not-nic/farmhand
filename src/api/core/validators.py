@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.api.core.models import GithubUser
 
+
 class Validators:
     """
     Farmhand Data validators to be used alongside the pydantic models.
