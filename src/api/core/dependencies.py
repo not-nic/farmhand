@@ -2,12 +2,13 @@
 Module for FastAPI Dependencies that need to be called / injected before methods can be called.
 """
 
-import jwt
-
 from typing import Annotated, Optional
 from uuid import UUID
 
-from fastapi import Request, HTTPException, status, Depends, Path
+import jwt
+from fastapi import HTTPException, Depends, Path
+from starlette import status
+from starlette.requests import Request
 
 from src.api.core.db_models import User, Farm, Field
 from src.api.core.security import Security
@@ -68,7 +69,10 @@ def is_service_user(current_user: CurrentUser) -> bool:
     return True
 
 
-def get_users_farm(
+ServiceUser = Annotated[bool, Depends(is_service_user)]
+
+
+def get_farm(
     id: Annotated[UUID, Path(title="The ID of the farm to get")], current_user: CurrentUser
 ) -> Farm:
     """
@@ -91,12 +95,12 @@ def get_users_farm(
     return farm
 
 
-CurrentFarm = Annotated[Farm, Depends(get_users_farm)]
+CurrentFarm = Annotated[Farm, Depends(get_farm)]
 
 
 def get_field(
-    current_farm: CurrentFarm,
-    field_id: Annotated[UUID, Path(title="The ID of the field to get")],
+        current_farm: CurrentFarm,
+        field_id: Annotated[UUID, Path(title="The ID of the field to get")],
 ) -> Optional[Field]:
     """
     dependency to get the current field by its ID or return

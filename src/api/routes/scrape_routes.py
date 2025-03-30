@@ -14,14 +14,14 @@ Dependencies:
 
 from fastapi import APIRouter, BackgroundTasks, status, Depends
 
-from src.api.deps import is_service_user
+from src.api.core.dependencies import ServiceUser
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
 router = APIRouter(prefix="/scrape", tags=["scraper"])
 
 
-@router.get("/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+@router.get("/{id}", dependencies=[Depends(ServiceUser)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_data(id: int, background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger scraping of an individual mod by its mod_id.
@@ -34,7 +34,7 @@ async def scrape_data(id: int, background_tasks: BackgroundTasks) -> dict:
     return {"detail": "Started Scraping Task"}
 
 
-@router.get("/maps", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+@router.get("/maps", dependencies=[Depends(ServiceUser)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger the scraping of maps from the Farming Simulator ModHub website.

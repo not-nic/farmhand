@@ -19,7 +19,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from src.api.core.models import CropRequest, CropsResponse
-from src.api.deps import CurrentField, get_current_user, get_users_farm
+from src.api.core.dependencies import get_current_user, get_farm, CurrentField
 from src.api.services.crop_service import CropService
 
 router = APIRouter(prefix="/{field_id}/crops", tags=["Crops"])
@@ -28,7 +28,7 @@ crop_service = CropService()
 
 @router.put(
     "",
-    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
@@ -45,7 +45,7 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
 
 @router.get(
     "",
-    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
 async def get_crops(
