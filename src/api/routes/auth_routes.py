@@ -21,10 +21,10 @@ from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
 from fastapi.responses import RedirectResponse
 
 from src.api.constants import AuthTypes
+from src.api.core.dependencies import get_current_user
 from src.api.core.models import LoginRequest, GithubUser, TokenModel
 from src.api.core.db_models import User
 from src.api.core.security import Security, github
-from src.api.deps import get_current_user
 from src.api.logger import logger
 from src.config import settings
 

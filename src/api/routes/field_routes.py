@@ -24,7 +24,7 @@ from fastapi import HTTPException, APIRouter, Depends, status
 
 from src.api.core.db_models import Farm
 from src.api.core.models import FieldRequest, FieldUpdate, FieldResponse
-from src.api.deps import get_current_user, get_users_farm, CurrentField
+from src.api.core.dependencies import get_current_user, get_farm, CurrentField
 from src.api.services.field_service import FieldService
 
 router = APIRouter(prefix="/{id}/fields", tags=["Fields"])
@@ -33,7 +33,7 @@ field_service = FieldService()
 
 @router.post("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 async def create_field(
-    field_request: FieldRequest, current_farm: Farm = Depends(get_users_farm)
+    field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
 ) -> dict:
     """
     Create a field based on the current farm type.
@@ -51,7 +51,7 @@ async def create_field(
 
 @router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 async def get_fields(
-    current_farm: Farm = Depends(get_users_farm),
+    current_farm: Farm = Depends(get_farm),
     show_crop: Optional[bool] = False,
     crop_type: Optional[str] = None,
 ) -> dict:
@@ -70,7 +70,7 @@ async def get_fields(
 
 @router.get(
     "/{field_id}",
-    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
 async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False) -> FieldResponse:
@@ -85,7 +85,7 @@ async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False
 
 @router.put(
     "/{field_id}",
-    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def update_field(field: CurrentField, field_update: FieldUpdate):
@@ -99,7 +99,7 @@ async def update_field(field: CurrentField, field_update: FieldUpdate):
 
 @router.delete(
     "/{field_id}",
-    dependencies=[Depends(get_current_user), Depends(get_users_farm)],
+    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_field(field: CurrentField):
