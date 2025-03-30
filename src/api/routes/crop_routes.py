@@ -18,7 +18,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, status, HTTPException
 
-from src.api.core.models import CropRequest, CropsResponse
+from src.api.core.schema.crops.crops import CropRequest, CropsResponse
 from src.api.core.dependencies import get_current_user, get_farm, CurrentField
 from src.api.services.crop_service import CropService
 

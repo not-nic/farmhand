@@ -18,10 +18,10 @@ Dependencies:
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.models import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
-from src.api.core.db.models.maps.map import Map
-from src.api.core.db.models.farms.farm import Farm
-from src.api.core.db.models.users.user import User
+from src.api.core.schema.farms import FarmRequest, FarmUpdate, FarmResponse, FarmsResponse
+from src.api.core.db.models.maps import Map
+from src.api.core.db.models.farms import Farm
+from src.api.core.db.models.users import User
 from src.api.core.dependencies import get_current_user, get_farm
 
 router = APIRouter(prefix="/farms", tags=["Farms"])

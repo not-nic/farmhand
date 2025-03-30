@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup, Tag
 from requests import HTTPError
 
 from src.api.constants import URLs
-from src.api.core.models import ModModel
+from src.api.core.schema.mods import ModModel
 from src.api.core.logger import logger
 
 

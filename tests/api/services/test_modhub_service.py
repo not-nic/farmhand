@@ -8,7 +8,7 @@ import pytest
 from requests import HTTPError
 from fastapi import status
 
-from src.api.core.models import ModModel
+from src.api.core.schema.mods import ModModel
 from src.api.services.modhub_service import ModHubService
 
 

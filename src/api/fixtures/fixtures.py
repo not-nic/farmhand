@@ -3,7 +3,7 @@ Module for initialisation scripts (fixtures) to be run
 on the start-up of the application.
 """
 
-from src.api.core.db.models.users.user import User
+from src.api.core.db.models.users import User
 from src.api.core.security import Security
 from src.api.services.crop_service import CropService
 from src.api.core.logger import logger

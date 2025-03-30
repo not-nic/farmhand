@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from src.api.core.models import GithubUser
-from src.api.core.validators import Validators
+from src.api.core.schema.users import GithubUser
+from src.api.core.schema.validators import Validators
 
 
 class TestValidators:

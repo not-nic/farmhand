@@ -6,7 +6,7 @@ from datetime import datetime
 
 import pytest
 
-from src.api.core.serializers import Serializers
+from src.api.core.schema.serializers import Serializers
 
 
 class TestSerializers:

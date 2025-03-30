@@ -9,7 +9,7 @@ from uuid import UUID
 from src.api.core.repositories.base_repository import Repository
 
 if TYPE_CHECKING:
-    from src.api.core.db.models.fields.field import Field
+    from src.api.core.db.models.fields import Field
 
 
 class FieldRepository(Repository):

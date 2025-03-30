@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from src.api.core.db.models.farms.farm import Farm
+from src.api.core.db.models.farms import Farm
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 

@@ -10,7 +10,7 @@ import jwt
 import pytest
 
 from src.api.constants import AuthTypes
-from src.api.core.models import TokenModel
+from src.api.core.schema.users import TokenModel
 from src.api.core.security import Security
 from src.config import settings
 
