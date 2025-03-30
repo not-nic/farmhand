@@ -7,7 +7,7 @@ import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.api.core.models import GithubUser
+    from src.api.core.schema.users import GithubUser
 
 
 class Validators:

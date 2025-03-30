@@ -11,8 +11,8 @@ from passlib.context import CryptContext
 from authlib.integrations.starlette_client import OAuth
 
 from src.api.constants import AuthTypes
-from src.api.core.db.models.users.user import User
-from src.api.core.models import TokenModel
+from src.api.core.db.models.users import User
+from src.api.core.schema.users import TokenModel
 from src.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

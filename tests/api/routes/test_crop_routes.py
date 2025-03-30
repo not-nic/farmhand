@@ -10,10 +10,9 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from pytest_asyncio import fixture
 
-from src.api.core.db.models.fields.field_crop import FieldCrop
-from src.api.core.db.models.fields.field import Field
-from src.api.core.db.models.farms.farm import Farm
-from src.api.core.models import CropsResponse
+from src.api.core.db.models.fields import Field, FieldCrop
+from src.api.core.db.models.farms import Farm
+from src.api.core.schema.crops.crops import CropsResponse
 from src.api.services.crop_service import CropService
 from src.config import settings
 

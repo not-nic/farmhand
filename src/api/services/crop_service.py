@@ -6,10 +6,9 @@ import json
 import os.path
 from typing import Optional
 
-from src.api.core.models import CropModel, CropRequest, CropResponse
-from src.api.core.db.models.fields.field_crop import FieldCrop
-from src.api.core.db.models.crops.crops import Crop
-from src.api.core.db.models.fields.field import Field
+from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
+from src.api.core.db.models.fields import FieldCrop, Field
+from src.api.core.db.models.crops import Crop
 from src.api.core.logger import logger
 
 

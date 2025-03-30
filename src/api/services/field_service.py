@@ -6,19 +6,11 @@ from typing import Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
-from src.api.core.db.models.fields.pf_field import PrecisionFarmingField
-from src.api.core.db.models.fields.base_field import BaseGameField
-from src.api.core.db.models.fields.field import Field
-from src.api.core.db.models.farms.farm import Farm
-from src.api.core.models import (
-    BaseGameFieldModel,
-    PrecisionFarmingFieldModel,
-    FieldRequest,
-    FieldUpdate,
-    FieldResponse,
-    FieldsResponse,
-    CropResponse,
-)
+from src.api.core.db.models.fields import Field, PrecisionFarmingField, BaseGameField
+from src.api.core.db.models.farms import Farm
+from src.api.core.schema.fields import FieldRequest, PrecisionFarmingFieldModel, BaseGameFieldModel, \
+    FieldResponse, FieldsResponse, FieldUpdate
+from src.api.core.schema.crops.crops import CropResponse
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
 

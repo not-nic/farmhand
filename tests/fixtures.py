@@ -10,10 +10,10 @@ import datetime
 from uuid import UUID
 
 from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
-from src.api.core.db.models.maps.map import Map
-from src.api.core.db.models.farms.farm import Farm
-from src.api.core.db.models.users.user import User
-from src.api.core.models import FieldRequest, FieldResponse
+from src.api.core.db.models.maps import Map
+from src.api.core.db.models.farms import Farm
+from src.api.core.db.models.users import User
+from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from tests.conftest import UNIT_TESTING_USER
 
