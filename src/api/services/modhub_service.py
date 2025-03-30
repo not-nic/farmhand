@@ -12,7 +12,7 @@ from requests import HTTPError
 
 from src.api.constants import URLs
 from src.api.core.models import ModModel
-from src.api.logger import logger
+from src.api.core.logger import logger
 
 
 class ModHubService:

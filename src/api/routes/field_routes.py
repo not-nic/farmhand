@@ -22,7 +22,7 @@ from typing import Optional
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.db_models import Farm
+from src.api.core.db.models.farms.farm import Farm
 from src.api.core.models import FieldRequest, FieldUpdate, FieldResponse
 from src.api.core.dependencies import get_current_user, get_farm, CurrentField
 from src.api.services.field_service import FieldService

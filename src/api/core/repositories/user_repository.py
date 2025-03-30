@@ -8,7 +8,7 @@ from typing import Optional, TYPE_CHECKING
 from src.api.core.repositories.base_repository import Repository
 
 if TYPE_CHECKING:
-    from src.api.core.db_models import User
+    from src.api.core.db.models.users.user import User
 
 
 class UserRepository(Repository):

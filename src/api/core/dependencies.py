@@ -10,7 +10,9 @@ from fastapi import HTTPException, Depends, Path
 from starlette import status
 from starlette.requests import Request
 
-from src.api.core.db_models import User, Farm, Field
+from src.api.core.db.models.fields.field import Field
+from src.api.core.db.models.farms.farm import Farm
+from src.api.core.db.models.users.user import User
 from src.api.core.security import Security
 from src.api.services.field_service import FieldService
 from src.config import settings

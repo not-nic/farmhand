@@ -10,7 +10,8 @@ from fastapi import status
 from pytest_asyncio import fixture
 
 from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.db_models import Field, FieldCrop
+from src.api.core.db.models.fields.field_crop import FieldCrop
+from src.api.core.db.models.fields.field import Field
 from src.api.core.models import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
 from tests.conftest import TestClient
