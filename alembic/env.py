@@ -9,12 +9,12 @@ from alembic import context
 
 load_dotenv()
 
-from src.api.core.db import Base
+from src.api.core.db.db_setup import Base
 from src.config import settings
 
 # As using repository pattern Base.metadata requires models to be imported
 
-import src.api.core.db_models
+from src.api.core.db.models import *
 
 #
 
