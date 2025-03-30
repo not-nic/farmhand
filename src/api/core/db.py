@@ -15,7 +15,7 @@ def get_engine() -> Engine:
     return create_engine(settings.DATABASE_URL)
 
 
-def get_session():
+def get_session(engine: Engine):
     """
     Create a scoped DB session.
     """
@@ -23,5 +23,5 @@ def get_session():
 
 
 engine = get_engine()
-db_session = get_session()
+db_session = get_session(engine)
 Base = declarative_base()
