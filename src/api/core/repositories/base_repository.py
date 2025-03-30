@@ -12,7 +12,7 @@ from typing import Optional, TypeVar
 from uuid import UUID
 from sqlalchemy.orm import Session
 
-from src.api.core.db import Base, db_session
+from src.api.core.db.db_setup import Base, db_session
 
 T = TypeVar("T", bound="Repository")
 

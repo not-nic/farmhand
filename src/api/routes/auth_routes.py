@@ -23,9 +23,9 @@ from fastapi.responses import RedirectResponse
 from src.api.constants import AuthTypes
 from src.api.core.dependencies import get_current_user
 from src.api.core.models import LoginRequest, GithubUser, TokenModel
-from src.api.core.db_models import User
+from src.api.core.db.models.users.user import User
 from src.api.core.security import Security, github
-from src.api.logger import logger
+from src.api.core.logger import logger
 from src.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

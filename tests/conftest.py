@@ -18,8 +18,8 @@ load_dotenv("tests/resources/test.env", override=True)
 # ruff: noqa: E402
 from main import app
 from main import settings
-from src.api.core.db import Base, engine
-from src.api.core.db_models import User
+from src.api.core.db.db_setup import Base, engine
+from src.api.core.db.models.users.user import User
 from src.api.core.security import Security, github
 
 pytest_plugins = "tests.fixtures"

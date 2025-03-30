@@ -4,9 +4,9 @@ when new maps are released.
 """
 
 from src.api.constants import MapFilters
-from src.api.core.db_models import Map
+from src.api.core.db.models.maps.map import Map
 from src.api.services.modhub_service import ModHubService
-from src.api.logger import logger
+from src.api.core.logger import logger
 
 
 class MapService:
