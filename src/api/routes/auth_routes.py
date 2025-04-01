@@ -88,7 +88,7 @@ async def authenticate_github(request: Request) -> Response:
 
     # Create user if it does not exist
     if not user:
-        logger.info(f"[Github Auth]: User does not exist, creating a new user")
+        logger.info("[Github Auth]: User does not exist, creating a new user")
         User.create(
             github_id=github_user.id,
             email_address=github_user.email,
