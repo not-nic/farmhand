@@ -30,7 +30,7 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.warning(
+            logger.error(
                 f"Unable to connect to the ModHub - got status code: {response.status_code}"
             )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
@@ -68,7 +68,7 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.warning(
+            logger.error(
                 f"Unable to connect to the ModHub - got status code: {response.status_code}"
             )
             raise HTTPError(f"Request failed with status code: {response.status_code}")

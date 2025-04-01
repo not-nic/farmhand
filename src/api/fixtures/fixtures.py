@@ -19,8 +19,6 @@ class Fixtures:
         :return: (User) the created or updated user.
         """
 
-        logger.info("Creating service user...")
-
         user_data = {
             "username": settings.SERVICE_USER_USERNAME,
             "email_address": settings.SERVICE_USER_EMAIL,
@@ -31,6 +29,7 @@ class Fixtures:
         service_user = User.get_by_username(username=settings.SERVICE_USER_USERNAME)
 
         if not service_user:
+            logger.info("Creating service user...")
             service_user = User.create(**user_data)
             logger.info(f"Service user created - {service_user.email_address}")
         else:

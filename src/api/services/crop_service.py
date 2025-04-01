@@ -109,6 +109,6 @@ class CropService:
         :return: the default JSON crop data
         """
         filepath = os.path.join("src", "api", "fixtures", "resources", "crop_data.json")
-        logger.info(f"[Crop Service]: Getting crop information from file at path: {filepath}")
+        logger.info(f"[Crop Service]: Loading crop data from path: {filepath}")
         with open(filepath, "r") as file:
             return json.load(file)

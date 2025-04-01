@@ -114,7 +114,6 @@ class FieldService:
         :return: (tuple) of fields and a 'show_crops' True.
         """
         if crop_type:
-            logger.info(f"Getting crop type: {crop_type}")
             crop = CropService.get_crop_by_type(crop_type)
 
             fields = self._get_fields_by_crop_id(crop.id, fields)

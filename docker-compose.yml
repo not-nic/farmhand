@@ -5,8 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ENVIRONMENT: ${ENVIRONMENT}
+
+      SERVICE_USER_USERNAME: ${SERVICE_USER_USERNAME}
+      SERVICE_USER_EMAIL: ${SERVICE_USER_EMAIL}
+      SERVICE_USER_PASSWORD: ${SERVICE_USER_PASSWORD}
+
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_OAUTH_CALLBACK_URL: ${GITHUB_OAUTH_CALLBACK_URL}
+
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     container_name: farmhand-api
     depends_on:
       - database
