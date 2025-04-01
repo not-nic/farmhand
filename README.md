@@ -38,6 +38,7 @@ Visit those repos here:
    GITHUB_CLIENT_SECRET=<your_secret>
    GITHUB_OAUTH_CALLBACK_URL=http://localhost:8000/api/v1/auth/github/callback
    ```
+
 3. Start the service with docker:
    ```bash
    docker compose up
