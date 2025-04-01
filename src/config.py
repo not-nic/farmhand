@@ -47,7 +47,7 @@ class Settings(BaseSettings):
             return "sqlite:///./instance/testdb.sqlite"
 
     LOG_FORMAT: str = (
-        "[%(asctime)s] - %(filename)s::%(funcName)s:%(lineno)s - [%(levelname)s] - %(message)s"
+        "[%(asctime)s] - [%(levelname)s] - %(filename)s::%(funcName)s::%(lineno)s - %(message)s"
     )
 
 
