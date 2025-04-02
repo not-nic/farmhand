@@ -17,7 +17,8 @@ class CropService:
     Crop Service:
 
     This service is responsible for managing crops on a user's farm, including adding, updating,
-    and retrieving crop data. It also handles the initialization of crops during the application's startup.
+    and retrieving crop data.
+    It also handles the initialization of crops during the application's startup.
     """
 
     def plant_crop(self, current_field: Field, crop_request: CropRequest) -> FieldCrop:
@@ -76,6 +77,19 @@ class CropService:
         :return: CropsResponse pydantic model containing the field crops and the count.
         """
         return [CropResponse(**crop_dict) for crop_dict in field_crops]
+
+    @staticmethod
+    def estimate_yield(crop_id: int, current_field: Field) -> float:
+        """
+        estimate the yield of a field and the potential price
+        the crops can be sold for.
+        :param crop_id:
+        :param current_field:
+        :param: difficulty (needs to be added).
+        :return: (flat) of the estimated yield and profit.
+        """
+        crop: Crop = Crop.get(crop_id)
+        return current_field.size * crop.yield_per_ha
 
     async def load_crops(self, crop_data: dict = None) -> None:
         """

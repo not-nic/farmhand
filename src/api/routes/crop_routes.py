@@ -49,7 +49,9 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     status_code=status.HTTP_200_OK,
 )
 async def get_crops(
-    field: CurrentField, current: Optional[bool] = False, past: Optional[bool] = False
+    field: CurrentField,
+    current: Optional[bool] = False,
+    past: Optional[bool] = False
 ) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
