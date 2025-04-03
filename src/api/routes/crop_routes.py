@@ -28,14 +28,13 @@ crop_service = CropService()
 
 @router.put(
     "",
-    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     """
-    Plant a crop in a field by providing a field and Crop and a Fround type.
-    :param crop_request:
-    :param field:
+    Plant a crop in a field and update its ground type to match a new state e.g. growing, harvested.
+    :param crop_request: the CropRequest model.
+    :param field: the current field to plant a crop in.
     """
     try:
         crop_service.plant_crop(current_field=field, crop_request=crop_request)
@@ -45,7 +44,6 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
 
 @router.get(
     "",
-    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
 async def get_crops(
