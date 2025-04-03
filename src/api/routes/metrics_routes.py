@@ -4,7 +4,33 @@ TODO: Field Metrics API.
 
 from fastapi import APIRouter
 
+from src.api.core.dependencies import CurrentField
+from src.api.core.schema.fields.metrics import MetricsResponseModel, SeedUsageModel, PotentialYieldModel, \
+    FertilizerUsageModel
+from src.api.services.crop_service import CropService
+
 router = APIRouter(prefix="/{field_id}/metrics", tags=["Field Metrics"])
+crop_service = CropService()
+
+
+@router.get("")
+async def get_metrics(field: CurrentField) -> MetricsResponseModel:
+    """
+    TODO: Get endpoint for getting the metrics about a field such as
+    profit, costs and other information.
+    :return: Pydantic model showing profit, costs and other information.
+    """
+    yield_model = PotentialYieldModel(potential_yield=0, potential_profit=0)
+    fertilizer_model = FertilizerUsageModel(fertilizer_usage=0, fertilize_costs=0)
+
+    seed_usage = crop_service.estimate_seed_usage(field)
+    seed_costs = crop_service.estimate_seed_costs(seed_usage)
+
+    return MetricsResponseModel(
+        estimated_seed_usage=SeedUsageModel(seed_usage=seed_usage, seed_costs=seed_costs),
+        estimated_yield=yield_model,
+        estimated_fertilizer_usage=fertilizer_model
+    )
 
 
 async def potential_yield_and_profit():

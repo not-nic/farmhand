@@ -4,8 +4,10 @@ Crop Service Module for interacting and managing with crops that are associated 
 
 import json
 import os.path
+
 from typing import Optional
 
+from src.api.constants import FSData
 from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
 from src.api.core.db.models.fields import FieldCrop, Field
 from src.api.core.db.models.crops import Crop
@@ -54,7 +56,28 @@ class CropService:
         :param current_field: the current field to get data for.
         :return: a list of all the crops that have been planted on a field.
         """
-        return self.format_crop_response(current_field.get_crops_dict())
+        return self.format_crop_response(current_field.get_crops())
+
+    @staticmethod
+    def estimate_seed_usage(current_field: Field) -> float:
+        """
+
+        :param current_field:
+        :return:
+        """
+        crop: Crop = Crop.get(current_field.current_crop().crop_id)
+        return current_field.size * crop.seeds_per_ha
+
+    @staticmethod
+    def estimate_seed_costs(seed_usage: float) -> float:
+        """
+        Estimate the seed costs for a field by multiplying the seed usage
+        by the seed price (£1.26).
+        :param seed_usage: estimated seed usage in a particular feed.
+        :return: (float) the cost to seed a field.
+        """
+
+        return seed_usage * FSData.BASE_SEED_PRICE.value
 
     @staticmethod
     def get_crop_by_type(crop_type: str) -> Optional[Crop]:
@@ -70,26 +93,16 @@ class CropService:
         return crop
 
     @staticmethod
-    def format_crop_response(field_crops: list) -> list[CropResponse]:
+    def format_crop_response(field_crops: list[FieldCrop]) -> list[CropResponse]:
         """
-        Helper function to format crop response
+        Helper function to format crop response.
         :param field_crops: List of crops
         :return: CropsResponse pydantic model containing the field crops and the count.
         """
-        return [CropResponse(**crop_dict) for crop_dict in field_crops]
-
-    @staticmethod
-    def estimate_yield(crop_id: int, current_field: Field) -> float:
-        """
-        estimate the yield of a field and the potential price
-        the crops can be sold for.
-        :param crop_id:
-        :param current_field:
-        :param: difficulty (needs to be added).
-        :return: (flat) of the estimated yield and profit.
-        """
-        crop: Crop = Crop.get(crop_id)
-        return current_field.size * crop.yield_per_ha
+        return [
+            CropResponse(id=field_crop.id, crop_type=field_crop.crop.type, planted_at=field_crop.planted_at)
+            for field_crop in field_crops
+        ]
 
     async def load_crops(self, crop_data: dict = None) -> None:
         """
