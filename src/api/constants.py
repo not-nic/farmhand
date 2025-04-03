@@ -109,3 +109,13 @@ class Difficulty(Enum):
     EASY = 3.0
     MEDIUM = 1.5
     HARD = 1
+
+
+class FSData(Enum):
+    """
+    An assortment of static values taken from farming simulator to make
+    calculations i.e. seed price, fertilizer price etc.
+    All values should be * 1000 to get their value per 1000l.
+    """
+
+    BASE_SEED_PRICE = 1.26
