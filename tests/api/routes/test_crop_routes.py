@@ -148,7 +148,7 @@ class TestCropRoutes:
         )
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert field.current_crop()["crop_type"] == "Canola"
+        assert field.current_crop().crop.type == "Canola"
 
     def test_planting_crop_that_does_not_exist(self, client, session, farm: Farm, field: Field):
         """

@@ -156,7 +156,11 @@ class FieldService:
             )
 
         if show_crops:
-            field_data.crop = CropResponse(**field.current_crop()) if field.current_crop() else None
+            field_data.crop = CropResponse(
+                id=field.current_crop().id,
+                crop_type=field.current_crop().crop.type,
+                planted_at=field.current_crop().planted_at
+            ) if field.current_crop() else None
 
         return field_data
 

@@ -9,7 +9,7 @@ from uuid import UUID
 from src.api.core.repositories.base_repository import Repository
 
 if TYPE_CHECKING:
-    from src.api.core.db.models.fields import Field
+    from src.api.core.db.models.fields import Field, FieldCrop
 
 
 class FieldRepository(Repository):
@@ -81,29 +81,22 @@ class FieldRepository(Repository):
             session.commit()
         return field
 
-    def current_crop(self: "Field") -> Optional[dict]:
+    def current_crop(self: "Field") -> Optional["FieldCrop"]:
         """
         Get the most recent crop planted as a dictionary.
         """
-        crops_dict = self.get_crops_dict()
+        crops_dict = self.get_crops()
         return crops_dict[0] if crops_dict else None
 
-    def past_crops(self: "Field") -> list[dict]:
+    def past_crops(self: "Field") -> list["FieldCrop"]:
         """
         Get all previous crops (excluding the current one) as dictionaries.
         """
-        crops_dict = self.get_crops_dict()
+        crops_dict = self.get_crops()
         return crops_dict[1:]
 
-    def get_crops_dict(self: "Field") -> list[dict]:
+    def get_crops(self: "Field") -> list["FieldCrop"]:
         """
         Get all crops for the field as a readable dictionary.
         """
-        return [
-            {
-                "id": field_crop.id,
-                "crop_type": field_crop.crop.type,
-                "planted_at": field_crop.planted_at,
-            }
-            for field_crop in self.crops
-        ]
+        return [field_crop for field_crop in self.crops]
