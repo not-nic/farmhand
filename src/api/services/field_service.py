@@ -83,7 +83,7 @@ class FieldService:
 
         return field
 
-    def get_all_fields(
+    async def get_all_fields(
         self, current_farm: Farm, show_crop: Optional[bool] = False, crop_type: Optional[str] = None
     ) -> dict:
         """
@@ -94,7 +94,7 @@ class FieldService:
         :return: a FieldsResponse object containing all the fields and the amount.
         """
         fields = current_farm.fields
-        fields, show_crop = self.filter_fields_by_crop(crop_type, fields, show_crop)
+        fields, show_crop = await self.filter_fields_by_crop(crop_type, fields, show_crop)
 
         field_details = [self.get_field_details(field, show_crop) for field in fields]
         fields_count = len(fields)
@@ -102,7 +102,7 @@ class FieldService:
             exclude_none=True
         )
 
-    def filter_fields_by_crop(
+    async def filter_fields_by_crop(
         self, crop_type: str, fields: list[Field], show_crop: bool
     ) -> tuple[list[Field], bool]:
         """
@@ -114,7 +114,7 @@ class FieldService:
         :return: (tuple) of fields and a 'show_crops' True.
         """
         if crop_type:
-            crop = CropService.get_crop_by_type(crop_type)
+            crop = await CropService.get_crop_by_type(crop_type)
 
             fields = self._get_fields_by_crop_id(crop.id, fields)
             # Set the show crop value to true to always return it in the response object.

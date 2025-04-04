@@ -37,7 +37,7 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
     :param field: the current field to plant a crop in.
     """
     try:
-        crop_service.plant_crop(current_field=field, crop_request=crop_request)
+        await crop_service.plant_crop(current_field=field, crop_request=crop_request)
     except ValueError as exc:
         raise HTTPException(detail=str(exc), status_code=status.HTTP_400_BAD_REQUEST)
 
@@ -60,12 +60,12 @@ async def get_crops(
     """
 
     if current:
-        crops = crop_service.get_current_crop(field)
+        crops = await crop_service.get_current_crop(field)
         return CropsResponse(crops=crops, count=len(crops))
 
     if past:
-        crops = crop_service.get_past_crops(field)
+        crops = await crop_service.get_past_crops(field)
         return CropsResponse(crops=crops, count=len(crops))
 
-    crops = crop_service.get_all_crops(field)
+    crops = await crop_service.get_all_crops(field)
     return CropsResponse(crops=crops, count=len(crops))

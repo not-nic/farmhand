@@ -17,6 +17,7 @@ from src.api.services.crop_service import CropService
 from src.config import settings
 
 
+@pytest.mark.asyncio
 @pytest.mark.usefixtures("client", "session")
 class TestCropRoutes:
     """
@@ -52,7 +53,7 @@ class TestCropRoutes:
         base_fields, _ = fields
         return Field.get(base_fields[0].id)
 
-    def test_get_field_crops(self, client, session, farm, field):
+    async def test_get_field_crops(self, client, session, farm, field):
         """
         Test that when a GET request is made for a fields crops all are returned
         and match the specified json output.
@@ -65,7 +66,7 @@ class TestCropRoutes:
 
         response = self.get(self.crop_url(farm_id=farm.id, field_id=field.id), client)
         crop_service = CropService()
-        expected_crops = crop_service.get_all_crops(field)
+        expected_crops = await crop_service.get_all_crops(field)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(
@@ -86,7 +87,7 @@ class TestCropRoutes:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(crops=[], count=0).model_dump(mode="json")
 
-    def test_getting_the_current_field_crop(self, client, session, farm, field):
+    async def test_getting_the_current_field_crop(self, client, session, farm, field):
         """
         Test that when a GET request is made with the query '?current=true' only
         the current field crop is returned.
@@ -102,14 +103,14 @@ class TestCropRoutes:
 
         response = self.get(url, client)
         crop_service = CropService()
-        expected_crops = crop_service.get_current_crop(field)
+        expected_crops = await crop_service.get_current_crop(field)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(
             crops=expected_crops, count=len(expected_crops)
         ).model_dump(mode="json")
 
-    def test_getting_the_past_field_crops(self, client, session, farm, field):
+    async def test_getting_the_past_field_crops(self, client, session, farm, field):
         """
         Test that when a GET request is made with the query '?past=true' only
         the past field crops are returned.
@@ -126,14 +127,14 @@ class TestCropRoutes:
 
         response = self.get(url, client)
         crop_service = CropService()
-        expected_crops = crop_service.get_past_crops(field)
+        expected_crops = await crop_service.get_past_crops(field)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(
             crops=expected_crops, count=len(expected_crops)
         ).model_dump(mode="json")
 
-    def test_planting_crop_in_field(self, client, session, farm: Farm, field: Field):
+    async def test_planting_crop_in_field(self, client, session, farm: Farm, field: Field):
         """
         Test that a crop can be planted (created) and linked to a field and
         asser the current crop is the one in the payload.
@@ -150,7 +151,7 @@ class TestCropRoutes:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert field.current_crop().crop.type == "Canola"
 
-    def test_planting_crop_that_does_not_exist(self, client, session, farm: Farm, field: Field):
+    async def test_planting_crop_that_does_not_exist(self, client, session, farm: Farm, field: Field):
         """
         Test that when planting a crop that doesn't exist a 400 bad request error is returned.
         :param client: FastAPI Test Client
