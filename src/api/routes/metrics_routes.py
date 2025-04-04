@@ -1,6 +1,7 @@
 """
 TODO: Field Metrics API.
 """
+from typing import Optional
 
 from fastapi import APIRouter
 
@@ -14,7 +15,7 @@ crop_service = CropService()
 
 
 @router.get("")
-async def get_metrics(field: CurrentField) -> MetricsResponseModel:
+async def get_metrics(field: CurrentField, next_crop: Optional[str] = None) -> MetricsResponseModel:
     """
     TODO: Get endpoint for getting the metrics about a field such as
     profit, costs and other information.
@@ -23,7 +24,7 @@ async def get_metrics(field: CurrentField) -> MetricsResponseModel:
     yield_model = PotentialYieldModel(potential_yield=0, potential_profit=0)
     fertilizer_model = FertilizerUsageModel(fertilizer_usage=0, fertilize_costs=0)
 
-    seed_usage = crop_service.estimate_seed_usage(field)
+    seed_usage = await crop_service.estimate_seed_usage(field, next_crop)
     seed_costs = crop_service.estimate_seed_costs(seed_usage)
 
     return MetricsResponseModel(
