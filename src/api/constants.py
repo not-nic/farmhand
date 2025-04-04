@@ -100,3 +100,12 @@ class SoilTypes(StrEnum):
     LOAMY_SAND = "loamy sand"
     SILTY_CLAY = "silty clay"
     LOAM = "loam"
+
+
+class Difficulty(Enum):
+    """
+    Enum for Farming Simulator difficulty levels.
+    """
+    EASY = 3.0
+    MEDIUM = 1.5
+    HARD = 1
