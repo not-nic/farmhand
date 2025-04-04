@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
-from src.api.constants import FarmTypes
+from src.api.constants import FarmTypes, Difficulty
 from src.api.core.schema.validators import Validators
 
 
@@ -16,6 +16,7 @@ class FarmRequest(BaseModel):
     name: str
     description: str
     farm_type: FarmTypes = Field(default=FarmTypes.BASE)
+    difficulty: Difficulty = Field(default=Difficulty.MEDIUM)
     map_name: Optional[str] = None
     map_id: Optional[int] = None
 
@@ -46,6 +47,7 @@ class FarmResponse(BaseModel):
     map_id: Optional[int]
     description: str
     created_at: datetime
+    difficulty: Difficulty
 
 
 class FarmsResponse(BaseModel):

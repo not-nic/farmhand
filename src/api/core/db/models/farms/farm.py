@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import Column, UUID, String, Text, DateTime, ForeignKey, Integer, Enum
 from sqlalchemy.orm import relationship
 
-from src.api.constants import FarmTypes
+from src.api.constants import FarmTypes, Difficulty
 from src.api.core.repositories import Repository
 
 
@@ -38,10 +38,10 @@ class Farm(Repository):
 
     farm_type = Column(Enum(FarmTypes, native_enum=False), nullable=False, default=FarmTypes.BASE)
 
+    difficulty = Column(Enum(Difficulty, native_enum=False), nullable=False, default=Difficulty.MEDIUM)
+
     user = relationship("User", back_populates="farms")
-
     map = relationship("Map", back_populates="farms")
-
     fields = relationship("Field", back_populates="farm", cascade="all, delete-orphan")
 
     def __repr__(self):
