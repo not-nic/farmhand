@@ -57,6 +57,7 @@ async def create_farm(
         owner_id=current_user.id,
         map_id=farm_request.map_id,
         farm_type=farm_request.farm_type,
+        difficulty=farm_request.difficulty
     )
 
     return FarmResponse(**farm.to_dict())
