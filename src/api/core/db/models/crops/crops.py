@@ -12,6 +12,7 @@ class Crop(CropRepository):
         type: the type of crop e.g. wheat, barley etc.
         yield_per_ha: the yield per hectare.
         seeds_per_ha: the seeds required per hectare.
+        nitrogen_per_kg_ha: The 'perfect' nitrogen per kg/ha for a crop.
         price: the base price of the crop (Hard difficulty).
         growth_stages: the stages of its growth.
         growth_duration: how long it takes to grow in months.
@@ -28,6 +29,7 @@ class Crop(CropRepository):
     type = Column(String(50), unique=True, nullable=False)
     yield_per_ha = Column(Integer(), nullable=False)
     seeds_per_ha = Column(Integer(), nullable=False)
+    nitrogen_per_kg_ha = Column(Integer(), nullable=True)
     price = Column(Double(), nullable=False)
     growth_stages = Column(Integer(), nullable=False)
     growth_duration = Column(Integer(), nullable=False)
