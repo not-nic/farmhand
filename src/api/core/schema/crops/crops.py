@@ -15,6 +15,7 @@ class CropModel(BaseModel):
     type: str
     yield_per_ha: int
     seeds_per_ha: int
+    nitrogen_per_kg_ha: Optional[int] = Field(default=0)
     price: float
 
     growth_stages: int
