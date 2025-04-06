@@ -77,8 +77,8 @@ class FertilizerStates(Enum):
     """
 
     ZER0_PERCENT = 0
-    FIFTY_PERCENT = 22.5
-    ONE_HUNDRED_PERCENT = 45
+    FIFTY_PERCENT = 50
+    ONE_HUNDRED_PERCENT = 100
 
 
 class WeedStates(Enum):
@@ -161,3 +161,17 @@ class FertilizerTypes(StrEnum):
     MANURE = "manure"
     SLURRY = "slurry"
     DIGESTATE = "digestate"
+
+
+class FertilizerEffect(Enum):
+    """
+    Fertilizer states for a base game field which map to percentage
+    of yield improvement:
+        NOT_FERTILIZED - 0% yield improvement
+        HALF_FERTILIZED - 22.5% yield improvement
+        FULLY_FERTILIZED - 45% yield improvement
+    """
+
+    NOT_FERTILIZED = 0
+    HALF_FERTILIZED = 22.5
+    FULLY_FERTILIZED = 45

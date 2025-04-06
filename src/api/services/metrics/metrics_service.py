@@ -4,7 +4,7 @@ Metric Service Module for calculating and managing costs that are associated wit
 
 from typing import Optional
 
-from src.api.constants import FSData, FieldTypes, WeedStates, SoilTypes, FertilizerStates, FertilizerTypes
+from src.api.constants import FSData, FieldTypes, WeedStates, SoilTypes, FertilizerTypes, FertilizerEffect
 from src.api.core.db.models import Field, Crop
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
@@ -229,18 +229,18 @@ class MetricsService:
 
         # catch edge cases for grass, oil seed and soybeans that have a 0kg/ha perfect nitrogen
         if crop_required_nitrogen == 0 or crop_required_nitrogen is None:
-            return FertilizerStates.ONE_HUNDRED_PERCENT.value
+            return FertilizerEffect.FULLY_FERTILIZED.value
 
         # Calculate the percentage when the nitrogen level is less than or equal to the perfect nitrogen level
         if nitrogen_level <= crop_required_nitrogen:
             logger.info("Nitrogen level is less than or equal to crops returning up to a 45% percentage (max)")
-            nitrogen_percentage = (nitrogen_level / crop_required_nitrogen) * FertilizerStates.ONE_HUNDRED_PERCENT.value
+            nitrogen_percentage = (nitrogen_level / crop_required_nitrogen) * FertilizerEffect.FULLY_FERTILIZED.value
         else:
             # Apply a penalty if the nitrogen level is greater than the perfect nitrogen level
             # Unsure exactly how this calculated in game (will likely need to revisit when PF comes out for FS25)
             logger.info("Nitrogen level is greater than required nitrogen, applying reduction")
             excess = nitrogen_level / crop_required_nitrogen
-            nitrogen_percentage = (FertilizerStates.ONE_HUNDRED_PERCENT.value / excess)
+            nitrogen_percentage = (FertilizerEffect.FULLY_FERTILIZED.value / excess)
 
         return max(nitrogen_percentage, 0)
 
