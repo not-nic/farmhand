@@ -69,13 +69,16 @@ class FieldTypes(StrEnum):
 
 class FertilizerStates(Enum):
     """
-    Fertilizer states used in the 'Base Game' fields
-    either 0%, 50% or 100% fertilized.
+    Fertilizer states for a base game field which map to percentage
+    of yield improvement:
+        0% - 0% yield improvement
+        50% - 22.5% yield improvement
+        100% - 45% yield improvement
     """
 
     ZER0_PERCENT = 0
-    FIFTY_PERCENT = 50
-    ONE_HUNDRED_PERCENT = 100
+    FIFTY_PERCENT = 22.5
+    ONE_HUNDRED_PERCENT = 45
 
 
 class WeedStates(Enum):
@@ -119,3 +122,15 @@ class FSData(Enum):
     """
 
     BASE_SEED_PRICE = 1.26
+
+    # Farming Simulator Percentage increases to yield
+    LIMED = 15
+    PLOWED = 15
+    WEEDS = 20
+    MULCHED = 2.5
+    ROLLED = 2.5
+
+    LOAM_PH_LEVELS = [(6.750, 15), (6.500, 10), (6.250, 5)]
+    SANDY_LOAM_PH_LEVELS = [(6.500, 15), (6.250, 10), (6.000, 5)]
+    SILTY_CLAY_PH_LEVELS = [(7.000, 15), (6.750, 10), (6.500, 5)]
+    LOAMY_SAND_PH_LEVELS = [(6.000, 15), (5.750, 10), (5.500, 5)]
