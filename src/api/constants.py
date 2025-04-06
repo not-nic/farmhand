@@ -121,7 +121,10 @@ class FSData(Enum):
     All values should be * 1000 to get their value per 1000l.
     """
 
+    # Base Costs
     BASE_SEED_PRICE = 1.26
+    BASE_SOLID_FERTILIZER_PRICE = 1.92
+    BASE_LIQUID_FERTILIZER_PRICE = 1.60
 
     # Farming Simulator Percentage increases to yield
     LIMED = 15
@@ -130,7 +133,31 @@ class FSData(Enum):
     MULCHED = 2.5
     ROLLED = 2.5
 
+    # pH levels for each soil type
     LOAM_PH_LEVELS = [(6.750, 15), (6.500, 10), (6.250, 5)]
     SANDY_LOAM_PH_LEVELS = [(6.500, 15), (6.250, 10), (6.000, 5)]
     SILTY_CLAY_PH_LEVELS = [(7.000, 15), (6.750, 10), (6.500, 5)]
     LOAMY_SAND_PH_LEVELS = [(6.000, 15), (5.750, 10), (5.500, 5)]
+
+    # Fertilizer, Lime and Herbicide rates in litres per second
+    SOLID_FERTILIZER_RATE = 0.0060
+    LIQUID_FERTILIZER_RATE = 0.0081
+    MANURE_RATE = 0.4000
+    LIQUID_MANURE_RATE = 0.4000
+    DIGESTATE_RATE = 0.4000
+    LIME_RATE = 0.0900
+    HERBICIDE_RATE = 0.0081
+
+    # Precision Farming Solid Fertilizer Density
+    SOLID_FERTILIZER_DENSITY = 0.8
+
+
+class FertilizerTypes(StrEnum):
+    """
+    Types of Fertilizer in Farming Simulator
+    """
+    SOLID = "solid"
+    LIQUID = "liquid"
+    MANURE = "manure"
+    SLURRY = "slurry"
+    DIGESTATE = "digestate"
