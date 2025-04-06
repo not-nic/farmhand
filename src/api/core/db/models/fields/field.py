@@ -1,11 +1,15 @@
 import datetime
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, UUID, Integer, DateTime, Double, String, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.constants import FieldTypes, WeedStates
 from src.api.core.repositories import FieldRepository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import BaseGameField, PrecisionFarmingField
 
 
 class Field(FieldRepository):
@@ -55,10 +59,10 @@ class Field(FieldRepository):
     mulched = Column(Boolean, nullable=True)
     weeds = Column(Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS)
 
-    base_game_field = relationship(
+    base_game_field: Mapped["BaseGameField"] = relationship(
         "BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
-    precision_farming_field = relationship(
+    precision_farming_field: Mapped["PrecisionFarmingField"] = relationship(
         "PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
