@@ -56,7 +56,9 @@ def calculate_fertilizer_usage_by_time(
     }
 
     if fertilizer_type not in FertilizerTypes:
-        raise ValueError("Invalid fertilizer type. Choose from: solid, liquid, manure, slurry, digestate.")
+        raise ValueError(
+            f"Invalid fertilizer type. Expected: {[fertilizer_type for fertilizer_type in FertilizerTypes]}"
+        )
 
     time_seconds = calculate_working_time(
         size=field_size,
