@@ -7,7 +7,6 @@ import os.path
 
 from typing import Optional
 
-from src.api.constants import FSData
 from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
 from src.api.core.db.models.fields import FieldCrop, Field
 from src.api.core.db.models.crops import Crop
@@ -58,30 +57,6 @@ class CropService:
         """
         return self.format_crop_response(current_field.get_crops())
 
-    async def estimate_seed_usage(self, current_field: Field, future_crop: Optional[str] = None) -> float:
-        """
-        Estimate the amount of seeds required to plant a specific
-        crop in a field.
-        :param current_field: the current field to check the usage of.
-        :param future_crop: make a calculation with the current field and a futrue crop.
-        :return:
-        """
-        crop: Crop = self.get_crop_by_type(future_crop) if future_crop else Crop.get(
-            current_field.current_crop().crop_id
-        )
-        return current_field.size * crop.seeds_per_ha
-
-    @staticmethod
-    def estimate_seed_costs(seed_usage: float) -> float:
-        """
-        Estimate the seed costs for a field by multiplying the seed usage
-        by the seed price (£1.26).
-        :param seed_usage: estimated seed usage in a particular feed.
-        :return: (float) the cost to seed a field.
-        """
-
-        return seed_usage * FSData.BASE_SEED_PRICE.value
-
     async def load_crops(self, crop_data: dict = None) -> None:
         """
         Load crop information into the database on application start up or
@@ -117,6 +92,19 @@ class CropService:
 
         if not crop:
             raise ValueError(f"Invalid crop: '{crop_type}' not found")
+        return crop
+
+    @staticmethod
+    async def get_crop_details(crop_id: int) -> Optional[Crop]:
+        """
+        Get all the details for a 'Crop' i.e.
+        :param crop_id: the id of the crop to get
+        :return:
+        """
+        crop = Crop.get(crop_id)
+
+        if not crop:
+            raise ValueError(f"Invalid crop: '{crop_id}' not found")
         return crop
 
     @staticmethod
