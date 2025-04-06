@@ -1,6 +1,9 @@
 """
-Util functions for the metrics service class
+Util functions for the metrics service:
+    - calculate_working_time: Get the time to work a field in seconds.
+    - calculate_fertilizer_usage_by_time: calculate the time to fertilize a field by working time.
 """
+
 from src.api.constants import FertilizerTypes, FSData
 
 
@@ -35,9 +38,9 @@ def calculate_working_time(size: float, implement_width: float, working_speed: f
 
 def calculate_fertilizer_usage_by_time(
     field_size: float,
-    working_speed: float,
-    implement_width: float,
-    fertilizer_type: FertilizerTypes
+    fertilizer_type: FertilizerTypes,
+    working_speed: float = 24,
+    implement_width: float = 36,
 ) -> float:
     """
     Calculate fertilizer usage in litres by work time.

@@ -49,6 +49,7 @@ class MetricsService:
                 crop=crop
             )
         else:
+            logger.error(f"Field: {current_field.id} - {current_field.field_type} not found, cannot calculate yield.")
             raise NotImplemented("Field Type not implemented.")
 
         logger.info(f"Base Yield Per Ha: {base_yield} for Crop: {crop.type}")
@@ -106,23 +107,24 @@ class MetricsService:
         :param current_field: The current field.
         :return: Fertilizer usage in litres (float).
         """
+        logger.info(f"Calculating Fertilization on Field: {current_field.number} ({current_field.id})")
 
         if current_field.field_type == FieldTypes.BASE_FIELD:
             return calculate_fertilizer_usage_by_time(
                 field_size=current_field.size,
                 fertilizer_type=FertilizerTypes.SOLID,
-                working_speed=24,
-                implement_width=36
             )
         elif current_field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
             total_fertilizer_kg = calculate_fertilizer_kg(
                 rate=current_field.precision_farming_field.nitrogen_level,
                 field_size=current_field.size
             )
-
             return total_fertilizer_kg / FSData.SOLID_FERTILIZER_DENSITY.value
         else:
-            raise NotImplemented("Field Type not implemented")
+            logger.error(
+                f"Field: {current_field.id} - {current_field.field_type} not found, cannot estimate fertilizer."
+            )
+            raise NotImplemented("Field Type not implemented.")
 
     @staticmethod
     def calculate_fertilizer_cost(
@@ -141,7 +143,6 @@ class MetricsService:
             FertilizerTypes.LIQUID: FSData.BASE_LIQUID_FERTILIZER_PRICE.value,
         }
 
-        # get the cost per litre by fertilizer type
         cost_per_liter = costs[fertilizer_type]
         return fertilizer_usage * cost_per_liter if cost_per_liter is not None else None
 
@@ -211,7 +212,7 @@ class MetricsService:
         FSData Enum stat and condition, i.e. 'PLOWED' & current_field.plowed
         :param base_yield: the base yield of the crop.
         :param condition: the condition to apply i.e. boolean / in etc.
-        :param factor: the Enum stat (PLOWED.value which == 15% bonus).
+        :param factor: the Enum stat (PLOWED.value which == % bonus).
         :return: (float) of the base yield increase or 0 if false.
         """
         return base_yield * (factor / 100) if condition else 0
