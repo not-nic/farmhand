@@ -33,7 +33,7 @@ class MetricsService:
         if current_field.field_type == FieldTypes.BASE_FIELD:
             expected_yield_per_ha += self._handle_base_field(base_yield, current_field)
         elif current_field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
-            expected_yield_per_ha += self._handle_precision_farming_field(current_field, crop, base_yield)
+            expected_yield_per_ha += self._handle_precision_farming_field(base_yield, current_field, crop)
         else:
             raise NotImplemented("Field Type not implemented")
 
