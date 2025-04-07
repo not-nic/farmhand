@@ -7,7 +7,6 @@ import pytest
 from typing import Optional
 from uuid import UUID, uuid4
 from fastapi import status
-from pytest_asyncio import fixture
 
 from src.api.constants import SoilTypes, FieldTypes
 from src.api.core.db.models.fields import FieldCrop
@@ -41,7 +40,7 @@ class TestFieldRoutes:
         field_id_path = f"/{field_id}" if field_id else ""
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_id_path}"
 
-    @fixture
+    @pytest.fixture
     def expected_base_field(self, fields):
         """
         Fixture for the expected field.
@@ -51,7 +50,7 @@ class TestFieldRoutes:
         base_fields, _ = fields
         return base_fields[0]
 
-    @fixture
+    @pytest.fixture
     def expected_precision_field(self, fields):
         """
         Fixture for the expected field.

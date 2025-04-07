@@ -21,6 +21,7 @@ from main import settings
 from src.api.core.db.db_setup import Base, engine
 from src.api.core.db.models.users import User
 from src.api.core.security import Security, github
+from src.api.services.crop_service import CropService
 
 pytest_plugins = "tests.fixtures"
 
@@ -122,7 +123,7 @@ def mock_mod_hub_page(mocker) -> callable:
 
 
 @pytest.fixture
-def mock_crop_data(mocker) -> None:
+async def mock_crop_data(mocker) -> None:
     """
     Fixture for mocking the crop data JSON.
     :param mocker: pytest mocker
@@ -130,6 +131,9 @@ def mock_crop_data(mocker) -> None:
     mocker.patch(
         "src.api.services.crop_service.CropService._load_crop_data_from_fixture"
     ).return_value = crop_data()
+
+    crop_service = CropService()
+    await crop_service.load_crops()
 
 
 @pytest.fixture

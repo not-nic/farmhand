@@ -8,7 +8,6 @@ from typing import Optional
 from uuid import UUID
 from fastapi import status
 from fastapi.testclient import TestClient
-from pytest_asyncio import fixture
 
 from src.api.core.db.models.fields import Field, FieldCrop
 from src.api.core.db.models.farms import Farm
@@ -36,7 +35,7 @@ class TestCropRoutes:
     def get(url: str, client: TestClient):
         return client.get(url)
 
-    @fixture
+    @pytest.fixture
     def farm(self, farms):
         """
         Single farm fixture
@@ -44,7 +43,7 @@ class TestCropRoutes:
         """
         return farms[0]
 
-    @fixture
+    @pytest.fixture
     def field(self, fields):
         """
         Single field fixture
