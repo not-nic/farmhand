@@ -17,7 +17,7 @@ from tests.conftest import TestClient
 from src.config import settings
 
 
-@pytest.mark.usefixtures("client", "session")
+@pytest.mark.usefixtures("client", "session", "mock_crop_data")
 class TestFieldRoutes:
     @staticmethod
     def post(url: str, json: dict, client: TestClient):
