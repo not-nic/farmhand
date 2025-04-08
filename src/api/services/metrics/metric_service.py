@@ -4,17 +4,27 @@ Metric Service Module for calculating and managing costs that are associated wit
 
 from typing import Optional
 
-from src.api.constants import FSData, FieldTypes, WeedStates, SoilTypes, FertilizerTypes, FertilizerEffect
+from src.api.constants import (
+    FSData,
+    FieldTypes,
+    WeedStates,
+    SoilTypes,
+    FertilizerTypes,
+    FertilizerEffect,
+    FertilizerStates
+)
 from src.api.core.db.models import Field, Crop
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
 from src.api.services.metrics.utils import (
     calculate_fertilizer_kg,
-    calculate_fertilizer_usage_by_time
+    calculate_fertilizer_usage_by_time,
+    get_fertilizer_effect,
+    get_soil_type_expected_ph
 )
 
 
-class MetricsService:
+class MetricService:
     """
     Metrics Service:
 
@@ -29,7 +39,7 @@ class MetricsService:
         :param future_crop: another crop that isn't the current field crop.
         :return: (float) of the expected yield
         """
-        crop: Crop = await self.get_crop(current_field, future_crop)
+        crop: Crop = await self._get_crop(current_field, future_crop)
 
         base_yield = crop.yield_per_ha
         expected_yield_per_ha = base_yield + self._calculate_base_yield_increases(base_yield, current_field)
@@ -37,7 +47,7 @@ class MetricsService:
         if current_field.field_type == FieldTypes.BASE_FIELD:
             expected_yield_per_ha += self._calculate_base_game_fertilization(
                 base_yield=base_yield,
-                fertilized_value=current_field.base_game_field.fertilized.value,
+                fertilized_state=current_field.base_game_field.fertilized.name,
                 limed=current_field.base_game_field.limed
             )
         elif current_field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
@@ -50,7 +60,7 @@ class MetricsService:
             )
         else:
             logger.error(f"Field: {current_field.id} - {current_field.field_type} not found, cannot calculate yield.")
-            raise NotImplemented("Field Type not implemented.")
+            raise ValueError("Field type not found.")
 
         logger.info(f"Base Yield Per Ha: {base_yield} for Crop: {crop.type}")
         logger.info(f"Improved Yield Per Ha: {expected_yield_per_ha} for Crop: {crop.type}")
@@ -70,7 +80,7 @@ class MetricsService:
         :param future_crop: the future crop
         :return: (float) of the estimated profit, fixed to 3dp.
         """
-        crop: Crop = await self.get_crop(current_field, future_crop)
+        crop: Crop = await self._get_crop(current_field, future_crop)
         difficulty = current_field.farm.difficulty.value
         return round((estimated_yield * crop.price) * difficulty, 3)
 
@@ -81,7 +91,7 @@ class MetricsService:
         :param future_crop: make a calculation with the current field and a future crop.
         :return: float of the amount of seeds needed
         """
-        crop = await self.get_crop(current_field, future_crop)
+        crop = await self._get_crop(current_field, future_crop)
         return current_field.size * crop.seeds_per_ha
 
     @staticmethod
@@ -124,7 +134,7 @@ class MetricsService:
             logger.error(
                 f"Field: {current_field.id} - {current_field.field_type} not found, cannot estimate fertilizer."
             )
-            raise NotImplemented("Field Type not implemented.")
+            raise ValueError("Field type not found.")
 
     @staticmethod
     def calculate_fertilizer_cost(
@@ -165,17 +175,17 @@ class MetricsService:
     def _calculate_base_game_fertilization(
         self,
         base_yield: float,
-        fertilized_value: float,
+        fertilized_state: FertilizerStates,
         limed: bool
     ) -> float:
         """
         Calculates the yield increases for a base game field values (fertilized and limed).
         :param base_yield: the base yield of the crop.
-        :param fertilized_value: the amount of fertilizer in the field
+        :param fertilized_state: the amount of fertilizer in the field
         :param limed: bool if the field is limed
         :return: (float) of the base game field increases.
         """
-        fertilizer_increase = base_yield * (fertilized_value / 100)
+        fertilizer_increase = base_yield * (get_fertilizer_effect(fertilized_state) / 100)
         limed_increase = self._calculate_bonus(base_yield, limed, FSData.LIMED.value)
         return fertilizer_increase + limed_increase
 
@@ -254,21 +264,10 @@ class MetricsService:
         :return: (int) of the pH level bonus percentage.
         """
         # create a dict of the soil type expected pH levels.
-        percentage_table = {
-            SoilTypes.LOAM: FSData.LOAM_PH_LEVELS.value,
-            SoilTypes.SANDY_LOAM: FSData.SANDY_LOAM_PH_LEVELS.value,
-            SoilTypes.LOAMY_SAND: FSData.LOAMY_SAND_PH_LEVELS.value,
-            SoilTypes.SILTY_CLAY: FSData.SILTY_CLAY_PH_LEVELS.value,
-        }
-
         logger.info(f"pH Level: {ph_level} - Soil Type: {soil_type}")
 
-        if soil_type not in percentage_table:
-            logger.info(f"Soil Type: {soil_type} not found, returning 0")
-            return 0
-
         # Get the bonus thresholds for the given soil type
-        thresholds = percentage_table[soil_type]
+        thresholds = get_soil_type_expected_ph(soil_type)
         max_threshold = thresholds[0][0]
 
         if ph_level > max_threshold:
@@ -285,7 +284,7 @@ class MetricsService:
         return 0
 
     @staticmethod
-    async def get_crop(current_field: Field, future_crop: Optional[str]) -> Crop:
+    async def _get_crop(current_field: Field, future_crop: Optional[str]) -> Crop:
         """
         Util to get either the current crop or a future crop sent with the request.
         :param current_field: the field to get the current crop from

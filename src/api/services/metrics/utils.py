@@ -4,7 +4,7 @@ Util functions for the metrics service:
     - calculate_fertilizer_usage_by_time: calculate the time to fertilize a field by working time.
 """
 
-from src.api.constants import FertilizerTypes, FSData
+from src.api.constants import FertilizerTypes, FSData, FertilizerStates, FertilizerEffect, SoilTypes
 
 
 def calculate_fertilizer_kg(rate: int, field_size: float) -> float:
@@ -71,3 +71,35 @@ def calculate_fertilizer_usage_by_time(
 
     fertilizer_usage = (rates[fertilizer_type] * time_seconds) * 1000
     return fertilizer_usage
+
+
+def get_fertilizer_effect(state: FertilizerStates) -> float:
+    """
+    Util to get the fertilizer effect (0%, 22.5% and 45%) from the fertilizer
+    percentage.
+    :param state: the fertilizer state in the base game field
+    :return: (float) the fertilizer effect value.
+    """
+    mapping = {
+        FertilizerStates.ZER0_PERCENT.name: FertilizerEffect.NOT_FERTILIZED.value,
+        FertilizerStates.FIFTY_PERCENT.name: FertilizerEffect.HALF_FERTILIZED.value,
+        FertilizerStates.ONE_HUNDRED_PERCENT.name: FertilizerEffect.FULLY_FERTILIZED.value,
+    }
+
+    return mapping.get(state, 0.0)
+
+
+def get_soil_type_expected_ph(soil_type: SoilTypes) -> list:
+    """
+    get the expected ph level thresholds by its soil type.
+    :param soil_type: the fields soil type
+    :return: list of expected pH levels.
+    """
+    expected_ph_levels = {
+        SoilTypes.LOAM: FSData.LOAM_PH_LEVELS.value,
+        SoilTypes.SANDY_LOAM: FSData.SANDY_LOAM_PH_LEVELS.value,
+        SoilTypes.LOAMY_SAND: FSData.LOAMY_SAND_PH_LEVELS.value,
+        SoilTypes.SILTY_CLAY: FSData.SILTY_CLAY_PH_LEVELS.value,
+    }
+
+    return expected_ph_levels.get(soil_type, [])
