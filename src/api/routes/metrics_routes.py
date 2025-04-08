@@ -14,7 +14,7 @@ from src.api.core.schema.fields.metrics import (
     FertilizerUsageModel
 )
 
-from src.api.services.metrics import MetricsService
+from src.api.services.metrics import MetricService
 
 router = APIRouter(prefix="/{field_id}/metrics", tags=["Field Metrics"])
 
@@ -26,7 +26,7 @@ async def get_metrics(field: CurrentField, next_crop: Optional[str] = None) -> M
     profit, costs and other information.
     :return: Pydantic model showing profit, costs and other information.
     """
-    metric_service = MetricsService()
+    metric_service = MetricService()
 
     fertilizer_usage = await metric_service.calculate_fertilizer_usage(field)
     fertilizer_costs = metric_service.calculate_fertilizer_cost(fertilizer_usage, FertilizerTypes.SOLID)
