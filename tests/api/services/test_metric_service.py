@@ -285,6 +285,22 @@ class TestMetricService:
 
         assert result == expected_result
 
+    async def test_calculate_fertilizer_cost(self, field: Field):
+        """
+        Test that when calculating the cost to fertilize a field
+        it matches the calculation of 'fertilzer' * BASE_FERTILIZER PRICE (1.92)
+        :param field: the field fixture
+        """
+        metrics_service = MetricService()
+        fertilizer = await metrics_service.calculate_fertilizer_usage(field)
+
+        result = metrics_service.calculate_fertilizer_cost(
+            fertilizer_usage=fertilizer,
+            fertilizer_type=FertilizerTypes.SOLID
+        )
+
+        assert result == fertilizer * FSData.BASE_SOLID_FERTILIZER_PRICE.value
+
     async def test_fertilizer_usage_by_time_with_invalid_fertilizer_type(self, field: Field):
         """
         Test calculating the fertilizer usage with an invalid fertilizer type.
