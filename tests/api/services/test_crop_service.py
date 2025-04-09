@@ -6,6 +6,7 @@ import pytest
 
 from src.api.core.db.models.crops import Crop
 from src.api.services.crop_service import CropService
+from tests.utils import crop_data
 
 
 class TestCropService:
@@ -18,5 +19,4 @@ class TestCropService:
         """
         crop_service = CropService()
         await crop_service.load_crops()
-
-        assert len(Crop.all()) == 3
+        assert len(Crop.all()) == len(crop_data())

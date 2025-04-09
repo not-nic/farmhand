@@ -16,7 +16,7 @@ def load_test_resource(filename: str) -> str:
         return file.read()
 
 
-def crop_data():
+def crop_data() -> list[dict]:
     return [
         {
             "type": "Wheat",
@@ -54,4 +54,17 @@ def crop_data():
             "planted_in": "April, May",
             "harvested_in": "October, November",
         },
+        {
+            "type": "Oilseed Radish",
+            "yield_per_ha": 0,
+            "seeds_per_ha": 300,
+            "nitrogen_per_kg_ha": 0,
+            "price": 0,
+            "growth_stages": 3,
+            "growth_duration": 3,
+            "root_crop": False,
+
+            "planted_in": "March, April, May, June, July, August, September, October",
+            "harvested_in": "All"
+        }
     ]
