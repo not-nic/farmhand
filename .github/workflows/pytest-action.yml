@@ -64,7 +64,7 @@ jobs:
       - name: "Run Pytest with coverage"
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
-          pytest --cov src --cov-fail-under=${{ env.MINIMUM_COVERAGE }} -vv -s
+          pytest --cov src --cov-fail-under=${{ env.MINIMUM_COVERAGE }} -vv
 
 
   pytest-tests:
@@ -91,4 +91,4 @@ jobs:
       - name: "Run Pytest"
         run: |
           source ${{ env.VENV_PATH }}/bin/activate
-          pytest tests -vv -s
+          pytest tests -vv

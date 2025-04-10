@@ -27,7 +27,7 @@ from src.api.core.schema.fields import FieldRequest, FieldResponse, FieldUpdate
 from src.api.core.dependencies import get_current_user, get_farm, CurrentField
 from src.api.services.field_service import FieldService
 
-router = APIRouter(prefix="/{id}/fields", tags=["Fields"])
+router = APIRouter(prefix="/farms/{id}/fields", tags=["Fields"])
 field_service = FieldService()
 
 
