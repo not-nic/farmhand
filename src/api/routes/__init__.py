@@ -29,7 +29,6 @@ field_routes.router.include_router(
     dependencies=[Depends(get_current_user), Depends(get_farm)]
 )
 
-farm_routes.router.include_router(field_routes.router)
-
+api_router.include_router(field_routes.router)
 api_router.include_router(farm_routes.router)
 api_router.include_router(scrape_routes.router)
