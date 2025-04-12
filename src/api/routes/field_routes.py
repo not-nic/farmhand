@@ -8,13 +8,13 @@ Routes:
     - POST /fields: Create a new field.
     - GET /fields: Get all fields belonging to a farm and apply any filters such as getting fields by
       the same growing crop.
-    - GET /fields/{field_id}: get a field by its UUID and apply any filters such as show_crops.
-    - PUT /fields/{field_id}: update a field.
-    - DELETE /fields/{field_idd} delete a field.
+    - GET /fields/{field_number}: get a field by its number and apply any filters such as show_crops.
+    - PUT /fields/{field_number}: update a field.
+    - DELETE /fields/{field_number} delete a field.
 
 Dependencies:
     - get_current_user: Fetches the current authenticated user.
-    - get_user_farm: Fetches the Farm for the given farm_id.
+    - get_user_farm: Fetches the Farm for the given field_number.
     - CurrentField: Fetches the Field for the given field_id.
 """
 
@@ -69,7 +69,7 @@ async def get_fields(
 
 
 @router.get(
-    "/{field_id}",
+    "/{field_number}",
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
@@ -84,7 +84,7 @@ async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False
 
 
 @router.put(
-    "/{field_id}",
+    "/{field_number}",
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
@@ -98,7 +98,7 @@ async def update_field(field: CurrentField, field_update: FieldUpdate):
 
 
 @router.delete(
-    "/{field_id}",
+    "/{field_number}",
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
