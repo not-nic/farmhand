@@ -73,14 +73,16 @@ async def get_fields(
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
-async def get_field_by_id(field: CurrentField, show_crop: Optional[bool] = False) -> FieldResponse:
+async def get_field_by_field_number(field: CurrentField, show_crop: Optional[bool] = False) -> dict:
     """
-    Get a field by its id.
+    Get a field by its number.
     :param field: the field to get all details for
     :param show_crop: Show crops in the response from the service.
     :return: Pydantic PrecisionFarmingField or BaseFieldModel
     """
-    return field_service.get_field_details(field, show_crop)
+    return field_service.get_field_details(field, show_crop).model_dump(
+        exclude_none=True
+    )
 
 
 @router.put(
