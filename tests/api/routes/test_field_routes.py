@@ -276,7 +276,7 @@ class TestFieldRoutes:
         )
 
         assert result.status_code == status.HTTP_200_OK
-        assert result.json() == expected_base_field.model_dump(mode="json")
+        assert result.json() == expected_base_field.model_dump(mode="json", exclude_none=True)
 
     def test_get_field_that_does_not_exist(self, client, session, farms):
         """
