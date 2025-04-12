@@ -24,8 +24,8 @@ class TestCropRoutes:
     """
 
     @staticmethod
-    def crop_url(farm_id: UUID, field_id: Optional[UUID] = None):
-        return f"{settings.API_V1_STR}/farms/{farm_id}/fields/{field_id}/crops"
+    def crop_url(farm_id: UUID, field_number: Optional[int] = None):
+        return f"{settings.API_V1_STR}/farms/{farm_id}/fields/{field_number}/crops"
 
     @staticmethod
     def put(url: str, json: dict, client: TestClient):
@@ -63,7 +63,7 @@ class TestCropRoutes:
         """
         FieldCrop.create(field_id=field.id, crop_id=1)
 
-        response = self.get(self.crop_url(farm_id=farm.id, field_id=field.id), client)
+        response = self.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
         crop_service = CropService()
         expected_crops = await crop_service.get_all_crops(field)
 
@@ -81,7 +81,7 @@ class TestCropRoutes:
         :param farm: a farm fixture
         :param field: a field fixture
         """
-        response = self.get(self.crop_url(farm_id=farm.id, field_id=field.id), client)
+        response = self.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(crops=[], count=0).model_dump(mode="json")
@@ -98,7 +98,7 @@ class TestCropRoutes:
         FieldCrop.create(field_id=field.id, crop_id=1)
         FieldCrop.create(field_id=field.id, crop_id=5)
 
-        url = f"{self.crop_url(farm_id=farm.id, field_id=field.id)}/?current=true"
+        url = f"{self.crop_url(farm_id=farm.id, field_number=field.number)}/?current=true"
 
         response = self.get(url, client)
         crop_service = CropService()
@@ -122,7 +122,7 @@ class TestCropRoutes:
         FieldCrop.create(field_id=field.id, crop_id=5)
         FieldCrop.create(field_id=field.id, crop_id=2)
 
-        url = f"{self.crop_url(farm_id=farm.id, field_id=field.id)}/?past=true"
+        url = f"{self.crop_url(farm_id=farm.id, field_number=field.number)}/?past=true"
 
         response = self.get(url, client)
         crop_service = CropService()
@@ -144,7 +144,7 @@ class TestCropRoutes:
         payload = {"type": "Canola"}
 
         response = self.put(
-            self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client
+            self.crop_url(farm_id=farm.id, field_number=field.number), json=payload, client=client
         )
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -160,7 +160,7 @@ class TestCropRoutes:
         payload = {"type": "invalid-crop-type"}
 
         response = self.put(
-            self.crop_url(farm_id=farm.id, field_id=field.id), json=payload, client=client
+            self.crop_url(farm_id=farm.id, field_number=field.number), json=payload, client=client
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -83,6 +83,22 @@ class FieldService:
 
         return field
 
+    @staticmethod
+    def get_field_by_number(field_number: int, farm_id: UUID) -> Optional[Field]:
+        """
+        Get the field from the database and raise an error it doesn't exist
+        :param farm_id: the id of the farm that requested the field
+        :param field_number: the number of the field to retrieve.
+        :return: the field if it exists.
+        """
+        field: Field = Field.get_field_by_number(field_number, farm_id)
+
+        # ensure that the field exists.
+        if not field:
+            raise ValueError("Field not found")
+
+        return field
+
     async def get_all_fields(
         self, current_farm: Farm, show_crop: Optional[bool] = False, crop_type: Optional[str] = None
     ) -> dict:

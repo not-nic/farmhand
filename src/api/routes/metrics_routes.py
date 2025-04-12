@@ -26,7 +26,7 @@ from src.api.core.schema.fields.metrics import (
 
 from src.api.services.metrics import MetricService
 
-router = APIRouter(prefix="/{field_id}/metrics", tags=["Field Metrics"])
+router = APIRouter(prefix="/{field_number}/metrics", tags=["Field Metrics"])
 
 
 @router.get("")

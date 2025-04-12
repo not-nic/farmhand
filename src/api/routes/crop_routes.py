@@ -22,7 +22,7 @@ from src.api.core.schema.crops.crops import CropRequest, CropsResponse
 from src.api.core.dependencies import CurrentField
 from src.api.services.crop_service import CropService
 
-router = APIRouter(prefix="/{field_id}/crops", tags=["Crops"])
+router = APIRouter(prefix="/{field_number}/crops", tags=["Crops"])
 crop_service = CropService()
 
 

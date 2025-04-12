@@ -86,7 +86,7 @@ def get_farm(
     farm = Farm.get(id)
 
     if not farm:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
 
     if farm.owner_id != current_user.id:
         raise HTTPException(
@@ -102,23 +102,18 @@ CurrentFarm = Annotated[Farm, Depends(get_farm)]
 
 def get_field(
         current_farm: CurrentFarm,
-        field_id: Annotated[UUID, Path(title="The ID of the field to get")],
+        field_number: Annotated[int, Path(title="The number of the field to get")],
 ) -> Optional[Field]:
     """
     dependency to get the current field by its ID or return
     a 404 if it doesn't exist.
     :param current_farm: the farm requested with the field.
-    :param field_id: the id of the field to get
+    :param field_number: the id of the field to get
     """
     try:
-        return FieldService.get_field(field_id=field_id, farm_id=current_farm.id)
+        return FieldService.get_field_by_number(field_number=field_number, farm_id=current_farm.id)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Field not found")
-    except PermissionError:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to access this field; it belongs to a different farm.",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Field not found.")
 
 
 CurrentField = Annotated[Field, Depends(get_field)]
