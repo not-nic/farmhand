@@ -36,9 +36,9 @@ class TestFieldRoutes:
         return client.delete(url)
 
     @staticmethod
-    def field_url(farm_id: UUID, field_id: Optional[UUID] = None):
-        field_id_path = f"/{field_id}" if field_id else ""
-        return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_id_path}"
+    def field_url(farm_id: UUID, field_number: Optional[int] = None):
+        field_number_path = f"/{field_number}" if field_number else ""
+        return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_number_path}"
 
     @pytest.fixture
     def expected_base_field(self, fields):
@@ -198,7 +198,7 @@ class TestFieldRoutes:
         }
 
         result = self.put(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id),
+            self.field_url(farm_id=expected_farm.id, field_number=expected_base_field.number),
             payload,
             client,
         )
@@ -225,7 +225,7 @@ class TestFieldRoutes:
         }
 
         result = self.put(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id),
+            self.field_url(farm_id=expected_farm.id,  field_number=expected_precision_field.number),
             payload,
             client,
         )
@@ -242,7 +242,7 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = self.delete(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client
+            self.field_url(farm_id=expected_farm.id,  field_number=expected_base_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -257,7 +257,7 @@ class TestFieldRoutes:
         expected_farm = farms[1]
 
         result = self.delete(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_precision_field.id), client
+            self.field_url(farm_id=expected_farm.id,  field_number=expected_precision_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -272,7 +272,7 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = self.get(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_base_field.id), client
+            self.field_url(farm_id=expected_farm.id,  field_number=expected_base_field.number), client
         )
 
         assert result.status_code == status.HTTP_200_OK
@@ -287,15 +287,10 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.get(
-            self.field_url(
-                farm_id=expected_farm.id, field_id=UUID("f5a22bb2-d768-4cbd-a684-4826670d452f")
-            ),
-            client,
-        )
+        result = self.get(self.field_url(farm_id=expected_farm.id,  field_number=66), client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {"detail": "Field not found"}
+        assert result.json() == {"detail": "Field not found."}
 
     def test_get_field_for_a_different_farm(self, client, session, farms):
         """
@@ -314,12 +309,12 @@ class TestFieldRoutes:
         )
 
         result = self.get(
-            self.field_url(farm_id=expected_farm.id, field_id=expected_field.id), client
+            self.field_url(farm_id=expected_farm.id, field_number=expected_field.number), client
         )
 
-        assert result.status_code == status.HTTP_403_FORBIDDEN
+        assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {
-            "detail": "You do not have permission to access this field; it belongs to a different farm."
+            "detail": "Field not found."
         }
 
     def test_get_all_fields_for_a_base_game_farm(self, client, session, farms, fields):
@@ -381,7 +376,7 @@ class TestFieldRoutes:
         FieldCrop.create(field_id=expected_base_field.id, crop_id=1)
 
         url = (
-            f"{self.field_url(farm_id=farms[0].id, field_id=expected_base_field.id)}?show_crop=true"
+            f"{self.field_url(farm_id=farms[0].id, field_number=expected_base_field.number)}?show_crop=true"
         )
         response = self.get(url=url, client=client)
 

@@ -79,7 +79,7 @@ class TestFarmRoutes:
         result = self.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {"detail": "Farm not found"}
+        assert result.json() == {"detail": "Farm not found."}
 
     def test_get_farm_for_a_different_user(self, client, session):
         """
