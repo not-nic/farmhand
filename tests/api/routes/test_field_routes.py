@@ -122,7 +122,7 @@ class TestFieldRoutes:
 
         assert result.status_code == status.HTTP_400_BAD_REQUEST
         assert result.json() == {
-            "detail": f"Field 50 already exists on this farm."
+            "detail": "Field 50 already exists on this farm."
         }
 
     def test_create_precision_farming_field(self, client, session, farms):
