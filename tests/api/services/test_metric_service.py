@@ -169,9 +169,9 @@ class TestMetricService:
         assert actual_yield == expected_yield_calculated
 
     @pytest.mark.parametrize("difficulty, expected_multiplier", [
-        (Difficulty.EASY, Difficulty.EASY.value),
-        (Difficulty.MEDIUM, Difficulty.MEDIUM.value),
-        (Difficulty.HARD, Difficulty.HARD.value)
+        (Difficulty.EASY, Difficulty.EASY.multiplier),
+        (Difficulty.MEDIUM, Difficulty.MEDIUM.multiplier),
+        (Difficulty.HARD, Difficulty.HARD.multiplier)
     ])
     async def test_estimate_profit_with_difficulties(
             self,
