@@ -3,6 +3,7 @@ Field Repository containing field database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
+from sqlalchemy import select
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
@@ -80,6 +81,17 @@ class FieldRepository(Repository):
             session.delete(field)
             session.commit()
         return field
+
+    @classmethod
+    def get_field_by_number(cls: "Field", number: int, farm_id: UUID) -> Optional["Field"]:
+        """
+        Get a field from a farm by its field number.
+        :param number: the number of the field.
+        :param farm_id: the id of the farm.
+        return: (Field) the requested field if exists else None.
+        """
+        stmt = select(cls).where(cls.number == number, cls.farm_id == farm_id)
+        return cls.get_session().execute(stmt).scalars().first()
 
     def current_crop(self: "Field") -> Optional["FieldCrop"]:
         """
