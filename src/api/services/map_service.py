@@ -34,12 +34,17 @@ class MapService:
         # iterate over all the collected mod ids and scrape the mod page data.
         for mod_id in map_ids:
             mod_detail = self.mod_hub_service.scrape_mod(mod_id)
-            logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id})")
 
-            Map.create(
-                id=mod_detail.id,
-                name=mod_detail.name,
-                category=mod_detail.category,
-                author=mod_detail.author,
-                release_date=mod_detail.release_date,
-            )
+            mod_map = Map.get(mod_id)
+
+            if not mod_map:
+                logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id})")
+                Map.create(
+                    id=mod_detail.id,
+                    name=mod_detail.name,
+                    category=mod_detail.category,
+                    author=mod_detail.author,
+                    release_date=mod_detail.release_date,
+                )
+            else:
+                logger.info(f"Map: {mod_detail.name} ({mod_detail.id}) already exists.")
