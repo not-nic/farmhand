@@ -105,13 +105,24 @@ class SoilTypes(StrEnum):
     LOAM = "loam"
 
 
-class Difficulty(Enum):
+class Difficulty(str, Enum):
     """
     Enum for Farming Simulator difficulty levels.
     """
-    EASY = 3.0
-    MEDIUM = 1.5
-    HARD = 1
+    EASY = "EASY"
+    MEDIUM = "MEDIUM"
+    HARD = "HARD"
+
+    @property
+    def multiplier(self) -> float:
+        """
+        get the difficulty bonus multiplier.
+        """
+        return {
+            "EASY": 3.0,
+            "MEDIUM": 1.5,
+            "HARD": 1.0,
+        }[self.value]
 
 
 class FSData(Enum):
