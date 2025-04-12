@@ -82,7 +82,6 @@ class MetricService:
         """
         crop: Crop = await self._get_crop(current_field, future_crop)
         difficulty = current_field.farm.difficulty.multiplier
-        print(difficulty)
         return round((estimated_yield * crop.price) * difficulty, 3)
 
     async def calculate_seed_usage(self, current_field: Field, future_crop: Optional[str] = None) -> float:

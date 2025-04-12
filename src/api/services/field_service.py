@@ -30,6 +30,10 @@ class FieldService:
         :param field_request: the field request object.
         :return: Pydantic Model for Base Game Field, Precision Farming Field
         """
+        existing_field = Field.get_field_by_number(field_request.number, current_farm.id)
+        if existing_field:
+            raise ValueError(f"Field {field_request.number} already exists on this farm.")
+
         field: Field = Field.create(
             number=field_request.number,
             size=field_request.size,
@@ -93,7 +97,6 @@ class FieldService:
         """
         field: Field = Field.get_field_by_number(field_number, farm_id)
 
-        # ensure that the field exists.
         if not field:
             raise ValueError("Field not found")
 

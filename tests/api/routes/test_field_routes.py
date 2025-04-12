@@ -91,6 +91,40 @@ class TestFieldRoutes:
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
+    def test_create_field_with_same_field_number_raises_error(self, client, session, farms):
+        """
+        Test that when creating a field with the same number it raises an HTTP 400 error
+        :param client: FastAPI test client
+        :param session: Current user session
+        :param farms: farms fixture to create farms on test run
+        """
+        Field.create(
+            number=50,
+            field_type="base_field",
+            ground_type="planted",
+            size=10.0,
+            farm_id=farms[0].id
+        )
+
+        payload = {
+            "number": 50,
+            "field_type": "base_field",
+            "ground_type": "planted",
+            "size": 10.5,
+            "plowed": True,
+            "rolled": False,
+            "mulched": True,
+            "fertilized": 50,
+            "weeds": 1,
+        }
+
+        result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
+
+        assert result.status_code == status.HTTP_400_BAD_REQUEST
+        assert result.json() == {
+            "detail": "Field 50 already exists on this farm."
+        }
+
     def test_create_precision_farming_field(self, client, session, farms):
         """
         test that a precision farming field is created and the correct field object is returned.
