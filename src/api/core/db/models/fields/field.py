@@ -35,7 +35,7 @@ class Field(FieldRepository):
     __tablename__ = "fields"
 
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
-    number = Column(Integer, nullable=False)
+    number = Column(Integer, index=True, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
     size = Column(Double(), nullable=True)
     ground_type = Column(String(50), nullable=True)  # Ground Type Enum
