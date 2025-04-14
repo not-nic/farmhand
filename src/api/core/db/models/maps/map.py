@@ -1,5 +1,5 @@
-import datetime
 
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
@@ -28,6 +28,7 @@ class Map(Repository):
     category = Column(String(100), nullable=True)
     author = Column(String(100), nullable=True)
     release_date = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    version = Column(String(50), default="1.0.0.0", nullable=False)
 
     farms = relationship("Farm", back_populates="map")
