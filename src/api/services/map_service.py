@@ -7,6 +7,7 @@ from src.api.constants import MapFilters
 from src.api.core.db.models.maps import Map
 from src.api.services.modhub_service import ModHubService
 from src.api.core.logger import logger
+from src.api.utils import parse_version
 
 
 class MapService:
@@ -34,12 +35,34 @@ class MapService:
         # iterate over all the collected mod ids and scrape the mod page data.
         for mod_id in map_ids:
             mod_detail = self.mod_hub_service.scrape_mod(mod_id)
-            logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id})")
 
-            Map.create(
-                id=mod_detail.id,
-                name=mod_detail.name,
-                category=mod_detail.category,
-                author=mod_detail.author,
-                release_date=mod_detail.release_date,
-            )
+            mod_map = Map.get(mod_id)
+
+            if not mod_map:
+                logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id})")
+                Map.create(
+                    id=mod_detail.id,
+                    name=mod_detail.name,
+                    category=mod_detail.category,
+                    author=mod_detail.author,
+                    release_date=mod_detail.release_date,
+                    version=mod_detail.version
+                )
+            else:
+                if self.is_newer_version(current_version=mod_map.version, new_version=mod_detail.version):
+                    logger.info(f"Updating Map {mod_detail.name} ({mod_detail.id}) "
+                                f"from version {mod_map.version} to {mod_detail.version}")
+                    mod_map.update(mod_map.id, version=mod_detail.version)
+                else:
+                    logger.info(f"Map: {mod_detail.name} ({mod_detail.id}) is already up-to-date "
+                                f"(version {mod_map.version}).")
+
+    @staticmethod
+    def is_newer_version(current_version: str, new_version: str) -> bool:
+        """
+        Compare two version strings like '1.0.0.0'.
+        Return True if new_version is greater.
+        :param new_version: the new map version from ModHub.
+        :param current_version: the current map version in the db
+        """
+        return parse_version(new_version) > parse_version(current_version)

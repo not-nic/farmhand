@@ -14,15 +14,15 @@ Dependencies:
 
 from fastapi import APIRouter, BackgroundTasks, status, Depends
 
-from src.api.core.dependencies import ServiceUser
+from src.api.core.dependencies import is_service_user
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
-router = APIRouter(prefix="/scrape", tags=["scraper"])
+router = APIRouter(prefix="/scrape", tags=["Scraper"])
 
 
-@router.get("/{id}", dependencies=[Depends(ServiceUser)], status_code=status.HTTP_202_ACCEPTED)
-async def scrape_data(id: int, background_tasks: BackgroundTasks) -> dict:
+@router.get("/mods/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+async def scrape_mod(id: int, background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger scraping of an individual mod by its mod_id.
     :param id: the mod_id in the ModHub URL
@@ -31,10 +31,10 @@ async def scrape_data(id: int, background_tasks: BackgroundTasks) -> dict:
     """
     mod_hub_service = ModHubService()
     background_tasks.add_task(mod_hub_service.scrape_mod, mod_id=id)
-    return {"detail": "Started Scraping Task"}
+    return {"detail": f"scraping mod: {id}"}
 
 
-@router.get("/maps", dependencies=[Depends(ServiceUser)], status_code=status.HTTP_202_ACCEPTED)
+@router.get("/maps", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger the scraping of maps from the Farming Simulator ModHub website.
@@ -43,4 +43,6 @@ async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     """
     map_service = MapService()
     background_tasks.add_task(map_service.get_maps)
-    return {"detail": "Started Scraping all maps"}
+    return {
+        "detail": "Started scraping all maps from ModHub."
+    }
