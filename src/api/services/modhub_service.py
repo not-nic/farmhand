@@ -141,7 +141,7 @@ class ModHubService:
         return info
 
     @staticmethod
-    def get_mod_id(mod_item: Tag) -> int:
+    def get_mod_id(mod_item: Tag) -> Optional[int]:
         """
         Get the id for the mod based on the href of the 'MORE_INFO' button.
         :param mod_item: the current mod item
