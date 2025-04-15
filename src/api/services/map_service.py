@@ -49,7 +49,7 @@ class MapService:
                     version=mod_detail.version
                 )
             else:
-                if self.is_newer_version(mod_detail.version, mod_map.version):
+                if self.is_newer_version(current_version=mod_map.version, new_version=mod_detail.version):
                     logger.info(f"Updating Map {mod_detail.name} ({mod_detail.id}) "
                                 f"from version {mod_map.version} to {mod_detail.version}")
                     mod_map.update(mod_map.id, version=mod_detail.version)
@@ -58,8 +58,11 @@ class MapService:
                                 f"(version {mod_map.version}).")
 
     @staticmethod
-    def is_newer_version(new_version: str, current_version: str) -> bool:
+    def is_newer_version(current_version: str, new_version: str) -> bool:
         """
-        Compare two version strings like '1.0.0.0'. Return True if new_version is greater.
+        Compare two version strings like '1.0.0.0'.
+        Return True if new_version is greater.
+        :param new_version: the new map version from ModHub.
+        :param current_version: the current map version in the db
         """
         return parse_version(new_version) > parse_version(current_version)
