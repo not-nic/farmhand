@@ -18,7 +18,7 @@ from src.api.core.dependencies import is_service_user
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
-router = APIRouter(prefix="/scrape", tags=["scraper"])
+router = APIRouter(prefix="/scrape", tags=["Scraper"])
 
 
 @router.get("/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
