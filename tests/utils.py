@@ -2,6 +2,7 @@
 Utils for pytest unit tests.
 """
 
+import json
 import os.path
 
 
@@ -17,54 +18,8 @@ def load_test_resource(filename: str) -> str:
 
 
 def crop_data() -> list[dict]:
-    return [
-        {
-            "type": "Wheat",
-            "yield_per_ha": 8900,
-            "seeds_per_ha": 500,
-            "nitrogen_per_kg_ha": 200,
-            "price": 0.377,
-            "growth_stages": 7,
-            "growth_duration": 10,
-            "root_crop": False,
-            "planted_in": "September, October",
-            "harvested_in": "July, August, September",
-        },
-        {
-            "type": "Barley",
-            "yield_per_ha": 9600,
-            "seeds_per_ha": 500,
-            "nitrogen_per_kg_ha": 200,
-            "price": 0.313,
-            "growth_stages": 6,
-            "growth_duration": 9,
-            "root_crop": False,
-            "planted_in": "September, October",
-            "harvested_in": "June, July",
-        },
-        {
-            "type": "Maize",
-            "yield_per_ha": 9200,
-            "seeds_per_ha": 400,
-            "nitrogen_per_kg_ha": 200,
-            "price": 0.808,
-            "growth_stages": 6,
-            "growth_duration": 6,
-            "root_crop": True,
-            "planted_in": "April, May",
-            "harvested_in": "October, November",
-        },
-        {
-            "type": "Oilseed Radish",
-            "yield_per_ha": 0,
-            "seeds_per_ha": 300,
-            "nitrogen_per_kg_ha": 0,
-            "price": 0,
-            "growth_stages": 3,
-            "growth_duration": 3,
-            "root_crop": False,
-
-            "planted_in": "March, April, May, June, July, August, September, October",
-            "harvested_in": "All"
-        }
-    ]
+    """
+    get crop data from test resource
+    :return: (list[dict]) of crop data.
+    """
+    return json.loads(load_test_resource("test_crop_data.json"))
