@@ -37,6 +37,8 @@ def create_database():
     Fixture to create database and tables
     """
     Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="module")
