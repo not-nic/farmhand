@@ -18,6 +18,7 @@ class TestAuthRoutes:
         with incorrect credentials and assert a 401 error is returned.
         :param client: FastAPI client
         """
+
         payload = {"username": "notauser", "password": "notapassword"}
 
         response = TestClientHelper.post(url=f"{self.url}/login", client=client, json=payload)
@@ -31,6 +32,7 @@ class TestAuthRoutes:
         :param client: FastAPI client
         :param unit_test_user: the unit test user fixture
         """
+
         payload = {"username": "unit-testing-user", "password": "unit-testing-password"}
 
         response = TestClientHelper.post(url=f"{self.url}/login", json=payload, client=client)
@@ -45,13 +47,17 @@ class TestAuthRoutes:
         :param client: FastAPI test client
         :param github_user: GitHub user fixture
         """
+
         response = TestClientHelper.get(f"{self.url}/github", client)
         mock_github_login.assert_called_once()
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
     @pytest.mark.asyncio
     async def test_github_callback_existing_user(
-        self, client, mock_github_authentication, github_user
+            self,
+            client,
+            mock_github_authentication,
+            github_user
     ):
         """
         Test github callback and mock logging in a github user.
@@ -59,6 +65,7 @@ class TestAuthRoutes:
         :param client: FastAPI test client
         :param github_user: GitHub user fixture
         """
+
         response = TestClientHelper.get(f"{self.url}/github/callback", client)
         assert response.status_code == status.HTTP_200_OK
 

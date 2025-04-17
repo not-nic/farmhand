@@ -40,10 +40,12 @@ class TestModHubService:
         Test that a ValueError is raised if the mod_item does not exist.
         :param mock_mod_hub_page: the mock modhub page to scrape.
         """
+
         mock_mod_hub_page(file_name="no_mod.html", status_code=status.HTTP_200_OK)
         with pytest.raises(
             ValueError,
-            match="Mod ID: 12345 - Unable to scrape mod information as 'mod-info div' was not found.",
+            match="Mod ID: 12345 - Unable to scrape mod information "
+                  "as 'mod-info div' was not found.",
         ):
             mod_hub_service = ModHubService()
             mod_hub_service.scrape_mod(mod_id=12345)
@@ -53,6 +55,7 @@ class TestModHubService:
         Test that if the modhub is down, an HTTP error is raised.
         :param mock_mod_hub_page: the mock modhub page to scrape.
         """
+
         mock_mod_hub_page(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
         with pytest.raises(HTTPError, match="Request failed with status code: 503"):
             mod_hub_service = ModHubService()
@@ -64,6 +67,7 @@ class TestModHubService:
         all mod_ids (ints) are returned.
         :param mock_mod_hub_page: the mock modhub page to scrape.
         """
+
         mock_mod_hub_page(file_name="mods.html", status_code=status.HTTP_200_OK)
         mod_hub_service = ModHubService()
         result = mod_hub_service.scrape_mods()
@@ -78,6 +82,7 @@ class TestModHubService:
         Test that if the modhub is down, an HTTP error is raised.
         :param mock_mod_hub_page: the mock modhub page to scrape.
         """
+
         mock_mod_hub_page(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
         with pytest.raises(HTTPError, match="Request failed with status code: 503"):
             mod_hub_service = ModHubService()

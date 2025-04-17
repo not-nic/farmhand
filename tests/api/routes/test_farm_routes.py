@@ -24,6 +24,7 @@ class TestFarmRoutes:
         :param session: the user's session
         :param farms: create farms fixture
         """
+
         result = TestClientHelper.get(self.url, client)
 
         assert result.status_code == status.HTTP_200_OK
@@ -42,6 +43,7 @@ class TestFarmRoutes:
         :param session: the user's session
         :param farms: create farms fixture
         """
+
         expected_farm = farms[0]
 
         result = TestClientHelper.get(f"{self.url}/{expected_farm.id}", client)
@@ -60,6 +62,7 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
+
         result = TestClientHelper.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
@@ -71,6 +74,7 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
+
         farm = Farm.create(
             name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )
@@ -86,6 +90,7 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
+
         payload = {
             "name": "test-farm",
             "description": "test-description",
@@ -113,7 +118,7 @@ class TestFarmRoutes:
         payload = {
             "name": "test-farm",
             "description": "test-description",
-            "map_id": 12345,
+            "map_id": 123456,
         }
 
         result = TestClientHelper.post(self.url, payload, client)

@@ -19,10 +19,9 @@ class TestMapService:
     @pytest.fixture
     def mod_detail(self):
         """
-        fixture specifying the return mod_detail object from the
-        mocked mod_hub_service
+        Fixture specifying the return mod_detail object from the
+        mocked mod_hub_service.
         """
-
         return ModModel(
             id=123456,
             name="Custom Map 1",
@@ -42,8 +41,9 @@ class TestMapService:
         Mock the modhub service calls used within the map service with a
         single id and mod model.
         :param mocker: pytest mocker fixture
-        :param mod_detail:
+        :param mod_detail: the mocked mod detail to return
         """
+
         mocker.patch.object(
             ModHubService,
             "scrape_mods",
@@ -58,6 +58,7 @@ class TestMapService:
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
+
         map_service = MapService()
         await map_service.get_maps()
 
@@ -79,6 +80,7 @@ class TestMapService:
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
+
         Map.create(
             id=654321,
             name="Calmsden Farms",
@@ -108,6 +110,7 @@ class TestMapService:
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
+
         map_id = random.randint(100000, 999999)
 
         Map.create(
