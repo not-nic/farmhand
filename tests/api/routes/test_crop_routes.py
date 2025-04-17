@@ -7,13 +7,13 @@ import pytest
 from typing import Optional
 from uuid import UUID
 from fastapi import status
-from fastapi.testclient import TestClient
 
 from src.api.core.db.models.fields import Field, FieldCrop
 from src.api.core.db.models.farms import Farm
 from src.api.core.schema.crops.crops import CropsResponse
 from src.api.services.crop_service import CropService
 from src.config import settings
+from tests.utils import TestClientHelper
 
 
 @pytest.mark.asyncio
@@ -26,14 +26,6 @@ class TestCropRoutes:
     @staticmethod
     def crop_url(farm_id: UUID, field_number: Optional[int] = None):
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields/{field_number}/crops"
-
-    @staticmethod
-    def put(url: str, json: dict, client: TestClient):
-        return client.put(url, json=json)
-
-    @staticmethod
-    def get(url: str, client: TestClient):
-        return client.get(url)
 
     @pytest.fixture
     def farm(self, farms):
@@ -63,7 +55,7 @@ class TestCropRoutes:
         """
         FieldCrop.create(field_id=field.id, crop_id=1)
 
-        response = self.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
+        response = TestClientHelper.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
         crop_service = CropService()
         expected_crops = await crop_service.get_all_crops(field)
 
@@ -81,7 +73,7 @@ class TestCropRoutes:
         :param farm: a farm fixture
         :param field: a field fixture
         """
-        response = self.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
+        response = TestClientHelper.get(self.crop_url(farm_id=farm.id, field_number=field.number), client)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(crops=[], count=0).model_dump(mode="json")
@@ -100,7 +92,7 @@ class TestCropRoutes:
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=field.number)}/?current=true"
 
-        response = self.get(url, client)
+        response = TestClientHelper.get(url, client)
         crop_service = CropService()
         expected_crops = await crop_service.get_current_crop(field)
 
@@ -124,7 +116,7 @@ class TestCropRoutes:
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=field.number)}/?past=true"
 
-        response = self.get(url, client)
+        response = TestClientHelper.get(url, client)
         crop_service = CropService()
         expected_crops = await crop_service.get_past_crops(field)
 
@@ -143,7 +135,7 @@ class TestCropRoutes:
         """
         payload = {"type": "Canola"}
 
-        response = self.put(
+        response = TestClientHelper.put(
             self.crop_url(farm_id=farm.id, field_number=field.number), json=payload, client=client
         )
 
@@ -159,7 +151,7 @@ class TestCropRoutes:
         """
         payload = {"type": "invalid-crop-type"}
 
-        response = self.put(
+        response = TestClientHelper.put(
             self.crop_url(farm_id=farm.id, field_number=field.number), json=payload, client=client
         )
 

@@ -13,27 +13,12 @@ from src.api.core.db.models.fields import FieldCrop
 from src.api.core.db.models.fields import Field
 from src.api.core.schema.fields import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
-from tests.conftest import TestClient
 from src.config import settings
+from tests.utils import TestClientHelper
 
 
 @pytest.mark.usefixtures("client", "session", "mock_crop_data")
 class TestFieldRoutes:
-    @staticmethod
-    def post(url: str, json: dict, client: TestClient):
-        return client.post(url, json=json)
-
-    @staticmethod
-    def put(url: str, json: dict, client: TestClient):
-        return client.put(url, json=json)
-
-    @staticmethod
-    def get(url: str, client: TestClient):
-        return client.get(url)
-
-    @staticmethod
-    def delete(url: str, client: TestClient):
-        return client.delete(url)
 
     @staticmethod
     def field_url(farm_id: UUID, field_number: Optional[int] = None):
@@ -79,7 +64,7 @@ class TestFieldRoutes:
             "weeds": 1,
         }
 
-        result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
+        result = TestClientHelper.post(self.field_url(farm_id=farms[0].id), payload, client)
 
         assert result.status_code == status.HTTP_201_CREATED
 
@@ -118,7 +103,7 @@ class TestFieldRoutes:
             "weeds": 1,
         }
 
-        result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
+        result = TestClientHelper.post(self.field_url(farm_id=farms[0].id), payload, client)
 
         assert result.status_code == status.HTTP_400_BAD_REQUEST
         assert result.json() == {
@@ -145,7 +130,7 @@ class TestFieldRoutes:
             "soil_type": SoilTypes.LOAM,
         }
 
-        result = self.post(self.field_url(farm_id=farms[1].id), payload, client)
+        result = TestClientHelper.post(self.field_url(farm_id=farms[1].id), payload, client)
 
         assert result.status_code == status.HTTP_201_CREATED
 
@@ -179,7 +164,7 @@ class TestFieldRoutes:
             "soil_type": SoilTypes.LOAM,
         }
 
-        result = self.post(self.field_url(farm_id=farms[0].id), payload, client)
+        result = TestClientHelper.post(self.field_url(farm_id=farms[0].id), payload, client)
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result_json = result.json()
@@ -207,7 +192,7 @@ class TestFieldRoutes:
             "weeds": 1,
         }
 
-        result = self.post(self.field_url(farm_id=farms[1].id), payload, client)
+        result = TestClientHelper.post(self.field_url(farm_id=farms[1].id), payload, client)
         assert result.status_code == status.HTTP_400_BAD_REQUEST
 
         result_json = result.json()
@@ -231,7 +216,7 @@ class TestFieldRoutes:
             "weeds": 4,
         }
 
-        result = self.put(
+        result = TestClientHelper.put(
             self.field_url(farm_id=expected_farm.id, field_number=expected_base_field.number),
             payload,
             client,
@@ -258,7 +243,7 @@ class TestFieldRoutes:
             "soil_type": SoilTypes.SILTY_CLAY,
         }
 
-        result = self.put(
+        result = TestClientHelper.put(
             self.field_url(farm_id=expected_farm.id,  field_number=expected_precision_field.number),
             payload,
             client,
@@ -275,7 +260,7 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.delete(
+        result = TestClientHelper.delete(
             self.field_url(farm_id=expected_farm.id,  field_number=expected_base_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
@@ -290,7 +275,7 @@ class TestFieldRoutes:
         """
         expected_farm = farms[1]
 
-        result = self.delete(
+        result = TestClientHelper.delete(
             self.field_url(farm_id=expected_farm.id,  field_number=expected_precision_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
@@ -305,7 +290,7 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.get(
+        result = TestClientHelper.get(
             self.field_url(farm_id=expected_farm.id,  field_number=expected_base_field.number), client
         )
 
@@ -321,7 +306,7 @@ class TestFieldRoutes:
         """
         expected_farm = farms[0]
 
-        result = self.get(self.field_url(farm_id=expected_farm.id,  field_number=66), client)
+        result = TestClientHelper.get(self.field_url(farm_id=expected_farm.id,  field_number=66), client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Field not found."}
@@ -342,7 +327,7 @@ class TestFieldRoutes:
             field_type=FieldTypes.BASE_FIELD,
         )
 
-        result = self.get(
+        result = TestClientHelper.get(
             self.field_url(farm_id=expected_farm.id, field_number=expected_field.number), client
         )
 
@@ -361,7 +346,7 @@ class TestFieldRoutes:
         """
         base_fields, _ = fields
 
-        base_fields_results = self.get(self.field_url(farm_id=farms[0].id), client)
+        base_fields_results = TestClientHelper.get(self.field_url(farm_id=farms[0].id), client)
 
         assert base_fields_results.status_code == status.HTTP_200_OK
         assert base_fields_results.json()["count"] == len(base_fields)
@@ -383,7 +368,7 @@ class TestFieldRoutes:
         precision_farming_fields: list[FieldResponse]
         _, precision_farming_fields = fields
 
-        precision_farming_results = self.get(self.field_url(farm_id=farms[1].id), client)
+        precision_farming_results = TestClientHelper.get(self.field_url(farm_id=farms[1].id), client)
 
         assert precision_farming_results.status_code == status.HTTP_200_OK
         assert precision_farming_results.json()["count"] == len(precision_farming_fields)
@@ -410,9 +395,12 @@ class TestFieldRoutes:
         FieldCrop.create(field_id=expected_base_field.id, crop_id=1)
 
         url = (
-            f"{self.field_url(farm_id=farms[0].id, field_number=expected_base_field.number)}?show_crop=true"
+            f"{self.field_url(
+                farm_id=farms[0].id,
+                field_number=expected_base_field.number
+            )}?show_crop=true"
         )
-        response = self.get(url=url, client=client)
+        response = TestClientHelper.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_200_OK
         assert "crop" in response.json()
@@ -434,7 +422,7 @@ class TestFieldRoutes:
         FieldCrop.create(field_id=base_fields[2].id, crop_id=1)
 
         url = f"{self.field_url(farm_id=farms[0].id)}?crop_type=Wheat"
-        response = self.get(url=url, client=client)
+        response = TestClientHelper.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -451,7 +439,7 @@ class TestFieldRoutes:
         """
         invalid_crop = "Invalid-Crop-Type"
         url = f"{self.field_url(farm_id=farms[0].id)}?crop_type={invalid_crop}"
-        response = self.get(url=url, client=client)
+        response = TestClientHelper.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"detail": f"Invalid crop: '{invalid_crop}' not found"}
