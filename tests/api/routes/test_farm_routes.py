@@ -5,33 +5,17 @@ Unit Tests for the Farm API Routes.
 from uuid import UUID, uuid4
 
 import pytest
-from fastapi.testclient import TestClient
 from fastapi import status
 
 from src.api.core.db.models.farms import Farm
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
+from tests.utils import TestClientHelper
 
 
 @pytest.mark.usefixtures("client", "session")
 class TestFarmRoutes:
     url = f"{settings.API_V1_STR}/farms"
-
-    @staticmethod
-    def post(url: str, json: dict, client: TestClient):
-        return client.post(url, json=json)
-
-    @staticmethod
-    def put(url: str, json: dict, client: TestClient):
-        return client.put(url, json=json)
-
-    @staticmethod
-    def get(url: str, client: TestClient):
-        return client.get(url)
-
-    @staticmethod
-    def delete(url: str, client: TestClient):
-        return client.delete(url)
 
     def test_get_multiple_farms(self, client, session, farms):
         """
@@ -40,7 +24,8 @@ class TestFarmRoutes:
         :param session: the user's session
         :param farms: create farms fixture
         """
-        result = self.get(self.url, client)
+
+        result = TestClientHelper.get(self.url, client)
 
         assert result.status_code == status.HTTP_200_OK
         assert result.json()["count"] == len(farms)
@@ -58,9 +43,10 @@ class TestFarmRoutes:
         :param session: the user's session
         :param farms: create farms fixture
         """
+
         expected_farm = farms[0]
 
-        result = self.get(f"{self.url}/{expected_farm.id}", client)
+        result = TestClientHelper.get(f"{self.url}/{expected_farm.id}", client)
         result_json = result.json()
 
         assert result.status_code == status.HTTP_200_OK
@@ -76,7 +62,8 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
-        result = self.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
+
+        result = TestClientHelper.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Farm not found."}
@@ -87,11 +74,12 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
+
         farm = Farm.create(
             name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )
 
-        result = self.get(f"{self.url}/{farm.id}", client)
+        result = TestClientHelper.get(f"{self.url}/{farm.id}", client)
 
         assert result.status_code == status.HTTP_403_FORBIDDEN
         assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not own this farm."}
@@ -102,13 +90,14 @@ class TestFarmRoutes:
         :param client: FastAPI test client
         :param session: the user's session
         """
+
         payload = {
             "name": "test-farm",
             "description": "test-description",
             "map_name": "test-map",
         }
 
-        result = self.post(self.url, payload, client)
+        result = TestClientHelper.post(self.url, payload, client)
 
         assert result.status_code == status.HTTP_201_CREATED
 
@@ -129,10 +118,10 @@ class TestFarmRoutes:
         payload = {
             "name": "test-farm",
             "description": "test-description",
-            "map_id": 12345,
+            "map_id": 123456,
         }
 
-        result = self.post(self.url, payload, client)
+        result = TestClientHelper.post(self.url, payload, client)
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
@@ -158,7 +147,7 @@ class TestFarmRoutes:
             "map_id": 1234,
         }
 
-        result = self.post(self.url, payload, client)
+        result = TestClientHelper.post(self.url, payload, client)
         assert result.status_code == status.HTTP_404_NOT_FOUND
 
     def test_create_farm_returns_validation_error(self, client, session):
@@ -173,7 +162,7 @@ class TestFarmRoutes:
             "description": "test-description",
         }
 
-        result = self.post(self.url, payload, client)
+        result = TestClientHelper.post(self.url, payload, client)
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_update_farm(self, client, session, user_id):
@@ -193,7 +182,7 @@ class TestFarmRoutes:
 
         payload = {"map_name": "New farm name"}
 
-        result = self.put(f"{self.url}/{expected_farm.id}", payload, client)
+        result = TestClientHelper.put(f"{self.url}/{expected_farm.id}", payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_delete_farm(self, client, session, user_id):
@@ -205,8 +194,11 @@ class TestFarmRoutes:
         """
 
         expected_farm = Farm.create(
-            name="test name", description="test description", map_name="test map", owner_id=user_id
+            name="test name",
+            description="test description",
+            map_name="test map",
+            owner_id=user_id
         )
 
-        result = self.delete(f"{self.url}/{expected_farm.id}", client)
+        result = TestClientHelper.delete(f"{self.url}/{expected_farm.id}", client)
         assert result.status_code == status.HTTP_204_NO_CONTENT

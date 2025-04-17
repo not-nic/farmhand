@@ -10,6 +10,7 @@ import datetime
 from uuid import UUID
 
 from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
+from src.api.core.db.models import Field
 from src.api.core.db.models.maps import Map
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
@@ -20,8 +21,18 @@ from tests.conftest import UNIT_TESTING_USER
 
 @pytest.fixture
 def farms(user_id) -> list[Farm]:
+    """
+    Fixture containing farms for the unit test user.
+    :param user_id: the unit test user id
+    :return: a list of farms.
+    """
     farms = [
-        Farm.create(name="farm 1", description="description 1", map_name="map 1", owner_id=user_id),
+        Farm.create(
+            name="farm 1",
+            description="description 1",
+            map_name="map 1",
+            owner_id=user_id
+        ),
         Farm.create(
             name="farm 2",
             description="description 2",
@@ -34,31 +45,48 @@ def farms(user_id) -> list[Farm]:
 
 
 @pytest.fixture
+def farm(farms) -> Farm:
+    """
+    Fixture of a single farm
+    :param farms: farms fixture
+    :return: (Farm) a farm
+    """
+    return farms[0]
+
+
+@pytest.fixture
 def farm_map():
-    expected_map = Map.create(
-        id=12345,
+    """
+    Fixture of a ModHub map
+    """
+    expected_map: Map = Map.create(
+        id=123456,
         name="custom-map-1",
         category="European Map",
         author="Simon Pegg",
         release_date=datetime.date(year=2025, month=3, day=11),
+        version="1.0.0.0"
     )
     return expected_map
 
 
 @pytest.fixture
 def user_id() -> UUID:
+    """
+    Fixture for the user_id of the unit testing account.
+    :return: (UUID) unit test user id
+    """
     return User.get_by_username(UNIT_TESTING_USER).id
 
 
 @pytest.fixture
-def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
+def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
     """
-    Pytest Fixture for generating fields associated with a Farm.
-    :param farms: the farms to link fields to
+    Fixture containing a list of base game fields.
+    :return: list(FieldResponse) of base game fields.
     """
     field_service = FieldService()
-
-    base_fields = [
+    return [
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
                 number=1,
@@ -105,6 +133,15 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
             current_farm=farms[0],
         ),
     ]
+
+
+@pytest.fixture
+def precision_farming_fields(farms) -> list[FieldResponse]:
+    """
+    Fixture containing a list of precision farming fields.
+    :param farms: the farms to link fields to
+    """
+    field_service = FieldService()
 
     precision_fields = [
         field_service.create_field_by_field_type(
@@ -157,4 +194,22 @@ def fields(farms) -> tuple[list[FieldResponse], list[FieldResponse]]:
         ),
     ]
 
-    return base_fields, precision_fields
+    return precision_fields
+
+
+@pytest.fixture
+def base_game_field(base_game_fields) -> Field:
+    """
+    Fixture for a single base game field.
+    :param base_game_fields: base fields fixture.
+    """
+    return Field.get(base_game_fields[0].id)
+
+
+@pytest.fixture
+def precision_farming_field(precision_farming_fields) -> Field:
+    """
+    Fixture for a single precision farming field.
+    :param precision_farming_fields: precision farming fields fixture.
+    """
+    return Field.get(precision_farming_fields[0].id)
