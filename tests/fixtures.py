@@ -91,6 +91,7 @@ def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=1,
                 size=Decimal(15.0),
+                owned=True,
                 ground_type="planted",
                 field_type=FieldTypes.BASE_FIELD,
                 plowed=True,
@@ -106,6 +107,7 @@ def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=2,
                 size=Decimal(20.0),
+                owned=True,
                 ground_type="growing",
                 field_type=FieldTypes.BASE_FIELD,
                 plowed=True,
@@ -121,6 +123,7 @@ def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=3,
                 size=Decimal(10.5),
+                owned=True,
                 ground_type="ready to harvest",
                 field_type=FieldTypes.BASE_FIELD,
                 plowed=True,
@@ -148,6 +151,7 @@ def precision_farming_fields(farms) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=1,
                 size=Decimal(15.0),
+                owned=True,
                 ground_type="planted",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,
@@ -164,6 +168,7 @@ def precision_farming_fields(farms) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=2,
                 size=Decimal(20.0),
+                owned=True,
                 ground_type="growing",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,
@@ -180,6 +185,7 @@ def precision_farming_fields(farms) -> list[FieldResponse]:
             field_request=FieldRequest(
                 number=3,
                 size=Decimal(10.5),
+                owned=True,
                 ground_type="ready to harvest",
                 field_type=FieldTypes.PRECISION_FARMING_FIELD,
                 plowed=True,

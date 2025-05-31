@@ -18,6 +18,7 @@ class FieldRequest(BaseModel):
     field_type: FieldTypes
     ground_type: str
     size: condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)
+    owned: bool = False
     plowed: bool
     rolled: bool
     mulched: bool
@@ -66,6 +67,7 @@ class FieldResponse(BaseModel):
     number: int
     ground_type: str
     size: float
+    owned: bool
     plowed: bool
     rolled: bool
     mulched: bool

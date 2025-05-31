@@ -37,9 +37,9 @@ class Field(FieldRepository):
     id = Column(UUID(), primary_key=True, default=uuid.uuid4)
     number = Column(Integer, index=True, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
-    size = Column(Double(), nullable=True)
+    size = Column(Double, nullable=True)
     ground_type = Column(String(50), nullable=True)  # Ground Type Enum
-
+    owned = Column(Boolean, nullable=False, default=False)
     farm_id: Mapped[UUID] = mapped_column(UUID(), ForeignKey("farms.id"), nullable=False)
     farm = relationship("Farm", back_populates="fields")
 

@@ -37,6 +37,7 @@ class FieldService:
         field: Field = Field.create(
             number=field_request.number,
             size=field_request.size,
+            owned=field_request.owned,
             ground_type=field_request.ground_type,
             field_type=field_request.field_type,
             plowed=field_request.plowed,
