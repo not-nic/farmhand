@@ -6,6 +6,7 @@ from typing import Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
+from src.api.core.db.models import FieldCrop
 from src.api.core.db.models.fields import Field, PrecisionFarmingField, BaseGameField
 from src.api.core.db.models.farms import Farm
 from src.api.core.schema.fields import FieldRequest, PrecisionFarmingFieldModel, BaseGameFieldModel, \
@@ -175,11 +176,13 @@ class FieldService:
                 PrecisionFarmingFieldModel(**field.precision_farming_field.to_dict())
             )
 
+        current_crop: FieldCrop = field.current_crop()
+
         if show_crops:
             field_data.crop = CropResponse(
-                id=field.current_crop().id,
-                crop_type=field.current_crop().crop.type,
-                planted_at=field.current_crop().planted_at
+                id=current_crop.id,
+                crop_type=current_crop.crop.type,
+                planted_at=current_crop.planted_at
             ) if field.current_crop() else None
 
         return field_data

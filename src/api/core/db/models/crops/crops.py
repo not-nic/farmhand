@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Double, Boolean
+
+from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy import Integer, String, Double, Boolean
 
 from src.api.core.repositories import CropRepository
 
@@ -25,18 +27,17 @@ class Crop(CropRepository):
 
     __tablename__ = "crops"
 
-    id = Column(Integer(), primary_key=True, autoincrement=True)
-    type = Column(String(50), unique=True, nullable=False)
-    yield_per_ha = Column(Integer(), nullable=False)
-    seeds_per_ha = Column(Integer(), nullable=False)
-    nitrogen_per_kg_ha = Column(Integer(), nullable=True)
-    price = Column(Double(), nullable=False)
-    growth_stages = Column(Integer(), nullable=False)
-    growth_duration = Column(Integer(), nullable=False)
-    root_crop = Column(Boolean(), nullable=False)
-
-    planted_in = Column(String(255), nullable=False)
-    harvested_in = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    type: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    yield_per_ha: Mapped[int] = mapped_column(Integer, nullable=False)
+    seeds_per_ha: Mapped[int] = mapped_column(Integer, nullable=False)
+    nitrogen_per_kg_ha: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    price: Mapped[float] = mapped_column(Double, nullable=False)
+    growth_stages: Mapped[int] = mapped_column(Integer, nullable=False)
+    growth_duration: Mapped[int] = mapped_column(Integer, nullable=False)
+    root_crop: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    planted_in: Mapped[str] = mapped_column(String(255), nullable=False)
+    harvested_in: Mapped[str] = mapped_column(String(255), nullable=False)
 
     def __repr__(self):
         return f"<Crop: {self.type}>"

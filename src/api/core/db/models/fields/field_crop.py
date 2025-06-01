@@ -1,10 +1,13 @@
-import datetime
-import uuid
-
-from sqlalchemy import Column, UUID, ForeignKey, Integer, DateTime
-from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+from uuid import uuid4
+from datetime import datetime, timezone
+from sqlalchemy import UUID, ForeignKey, Integer, DateTime
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.core.repositories import Repository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import Field, Crop
 
 
 class FieldCrop(Repository):
@@ -23,13 +26,15 @@ class FieldCrop(Repository):
 
     __tablename__ = "field_crops"
 
-    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
-    field_id = Column(UUID(), ForeignKey("fields.id"), nullable=False)
-    crop_id = Column(Integer, ForeignKey("crops.id"), nullable=False)
-    planted_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
+    field_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), nullable=False)
+    crop_id: Mapped[int] = mapped_column(Integer, ForeignKey("crops.id"), nullable=False)
+    planted_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.now(tz=timezone.utc), nullable=False
+    )
 
-    field = relationship("Field", back_populates="crops")
-    crop = relationship("Crop")
+    field: Mapped["Field"] = relationship("Field", back_populates="crops")
+    crop: Mapped["Crop"] = relationship("Crop")
 
     def __repr__(self):
         return (
