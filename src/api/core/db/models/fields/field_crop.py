@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from uuid import uuid4
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import UUID, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -30,7 +30,7 @@ class FieldCrop(Repository):
     field_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), nullable=False)
     crop_id: Mapped[int] = mapped_column(Integer, ForeignKey("crops.id"), nullable=False)
     planted_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(tz=timezone.utc), nullable=False
+        DateTime, default=datetime.now, nullable=False
     )
 
     field: Mapped["Field"] = relationship("Field", back_populates="crops")

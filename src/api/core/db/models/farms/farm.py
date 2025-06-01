@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import UUID, String, Text, DateTime, ForeignKey, Integer, Enum
@@ -35,7 +35,7 @@ class Farm(Repository):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     map_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(tz=timezone.utc), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     owner_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("users.id"), nullable=False)
     map_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("maps.id"), nullable=True)
 

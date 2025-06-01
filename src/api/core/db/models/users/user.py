@@ -1,7 +1,7 @@
 import uuid
 
 from typing import TYPE_CHECKING
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import UUID, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -38,7 +38,7 @@ class User(UserRepository):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(tz=timezone.utc), nullable=False
+        DateTime, default=datetime.now, nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
