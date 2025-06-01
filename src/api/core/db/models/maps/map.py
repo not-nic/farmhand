@@ -1,5 +1,5 @@
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Integer, String, DateTime
@@ -34,7 +34,7 @@ class Map(Repository):
     author: Mapped[str | None] = mapped_column(String(100), nullable=True)
     release_date: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now(timezone.utc), nullable=False
+        DateTime, default=datetime.now, nullable=False
     )
     version: Mapped[str] = mapped_column(String(50), default="1.0.0.0", nullable=False)
 
