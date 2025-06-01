@@ -6,7 +6,7 @@ from typing import Optional
 from uuid import UUID
 
 from src.api.constants import FieldTypes, FarmTypes
-from src.api.core.db.models import FieldCrop
+from src.api.core.db.models import FieldCrop, Crop
 from src.api.core.db.models.fields import Field, PrecisionFarmingField, BaseGameField
 from src.api.core.db.models.farms import Farm
 from src.api.core.schema.fields import FieldRequest, PrecisionFarmingFieldModel, BaseGameFieldModel, \
@@ -135,7 +135,7 @@ class FieldService:
         :return: (tuple) of fields and a 'show_crops' True.
         """
         if crop_type:
-            crop = await CropService.get_crop_by_type(crop_type)
+            crop: Crop = await CropService.get_crop_by_type(crop_type)
 
             fields = self._get_fields_by_crop_id(crop.id, fields)
             # Set the show crop value to true to always return it in the response object.

@@ -1,4 +1,3 @@
-import uuid
 from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 from uuid import uuid4
