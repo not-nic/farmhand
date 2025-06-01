@@ -30,9 +30,9 @@ class Map(Repository):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    author: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    release_date: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    category: Mapped[str] = mapped_column(String(100), nullable=True)
+    author: Mapped[str] = mapped_column(String(100), nullable=True)
+    release_date: Mapped[str] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, nullable=False
     )

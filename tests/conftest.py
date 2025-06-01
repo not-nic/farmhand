@@ -54,7 +54,7 @@ def client(create_database) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture(scope="function")
-def unit_test_user() -> Generator[User | None, Any, None]:
+def unit_test_user() -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
@@ -71,7 +71,7 @@ def unit_test_user() -> Generator[User | None, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def github_user() -> Generator[User | None, Any, None]:
+def github_user() -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.

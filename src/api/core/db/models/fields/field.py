@@ -39,8 +39,8 @@ class Field(FieldRepository):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, nullable=False
     )
-    size: Mapped[float | None] = mapped_column(Double, nullable=True)
-    ground_type: Mapped[str | None] = mapped_column(String(50), nullable=True)  # Ground Type Enum
+    size: Mapped[float] = mapped_column(Double, nullable=True, default=0.0)
+    ground_type: Mapped[str] = mapped_column(String(50), nullable=True)  # Ground Type Enum
     owned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     farm_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("farms.id"), nullable=False)
@@ -57,11 +57,11 @@ class Field(FieldRepository):
         cascade="all, delete-orphan",
     )
 
-    plowed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    rolled: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    mulched: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    plowed: Mapped[bool] = mapped_column(Boolean, nullable=True, default=True)
+    rolled: Mapped[bool] = mapped_column(Boolean, nullable=True, default=True)
+    mulched: Mapped[bool] = mapped_column(Boolean, nullable=True, default=True)
 
-    weeds: Mapped[WeedStates | None] = mapped_column(
+    weeds: Mapped[WeedStates] = mapped_column(
         Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS
     )
 

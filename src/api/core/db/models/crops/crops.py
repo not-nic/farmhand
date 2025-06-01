@@ -31,7 +31,7 @@ class Crop(CropRepository):
     type: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     yield_per_ha: Mapped[int] = mapped_column(Integer, nullable=False)
     seeds_per_ha: Mapped[int] = mapped_column(Integer, nullable=False)
-    nitrogen_per_kg_ha: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    nitrogen_per_kg_ha: Mapped[int] = mapped_column(Integer, nullable=True)
     price: Mapped[float] = mapped_column(Double, nullable=False)
     growth_stages: Mapped[int] = mapped_column(Integer, nullable=False)
     growth_duration: Mapped[int] = mapped_column(Integer, nullable=False)
