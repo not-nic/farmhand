@@ -15,8 +15,8 @@ Dependencies:
     - get_current_user: Fetches the current authenticated user.
 """
 
-import datetime
 
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
 from fastapi.responses import RedirectResponse
 
@@ -41,7 +41,7 @@ async def login(login_request: LoginRequest, response: Response) -> dict:
     :param response: return a message and set a session token cookie.
     :return:
     """
-    user = User.get_by_username(login_request.username)
+    user: User = User.get_by_username(login_request.username)
 
     if not user or not Security.verify_password(login_request.password, user.password):
         raise HTTPException(
@@ -50,8 +50,8 @@ async def login(login_request: LoginRequest, response: Response) -> dict:
 
     payload = TokenModel(
         id=user.id,
-        exp=datetime.datetime.now(datetime.UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
-        iat=datetime.datetime.now(datetime.UTC),
+        exp=datetime.now(timezone.utc) + settings.JWT_TOKEN_EXPIRATION_TIME,
+        iat=datetime.now(timezone.utc),
     )
 
     session_token = Security.encode_jwt(payload)
@@ -99,8 +99,8 @@ async def authenticate_github(request: Request) -> Response:
     payload = TokenModel(
         id=github_user.id,
         auth_type=AuthTypes.GITHUB,
-        exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-        iat=datetime.datetime.now(datetime.UTC),
+        exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+        iat=datetime.now(timezone.utc),
     )
 
     session_token = Security.encode_jwt(payload)

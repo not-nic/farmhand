@@ -2,21 +2,22 @@
 Module for testing the Farmhand Security class.
 """
 
-import datetime
 import time
-from datetime import timedelta
+
+from datetime import timedelta, datetime, timezone
 
 import jwt
 import pytest
 
 from src.api.constants import AuthTypes
+from src.api.core.db.models import User
 from src.api.core.schema.users import TokenModel
 from src.api.core.security import Security
 from src.config import settings
 
 
 class TestSecurity:
-    def test_get_user_by_default_auth_type(self, create_database, unit_test_user):
+    def test_get_user_by_default_auth_type(self, create_database, unit_test_user: User):
         """
         Test that when passed a TokenModel containing a 'default' AuthType claim
         the user is retrieved by their id and returned.
@@ -26,15 +27,15 @@ class TestSecurity:
         expected_token = TokenModel(
             id=unit_test_user.id,
             auth_type=AuthTypes.DEFAULT,
-            exp=datetime.datetime.now(datetime.UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC),
+            exp=datetime.now(timezone.utc) + settings.JWT_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(timezone.utc),
         )
 
         expected_user = Security.get_user_by_auth_type(token=expected_token)
 
         assert expected_user == unit_test_user
 
-    def test_get_user_by_github_auth_type(self, create_database, github_user):
+    def test_get_user_by_github_auth_type(self, create_database, github_user: User):
         """
         Test that when passed a TokenModel containing a 'GitHub' AuthType claim
         the user is retrieved by their GitHub id and returned.
@@ -44,8 +45,8 @@ class TestSecurity:
         expected_token = TokenModel(
             id=github_user.github_id,
             auth_type=AuthTypes.GITHUB,
-            exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC),
+            exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(timezone.utc),
         )
 
         expected_user = Security.get_user_by_auth_type(token=expected_token)
@@ -59,8 +60,8 @@ class TestSecurity:
         token_payload = TokenModel(
             id=12345,
             auth_type=AuthTypes.GITHUB,
-            exp=datetime.datetime.now(datetime.UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.datetime.now(datetime.UTC),
+            exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(timezone.utc),
         )
 
         encoded_token = Security.encode_jwt(token_payload)
@@ -87,8 +88,8 @@ class TestSecurity:
         token = TokenModel(
             id=12345,
             auth_type=AuthTypes.DEFAULT,
-            exp=datetime.datetime.now(datetime.UTC) + timedelta(milliseconds=5),
-            iat=datetime.datetime.now(datetime.UTC),
+            exp=datetime.now(timezone.utc) + timedelta(milliseconds=5),
+            iat=datetime.now(timezone.utc),
         )
 
         with pytest.raises(jwt.ExpiredSignatureError):
