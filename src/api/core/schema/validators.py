@@ -2,9 +2,10 @@
 Module for Farmhand Data validators to be used alongside the pydantic models.
 """
 
-import datetime
 import re
+
 from typing import TYPE_CHECKING
+from datetime import datetime, date
 
 if TYPE_CHECKING:
     from src.api.core.schema.users import GithubUser
@@ -16,7 +17,7 @@ class Validators:
     """
 
     @staticmethod
-    def validate_release_date(value) -> datetime:
+    def validate_release_date(value) -> date:
         """
         Pydantic Validator to validate the release date of a mod into a date object.
         :param value: (str) of a date
@@ -24,7 +25,7 @@ class Validators:
         """
         if isinstance(value, str):
             try:
-                return datetime.datetime.strptime(value, "%d.%m.%Y").date()
+                return datetime.strptime(value, "%d.%m.%Y").date()
             except ValueError:
                 raise ValueError(f"Invalid date format: {value}. Expected format is 'dd.mm.yyyy'.")
         return value

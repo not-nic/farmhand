@@ -1,8 +1,12 @@
-from sqlalchemy import Column, UUID, ForeignKey, Enum, Boolean
-from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+from sqlalchemy import UUID, ForeignKey, Enum, Boolean
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FertilizerStates
 from src.api.core.repositories import Repository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import Field
 
 
 class BaseGameField(Repository):
@@ -20,15 +24,14 @@ class BaseGameField(Repository):
 
     __tablename__ = "base_game_fields"
 
-    id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
-    fertilized = Column(
+    id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), primary_key=True)
+    fertilized: Mapped[FertilizerStates] = mapped_column(
         Enum(FertilizerStates, native_enum=False),
         nullable=False,
-        default=FertilizerStates.ZER0_PERCENT,
+        default=FertilizerStates.ZER0_PERCENT
     )
-    limed = Column(Boolean, nullable=True)
-
-    field = relationship("Field", back_populates="base_game_field")
+    limed: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    field: Mapped["Field"] = relationship("Field", back_populates="base_game_field")
 
     def __repr__(self):
         return f"<BaseGameField {self.field.number}, Fertilized: {self.fertilized}, Limed: {self.limed}>"

@@ -153,3 +153,5 @@ class ModHubService:
             if "mod_id=" in href:
                 mod_id = href.split("mod_id=")[1].split("&")[0]
                 return int(mod_id)
+
+        return None

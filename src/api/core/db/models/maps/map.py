@@ -1,9 +1,14 @@
 
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Integer, String, DateTime
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.core.repositories import Repository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import Farm
 
 
 class Map(Repository):
@@ -23,12 +28,14 @@ class Map(Repository):
 
     __tablename__ = "maps"
 
-    id = Column(Integer(), primary_key=True)
-    name = Column(String(100), nullable=False)
-    category = Column(String(100), nullable=True)
-    author = Column(String(100), nullable=True)
-    release_date = Column(String(100), nullable=True)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    version = Column(String(50), default="1.0.0.0", nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    author: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    release_date: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.now(timezone.utc), nullable=False
+    )
+    version: Mapped[str] = mapped_column(String(50), default="1.0.0.0", nullable=False)
 
-    farms = relationship("Farm", back_populates="map")
+    farms: Mapped[list["Farm"]] = relationship("Farm", back_populates="map")

@@ -1,11 +1,15 @@
-import datetime
-import uuid
+from typing import TYPE_CHECKING
+from datetime import datetime, timezone
+from uuid import uuid4
 
-from sqlalchemy import Column, UUID, String, Text, DateTime, ForeignKey, Integer, Enum
-from sqlalchemy.orm import relationship
+from sqlalchemy import UUID, String, Text, DateTime, ForeignKey, Integer, Enum
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FarmTypes, Difficulty
 from src.api.core.repositories import Repository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import User, Map, Field
 
 
 class Farm(Repository):
@@ -27,22 +31,27 @@ class Farm(Repository):
 
     __tablename__ = "farms"
 
-    id = Column(UUID(), primary_key=True, default=uuid.uuid4)
-    name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    map_name = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.UTC), nullable=False)
+    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    map_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(tz=timezone.utc), nullable=False)
+    owner_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("users.id"), nullable=False)
+    map_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("maps.id"), nullable=True)
 
-    owner_id = Column(UUID(), ForeignKey("users.id"), nullable=False)
-    map_id = Column(Integer(), ForeignKey("maps.id"), nullable=True)
+    farm_type: Mapped[FarmTypes] = mapped_column(
+        Enum(FarmTypes, native_enum=False), nullable=False, default=FarmTypes.BASE
+    )
 
-    farm_type = Column(Enum(FarmTypes, native_enum=False), nullable=False, default=FarmTypes.BASE)
+    difficulty: Mapped[Difficulty] = mapped_column(
+        Enum(Difficulty, native_enum=False), nullable=False, default=Difficulty.MEDIUM
+    )
 
-    difficulty = Column(Enum(Difficulty, native_enum=False), nullable=False, default=Difficulty.MEDIUM)
-
-    user = relationship("User", back_populates="farms")
-    map = relationship("Map", back_populates="farms")
-    fields = relationship("Field", back_populates="farm", cascade="all, delete-orphan")
+    user: Mapped["User"] = relationship("User", back_populates="farms")
+    map: Mapped["Map"] = relationship("Map", back_populates="farms")
+    fields: Mapped[list["Field"]] = relationship(
+        "Field", back_populates="farm", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Farm: {self.name}, Map: {self.map_name}>"

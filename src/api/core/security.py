@@ -73,6 +73,8 @@ class Security:
         if token.auth_type == AuthTypes.GITHUB:
             return User.get_by_github_id(token.id)
 
+        return None
+
     @staticmethod
     def encode_jwt(payload: TokenModel) -> str:
         """

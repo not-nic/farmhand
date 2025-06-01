@@ -1,8 +1,13 @@
-from sqlalchemy import Column, UUID, ForeignKey, Integer, Double, Enum
-from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+
+from sqlalchemy import UUID, ForeignKey, Integer, Double, Enum
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import SoilTypes
 from src.api.core.repositories import Repository
+
+if TYPE_CHECKING:
+    from src.api.core.db.models import Field
 
 
 class PrecisionFarmingField(Repository):
@@ -21,13 +26,16 @@ class PrecisionFarmingField(Repository):
 
     __tablename__ = "precision_farming_fields"
 
-    id = Column(UUID(), ForeignKey("fields.id"), primary_key=True)
+    id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), primary_key=True)
+    nitrogen_level: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ph_level: Mapped[float | None] = mapped_column(Double, nullable=True)
+    soil_type: Mapped[SoilTypes | None] = mapped_column(
+        Enum(SoilTypes, native_enum=False),
+        nullable=True,
+        default=SoilTypes.LOAM
+    )
 
-    nitrogen_level = Column(Integer, nullable=True)
-    ph_level = Column(Double, nullable=True)
-    soil_type = Column(Enum(SoilTypes, native_enum=False), nullable=True, default=SoilTypes.LOAM)
-
-    field = relationship("Field", back_populates="precision_farming_field")
+    field: Mapped["Field"] = relationship("Field", back_populates="precision_farming_field")
 
     def __repr__(self):
         return (
