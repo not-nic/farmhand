@@ -46,6 +46,8 @@ class Settings(BaseSettings):
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
 
+        return None
+
     LOG_FORMAT: str = (
         "[%(asctime)s] - [%(levelname)s] - %(filename)s::%(funcName)s::%(lineno)s - %(message)s"
     )
