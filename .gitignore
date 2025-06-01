@@ -50,3 +50,5 @@ venv
 *.env
 
 testdb.sqlite
+
+.scannerwork/*
