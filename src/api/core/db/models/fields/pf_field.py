@@ -27,9 +27,9 @@ class PrecisionFarmingField(Repository):
     __tablename__ = "precision_farming_fields"
 
     id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), primary_key=True)
-    nitrogen_level: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    ph_level: Mapped[float | None] = mapped_column(Double, nullable=True)
-    soil_type: Mapped[SoilTypes | None] = mapped_column(
+    nitrogen_level: Mapped[int] = mapped_column(Integer, nullable=True)
+    ph_level: Mapped[float] = mapped_column(Double, nullable=True)
+    soil_type: Mapped[SoilTypes] = mapped_column(
         Enum(SoilTypes, native_enum=False),
         nullable=True,
         default=SoilTypes.LOAM

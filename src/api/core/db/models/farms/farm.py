@@ -33,7 +33,7 @@ class Farm(Repository):
 
     id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
     map_name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     owner_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("users.id"), nullable=False)
