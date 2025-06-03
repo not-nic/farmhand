@@ -8,13 +8,13 @@ from uuid import uuid4
 from sqlalchemy import UUID, Boolean, DateTime, String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.api.core.repositories import Repository
+from src.api.core.repositories.task_repository import TaskRepository
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Farm
 
 
-class Task(Repository):
+class Task(TaskRepository):
     """
     Database Model for a Task.
 
