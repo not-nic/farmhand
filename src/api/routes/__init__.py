@@ -13,7 +13,8 @@ from src.api.routes import (
     scrape_routes,
     field_routes,
     crop_routes,
-    metrics_routes
+    metrics_routes,
+    tasks_routes
 )
 
 api_router = APIRouter()
@@ -24,11 +25,13 @@ field_routes.router.include_router(
     router=metrics_routes.router,
     dependencies=[Depends(get_current_user), Depends(get_farm)]
 )
+
 field_routes.router.include_router(
     router=crop_routes.router,
     dependencies=[Depends(get_current_user), Depends(get_farm)]
 )
 
 api_router.include_router(field_routes.router)
+api_router.include_router(tasks_routes.router)
 api_router.include_router(farm_routes.router)
 api_router.include_router(scrape_routes.router)
