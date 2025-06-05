@@ -16,14 +16,14 @@ class TaskService:
     """
 
     @staticmethod
-    def get_tasks(farm: Farm, filter_by: Optional[str]) -> List[Task]:
+    def get_tasks(farm: Farm, filter_by: Optional[str] = "None") -> List[Task]:
         """
         Get all task associated to a farm, filtered by either complete or not.
         :param farm: (Farm) the farm to get tasks from.
         :param filter_by: (str) filter by complete or incomplete tasks.
         :return: List of Tasks.
         """
-        logger.info(f"Retrieving tasks for farm: '{farm.id}'")
+        logger.info(f"[Task Service]: Retrieving tasks for farm: '{farm.id}' - filtered by: {filter_by}")
 
         if filter_by.lower() == "complete":
             return Task.get_completed_tasks(farm_id=farm.id)
@@ -42,7 +42,7 @@ class TaskService:
         :param farm_id: (UUID) the ID of the farm of the farm that the note belong too.
         :return: (Task) Task database object.
         """
-        logger.info(f"Creating new task on farm: '{farm_id}'")
+        logger.info(f"[Task Service]: Creating new task for farm: '{farm_id}'...")
 
         return Task.create(
             content=content,
@@ -57,6 +57,7 @@ class TaskService:
         :param task_id: (uuid) the UUID of the task.
         :return: (Task) if it exists.
         """
+        logger.info(f"[Task Service]: Getting Task: {task_id}")
         return Task.get(task_id)
 
     def delete_task(self, id: int):
