@@ -1,6 +1,8 @@
 """
-TODO
+Python module containing the TaskService used for creating and managing tasks in the
+farmhand service.
 """
+
 from typing import List, Optional
 from uuid import UUID
 
@@ -21,6 +23,8 @@ class TaskService:
         :param filter_by: (str) filter by complete or incomplete tasks.
         :return: List of Tasks.
         """
+        logger.info(f"Retrieving tasks for farm: '{farm.id}'")
+
         if filter_by.lower() == "complete":
             return Task.get_completed_tasks(farm_id=farm.id)
 
@@ -46,8 +50,14 @@ class TaskService:
             farm_id=farm_id
         )
 
-    def get_task_by_id(self, id: int):
-        pass
+    @staticmethod
+    def get_task_by_id(task_id: UUID) -> Optional[Task]:
+        """
+        Get a Task by its UUID.
+        :param task_id: (uuid) the UUID of the task.
+        :return: (Task) if it exists.
+        """
+        return Task.get(task_id)
 
     def delete_task(self, id: int):
         pass
