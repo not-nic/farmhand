@@ -27,7 +27,7 @@ class TaskRepository(Repository):
         Get all completed tasks relating to a farm.
         :return: list of tasks.
         """
-        return cls.get_session().query(cls).filter(and_(cls.completed == True and cls.farm_id == farm_id)).all()
+        return cls.get_session().query(cls).filter(cls.completed.is_(True), and_(cls.farm_id == farm_id)).all()
 
     @classmethod
     def get_incompleted_tasks(cls: "Task", farm_id: UUID) -> List["Task"]:
@@ -35,4 +35,4 @@ class TaskRepository(Repository):
         Get all incomplete tasks relating to a farm.
         :return: list of tasks.
         """
-        return cls.get_session().query(cls).filter(and_(cls.completed == False and cls.farm_id == farm_id)).all()
+        return cls.get_session().query(cls).filter(cls.completed.is_(False), and_(cls.farm_id == farm_id)).all()

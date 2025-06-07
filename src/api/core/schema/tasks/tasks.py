@@ -13,7 +13,7 @@ class TaskRequest(BaseModel):
     """
 
     content: str
-    completed: bool
+    completed: bool = False
 
 
 class TaskUpdate(BaseModel):
