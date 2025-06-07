@@ -16,6 +16,15 @@ class TaskRequest(BaseModel):
     completed: bool
 
 
+class TaskUpdate(BaseModel):
+    """
+    Request model for updating a task.
+    """
+
+    content: str = None
+    completed: bool = None
+
+
 class TaskResponse(BaseModel):
     """
     Response model for a singular task.
