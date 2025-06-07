@@ -14,12 +14,10 @@ Dependencies:
 """
 
 from typing import Optional
-from uuid import UUID
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status
 
-from src.api.core.dependencies import CurrentFarm
-from src.api.core.logger import logger
-from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse
+from src.api.core.dependencies import CurrentFarm, TaskDep
+from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse, TaskUpdate
 from src.api.services.tasks_service import TaskService
 
 router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
@@ -44,33 +42,6 @@ async def get_tasks(
     return TasksResponse(tasks=task_responses, count=len(task_responses))
 
 
-@router.get("/{task_id}", status_code=status.HTTP_200_OK)
-async def get_task_by_id(current_farm: CurrentFarm, task_id: UUID) -> TaskResponse:
-    """
-    Get a singular task by its ID.
-    :param current_farm: the current farm the task belongs to
-    :param task_id: the UUID of the task.
-    :return: a TaskResponse object with task details
-    :raises: HTTPException if task is not found, or does not belong to the user.
-    """
-    task = TaskService.get_task_by_id(task_id)
-
-    if not task:
-        logger.info(f"Unable to find task for id: '{task_id}'...")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Task '{task_id}' not found."
-        )
-
-    if task.farm_id != current_farm.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Task '{task_id}' does not belong to this farm"
-        )
-
-    return TaskResponse(**task.to_dict())
-
-
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_task(current_farm: CurrentFarm, task: TaskRequest) -> TaskResponse:
     """
@@ -83,3 +54,45 @@ async def create_task(current_farm: CurrentFarm, task: TaskRequest) -> TaskRespo
     return TaskResponse(
         **task_service.create_task(**task.model_dump(), farm_id=current_farm.id).to_dict()
     )
+
+
+@router.get("/{task_id}", status_code=status.HTTP_200_OK)
+async def get_task_by_id(task: TaskDep) -> TaskResponse:
+    """
+    Get a singular task by its ID.
+    :param task: (Task) The task Dependency.
+    :return: a TaskResponse object with task details
+    :raises: HTTPException if task is not found, or does not belong to the user.
+    """
+    return TaskResponse(**task.to_dict())
+
+
+@router.put("/{task_id}/complete", status_code=status.HTTP_204_NO_CONTENT)
+async def complete_task(task: TaskDep) -> None:
+    """
+    Change the completed status of a task.
+    :param task: (Task) The task Dependency.
+    :return: 204 No content message.
+    """
+    TaskService.complete_task(task)
+
+
+@router.put("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def update_task(task: TaskDep, task_update: TaskUpdate) -> None:
+    """
+    Delete a task by its ID, if a task exists.
+    :param task: (Task) The task Dependency.
+    :param task_update: Task update request model.
+    :return: 204 No content message.
+    """
+    TaskService.update_task(task.id, **task_update.model_dump(exclude_none=True))
+
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(task: TaskDep) -> None:
+    """
+    Delete a task by its ID, if a task exists.
+    :param task: (Task) The task Dependency.
+    :return: 204 No content message.
+    """
+    TaskService.delete_task(task.id)
