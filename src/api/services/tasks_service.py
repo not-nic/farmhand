@@ -16,7 +16,7 @@ class TaskService:
     """
 
     @staticmethod
-    def get_tasks(farm: Farm, filter_by: Optional[str] = "None") -> List[Task]:
+    def get_tasks(farm: Farm, filter_by: Optional[str]) -> List[Task]:
         """
         Get all task associated to a farm, filtered by either complete or not.
         :param farm: (Farm) the farm to get tasks from.
@@ -54,18 +54,53 @@ class TaskService:
     def get_task_by_id(task_id: UUID) -> Optional[Task]:
         """
         Get a Task by its UUID.
-        :param task_id: (uuid) the UUID of the task.
+        :param task_id: (uuid) the ID of the task.
         :return: (Task) if it exists.
         """
-        logger.info(f"[Task Service]: Getting Task: {task_id}")
+        logger.info(f"[Task Service]: Getting Task: '{task_id}'")
         return Task.get(task_id)
 
-    def delete_task(self, id: int):
-        pass
+    @staticmethod
+    def delete_task(task_id: UUID) -> None:
+        """
+        Delete a task by its UUID.
+        :param task_id: (uuid) the ID of the task.
+        """
+        logger.info(f"[Task Service]: Deleting Task: '{task_id}'")
+        Task.delete(task_id)
 
-    def update_task(self, id: int):
-        pass
+    @staticmethod
+    def update_task(
+            task_id: UUID,
+            content: Optional[str] = None,
+            completed: Optional[bool] = None
+    ) -> None:
+        """
+        Update a task by its content or completed status.
+        :param task_id: the ID of the task to update.
+        :param content: the new content to update an existing task
+        :param completed: the new status of the task.
+        :return: (Task) the updated task.
+        """
+        update_fields = {}
 
-    def complete_task(self, id: int):
-        pass
+        if content is not None:
+            update_fields['content'] = content
+        if completed is not None:
+            update_fields['completed'] = completed
+
+        if update_fields:
+            logger.info(f"[Task Service]: Updating Task: '{task_id}' with new content or status.")
+            Task.update(id=task_id, **update_fields)
+
+    @staticmethod
+    def complete_task(task: Task):
+        """
+        Update a tasks status to complete once it has been completed.
+        :param task: (Task) the task and status to update.
+        """
+        logger.info(f"[Task Service]: Completed Task: '{task.id}' on farm: {task.farm_id}")
+        session = Task.get_session()
+        task.completed = True
+        session.commit()
 
