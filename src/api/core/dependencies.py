@@ -143,7 +143,10 @@ def get_task(
         )
 
     if task.farm_id != current_farm.id:
-        logger.info(f"Found a task but it has been requested by a farm that does not own it, returning 403 error.")
+        logger.info(
+            f"Found task: '{task_id}' but task farm id ({task.farm_id})"
+            f" does not match current farm ({current_farm.id})."
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Task '{task_id}' does not belong to this farm."
