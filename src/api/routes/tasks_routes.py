@@ -7,10 +7,14 @@ from a users Farm.
 Routes:
     - GET /tasks: Get all tasks.
     - POST /tasks: Create a new task.
+    - GET /tasks/{task_id}: Get a task by its ID.
+    - DELETE /tasks/{task_id}: Delete a task.
+    - PUT /tasks/{task_id}: Update a task.
+    - PUT /tasks/{task_id}/completed: Update a task completed status.
 
 Dependencies:
     - CurrentFarm: Fetches the Field for the given field_id.
-
+    - TaskDep: Task Dependency.
 """
 
 from typing import Optional
