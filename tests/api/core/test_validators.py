@@ -148,17 +148,11 @@ class TestValidators:
         Test that when validating an existing email it remains unchanged.
         """
         user = GithubUser(id=1234, login="spegg", email="simon-pegg@hotfuzz.com", name="simon pegg")
-
-        updated_user = Validators.validate_github_email_if_not_exists(user)
-
-        assert updated_user.email == "simon-pegg@hotfuzz.com"
+        assert user.email == "simon-pegg@hotfuzz.com"
 
     def test_validate_github_email_if_not_exists(self):
         """
         Test that a GitHub email is created when one does not exist.
         """
         user = GithubUser(id=1234, login="spegg", name="simon pegg")
-
-        updated_user = Validators.validate_github_email_if_not_exists(user)
-
-        assert updated_user.email == "spegg@github.com"
+        assert user.email == "spegg@github.com"
