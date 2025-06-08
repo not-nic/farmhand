@@ -14,9 +14,11 @@ class TaskService:
     """
     Task Service Class for creating, retrieving and managing users tasks.
     """
+    def __init__(self):
+        self.MAX_TASK_LENGTH = 280
 
     @staticmethod
-    def get_tasks(farm: Farm, filter_by: Optional[str]) -> List[Task]:
+    def get_tasks(farm: Farm, filter_by: Optional[str] = "") -> List[Task]:
         """
         Get all task associated to a farm, filtered by either complete or not.
         :param farm: (Farm) the farm to get tasks from.
@@ -33,8 +35,7 @@ class TaskService:
 
         return farm.tasks
 
-    @staticmethod
-    def create_task(content: str,  completed: bool, farm_id: UUID) -> Task:
+    def create_task(self, content: str,  completed: bool, farm_id: UUID) -> Task:
         """
         Create a new task tied to a farm.
         :param content: (str) the content of the task.
@@ -43,6 +44,8 @@ class TaskService:
         :return: (Task) Task database object.
         """
         logger.info(f"[Task Service]: Creating new task for farm: '{farm_id}'...")
+
+        self._check_task_length(content)
 
         return Task.create(
             content=content,
@@ -69,8 +72,8 @@ class TaskService:
         logger.info(f"[Task Service]: Deleting Task: '{task_id}'")
         Task.delete(task_id)
 
-    @staticmethod
     def update_task(
+            self,
             task_id: UUID,
             content: Optional[str] = None,
             completed: Optional[bool] = None
@@ -83,6 +86,8 @@ class TaskService:
         :return: (Task) the updated task.
         """
         update_fields = {}
+
+        self._check_task_length(content)
 
         if content is not None:
             update_fields['content'] = content
@@ -104,3 +109,13 @@ class TaskService:
         task.completed = True
         session.commit()
 
+    def _check_task_length(self, content: str) -> bool:
+        """
+        check the length of the task content
+        :param content: the content to check.
+        :return: (bool) if the task length is under the max task length.
+        :raises: ValueError if task is too long.
+        """
+        if len(content) > self.MAX_TASK_LENGTH:
+            raise ValueError(f"Tasks must be shorter than '{self.MAX_TASK_LENGTH}' characters.")
+        return True

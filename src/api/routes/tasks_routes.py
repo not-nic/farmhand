@@ -16,9 +16,8 @@ Dependencies:
     - CurrentFarm: Fetches the Field for the given field_id.
     - TaskDep: Task Dependency.
 """
-
 from typing import Optional
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 
 from src.api.core.dependencies import CurrentFarm, TaskDep
 from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse, TaskUpdate
@@ -54,10 +53,16 @@ async def create_task(current_farm: CurrentFarm, task: TaskRequest) -> TaskRespo
     :param task: the TaskRequest object containing the status and content.
     :return: a new completed task.
     """
-    task_service = TaskService()
-    return TaskResponse(
-        **task_service.create_task(**task.model_dump(), farm_id=current_farm.id).to_dict()
-    )
+    try:
+        task_service = TaskService()
+        return TaskResponse(
+            **task_service.create_task(**task.model_dump(), farm_id=current_farm.id).to_dict()
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc)
+        )
 
 
 @router.get("/{task_id}", status_code=status.HTTP_200_OK)
@@ -89,7 +94,15 @@ async def update_task(task: TaskDep, task_update: TaskUpdate) -> None:
     :param task_update: Task update request model.
     :return: 204 No content message.
     """
-    TaskService.update_task(task.id, **task_update.model_dump(exclude_none=True))
+    task_service = TaskService()
+
+    try:
+        task_service.update_task(task.id, **task_update.model_dump(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc)
+        )
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
