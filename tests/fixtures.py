@@ -16,6 +16,7 @@ from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
 from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
+from src.api.services.tasks_service import TaskService
 from tests.conftest import UNIT_TESTING_USER
 
 
@@ -219,3 +220,15 @@ def precision_farming_field(precision_farming_fields) -> Field:
     :param precision_farming_fields: precision farming fields fixture.
     """
     return Field.get(precision_farming_fields[0].id)
+
+
+@pytest.fixture
+def tasks(farm):
+    """
+    Pytest tasks fixture
+    """
+    task_service = TaskService()
+    task_service.create_task("new task data 1", completed=False, farm_id=farm.id)
+    task_service.create_task("new task data 2", completed=True, farm_id=farm.id)
+    task_service.create_task("new task data 3", completed=False, farm_id=farm.id)
+    return farm.tasks

@@ -11,17 +11,8 @@ from src.api.core.db.models import Task
 from src.api.services.tasks_service import TaskService
 
 
-@pytest.mark.usefixtures("create_database", "unit_test_user")
+@pytest.mark.usefixtures("create_database", "unit_test_user", "tasks")
 class TestTaskService:
-
-    @pytest.fixture
-    def tasks(self, farm):
-        """Pytest tasks fixture"""
-        task_service = TaskService()
-        task_service.create_task("new task data 1", completed=False, farm_id=farm.id)
-        task_service.create_task("new task data 2", completed=True, farm_id=farm.id)
-        task_service.create_task("new task data 3", completed=False, farm_id=farm.id)
-        return farm.tasks
 
     def test_create_task(self, farm):
         """
