@@ -1,9 +1,11 @@
 """
 Task Service unit tests
 """
-from uuid import UUID
 
+import copy
 import pytest
+
+from uuid import UUID
 
 from src.api.core.db.models import Task
 from src.api.services.tasks_service import TaskService
@@ -97,10 +99,43 @@ class TestTaskService:
         assert task is db_task
 
     def test_update_task(self, farm):
-        pass
+        """
+        test that a task can be updated the content is not the same.
+        :param farm: Farm Fixture
+        :return:
+        """
+        task_service = TaskService()
+        task = task_service.create_task("new task", completed=False, farm_id=farm.id)
+
+        original_task = copy.deepcopy(task_service.get_task_by_id(task.id))
+
+        task_service.update_task(task.id, content="updated task", completed=True)
+
+        updated_task = task_service.get_task_by_id(task.id)
+
+        assert original_task.content != updated_task.content
+        assert original_task.completed != updated_task.completed
 
     def test_complete_task(self, farm):
-        pass
+        """
+        Test that a task can be completed.
+        :param farm: Farm Fixture.
+        """
+        task_service = TaskService()
+        task = task_service.create_task("new task", completed=False, farm_id=farm.id)
+        task_service.complete_task(task)
+
+        assert task.completed is True
 
     def test_delete_task(self, farm):
-        pass
+        """
+        Test that a task can be deleted.
+        :param farm: Farm Fixture.
+        """
+        task_service = TaskService()
+        task = task_service.create_task("new task", completed=False, farm_id=farm.id)
+        task_service.delete_task(task.id)
+
+        deleted_task = task_service.get_task_by_id(task.id)
+
+        assert deleted_task is None
