@@ -1,8 +1,9 @@
+"""
+Python module containing pydantic models for Users.
+"""
+
 from typing import Optional
-
 from pydantic import BaseModel, Field, model_validator
-
-from src.api.core.schema.validators import Validators
 
 
 class UserCreate(BaseModel):
@@ -28,7 +29,12 @@ class GithubUser(BaseModel):
 
     @model_validator(mode="after")
     def validate_github_email(self):
-        Validators.validate_github_email_if_not_exists(self)
+        """
+        set a default @github.com email if no email is found in scopes.
+        :return: GithubUser Pydantic model.
+        """
+        self.email = self.email or f"{self.username}@github.com"
+        return self
 
     class Config:
         populate_by_name = True

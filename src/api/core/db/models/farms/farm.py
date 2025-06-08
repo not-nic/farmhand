@@ -9,7 +9,7 @@ from src.api.constants import FarmTypes, Difficulty
 from src.api.core.repositories import Repository
 
 if TYPE_CHECKING:
-    from src.api.core.db.models import User, Map, Field
+    from src.api.core.db.models import User, Map, Field, Task
 
 
 class Farm(Repository):
@@ -49,8 +49,13 @@ class Farm(Repository):
 
     user: Mapped["User"] = relationship("User", back_populates="farms")
     map: Mapped["Map"] = relationship("Map", back_populates="farms")
+
     fields: Mapped[list["Field"]] = relationship(
         "Field", back_populates="farm", cascade="all, delete-orphan"
+    )
+
+    tasks: Mapped[list["Task"]] = relationship(
+        "Task", back_populates="farm", cascade="all, delete-orphan"
     )
 
     def __repr__(self):

@@ -4,11 +4,7 @@ Module for Farmhand Data validators to be used alongside the pydantic models.
 
 import re
 
-from typing import TYPE_CHECKING
 from datetime import datetime, date
-
-if TYPE_CHECKING:
-    from src.api.core.schema.users import GithubUser
 
 
 class Validators:
@@ -109,13 +105,3 @@ class Validators:
             )
 
         return values
-
-    @staticmethod
-    def validate_github_email_if_not_exists(github_user: "GithubUser"):
-        """
-        Validator to create a GitHub email if one does not exist by
-        appending the username to a @github.com domain.
-        :return: the GitHub user object.
-        """
-        github_user.email = github_user.email or f"{github_user.username}@github.com"
-        return github_user

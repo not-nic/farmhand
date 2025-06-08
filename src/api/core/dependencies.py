@@ -10,11 +10,14 @@ from fastapi import HTTPException, Depends, Path
 from starlette import status
 from starlette.requests import Request
 
+from src.api.core.db.models import Task
 from src.api.core.db.models.fields import Field
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
+from src.api.core.logger import logger
 from src.api.core.security import Security
 from src.api.services.field_service import FieldService
+from src.api.services.tasks_service import TaskService
 from src.config import settings
 
 
@@ -117,3 +120,39 @@ def get_field(
 
 
 CurrentField = Annotated[Field, Depends(get_field)]
+
+
+def get_task(
+        current_farm: CurrentFarm,
+        task_id: UUID,
+) -> Optional[Task]:
+    """
+    dependency to get a task by its ID or return
+    a 404 / 403 if it doesn't exist or not associated with a farm.
+    :param current_farm: the farm requested with the field.
+    :param task_id: the id of the field to get
+    """
+
+    task = TaskService.get_task_by_id(task_id=task_id)
+
+    if not task:
+        logger.info(f"Unable to find task for id: '{task_id}'...")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Task '{task_id}' not found."
+        )
+
+    if task.farm_id != current_farm.id:
+        logger.info(
+            f"Found task: '{task_id}' but task farm id ({task.farm_id})"
+            f" does not match current farm ({current_farm.id})."
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Task '{task_id}' does not belong to this farm."
+        )
+
+    return task
+
+
+TaskDep = Annotated[Task, Depends(get_task)]
