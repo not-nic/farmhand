@@ -11,10 +11,11 @@ Routes:
 Dependencies:
     - is_service_user: Ensures that the request is coming from a service user.
 """
+from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, status, Depends
 
-from src.api.core.dependencies import is_service_user
+from src.api.core.dependencies import is_service_user, ServiceUser
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
@@ -34,6 +35,19 @@ async def scrape_mod(id: int, background_tasks: BackgroundTasks) -> dict:
     return {"detail": f"scraping mod: {id}"}
 
 
+@router.get("/mods/pages/", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+async def scrape_mod(background_tasks: BackgroundTasks, category: Optional[str] = "latest") -> dict:
+    """
+    Function to manually trigger scraping of an individual mod by its mod_id.
+    :param category: the category to check
+    :return: (202) Accepted and a message that the scraping has been started in the background.
+    """
+    mod_hub_service = ModHubService()
+    background_tasks.add_task(mod_hub_service.get_pages, category_filter=category)
+    return {"detail": f"scraping pages"}
+
+
+
 @router.get("/maps", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
 async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     """
@@ -46,3 +60,5 @@ async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     return {
         "detail": "Started scraping all maps from ModHub."
     }
+
+
