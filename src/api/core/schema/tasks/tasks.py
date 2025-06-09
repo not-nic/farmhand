@@ -3,8 +3,9 @@ Python module containing pydantic models for Tasks.
 """
 
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
 
 
 class TaskRequest(BaseModel):
@@ -12,17 +13,11 @@ class TaskRequest(BaseModel):
     Request model for creating a new task.
     """
 
-    content: str
+    content: Annotated[
+        str,
+        StringConstraints(min_length=10, max_length=280, strip_whitespace=True)
+    ]
     completed: bool = False
-
-
-class TaskUpdate(BaseModel):
-    """
-    Request model for updating a task.
-    """
-
-    content: str = None
-    completed: bool = None
 
 
 class TaskResponse(BaseModel):
