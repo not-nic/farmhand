@@ -20,7 +20,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
 from src.api.core.dependencies import CurrentFarm, TaskDep
-from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse, TaskUpdate
+from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse
 from src.api.services.tasks_service import TaskService
 
 router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
@@ -87,7 +87,7 @@ async def complete_task(task: TaskDep) -> None:
 
 
 @router.put("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_task(task: TaskDep, task_update: TaskUpdate) -> None:
+async def update_task(task: TaskDep, task_update: TaskRequest) -> None:
     """
     Delete a task by its ID, if a task exists.
     :param task: (Task) The task Dependency.
