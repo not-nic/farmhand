@@ -2,13 +2,12 @@
 Mod Hub Service Module for generic scraping of the Farming Simulator ModHub
 pages.
 """
-import pprint
 
 import requests
 
 from typing import Optional, List
 from fastapi import status
-from bs4 import BeautifulSoup, Tag, ResultSet, PageElement, NavigableString
+from bs4 import BeautifulSoup, Tag
 from requests import HTTPError
 
 from src.api.constants import URLs
@@ -58,13 +57,17 @@ class ModHubService:
                 f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found."
             )
 
-    def scrape_mods(self, category: Optional[str] = None) -> list:
+    def scrape_mods(self, category: Optional[str] = None, page: Optional[str] = None) -> list:
         """
         Scrape the 'mods' pages and get the ids for each mod displayed
         :param category: the category to get mods for i.e. MapFilters constants
+        :param page: the page to get mods from.
         :return: a list of mod_ids scraped from the page.
         """
-        url = self.create_mods_url(category_filter=category if category else "")
+        url = self.create_mods_url(
+            category_filter=category if category else "",
+            page=page if category else ""
+        )
 
         response = requests.get(url)
 
@@ -98,9 +101,8 @@ class ModHubService:
         """
         url = self.create_mods_url(category_filter=category_filter if category_filter else "")
 
-        print("URL: ", url)
-
         response = requests.get(url)
+
         if response.status_code != status.HTTP_200_OK:
             logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
             raise HTTPError(f"Request failed with status code: {response.status_code}")
@@ -127,12 +129,9 @@ class ModHubService:
             logger.info(f"No page numbers found on this page - returning empty list...")
             return []
 
-        first_page = min(page_numbers) - 1  # zero-indexed
-        last_page = max(page_numbers) - 1  # zero-indexed
-
-        print("First Page: ", first_page)
-        print("Last Page: ", last_page)
-        print("All Pages: ", list(range(first_page, last_page + 1)))
+        # take one away to zero index the first and last page to match 'pages'.
+        first_page = min(page_numbers) - 1
+        last_page = max(page_numbers) - 1
 
         return list(range(first_page, last_page + 1))
 
