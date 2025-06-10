@@ -46,5 +46,3 @@ async def scrape_maps(background_tasks: BackgroundTasks) -> dict:
     return {
         "detail": "Started scraping all maps from ModHub."
     }
-
-

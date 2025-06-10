@@ -38,8 +38,6 @@ class ModHubService:
         mod_name = page_contents.find("h2", class_="column title-label").get_text(strip=True)
         mod_info = page_contents.find("div", class_="table table-game-info")
 
-        print(type(mod_info))
-
         if mod_info:
             mod_details = self.get_mod_details(mod_info)
             mod_details["id"] = mod_id
@@ -133,6 +131,7 @@ class ModHubService:
         first_page = min(page_numbers) - 1
         last_page = max(page_numbers) - 1
 
+        logger.info(f"Pages found returning pages bewteen first page: '{first_page}' and last page: '{last_page}'")
         return list(range(first_page, last_page + 1))
 
     @staticmethod
