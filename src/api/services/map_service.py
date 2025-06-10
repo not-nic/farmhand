@@ -29,8 +29,14 @@ class MapService:
 
         # iterate over all the map filters and make requests to each category's mod page.
         for map_filter in MapFilters:
-            mod_ids = self.mod_hub_service.scrape_mods(category=map_filter)
-            map_ids.extend(mod_ids)
+            pages = self.mod_hub_service.get_pages(map_filter)
+
+            for page in pages:
+                try:
+                    mod_ids = self.mod_hub_service.scrape_mods(category=map_filter, page=page)
+                    map_ids.extend(mod_ids)
+                except ValueError as exc:
+                    logger.error("[Map Service]: ", exc)
 
         # iterate over all the collected mod ids and scrape the mod page data.
         for mod_id in map_ids:
