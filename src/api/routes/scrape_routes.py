@@ -11,11 +11,10 @@ Routes:
 Dependencies:
     - is_service_user: Ensures that the request is coming from a service user.
 """
-from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, status, Depends
 
-from src.api.core.dependencies import is_service_user, ServiceUser
+from src.api.core.dependencies import is_service_user
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
