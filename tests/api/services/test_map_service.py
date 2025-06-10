@@ -50,6 +50,12 @@ class TestMapService:
             side_effect=[[123456]] + [[] for _ in range(len(MapFilters) - 1)]
         )
 
+        mocker.patch.object(
+            ModHubService,
+            "get_pages",
+            return_value=[0]
+        )
+
         mocker.patch.object(ModHubService, "scrape_mod", return_value=mod_detail)
 
     async def test_get_map_that_does_not_exist(self, mock_mod_hub_service, mod_detail):
