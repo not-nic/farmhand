@@ -124,7 +124,7 @@ class ModHubService:
                 page_numbers.append(int(number))
 
         if not page_numbers:
-            logger.info(f"No page numbers within the pagination DOM object - returning empty list.")
+            logger.info("No page numbers within the pagination DOM object - returning empty list.")
             return []
 
         # take one away to zero index the first and last page to match 'pages'.
@@ -209,7 +209,7 @@ class ModHubService:
         # Find the pagination content
         pagination = page_contents.find('ul', class_='pagination')
         if not pagination:
-            logger.info(f"No pagination object found within the DOM - returning empty page number list.")
+            logger.info("No pagination object found within the DOM - returning empty page number list.")
             return []
 
         return pagination
