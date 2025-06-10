@@ -5,7 +5,7 @@ pages.
 
 import requests
 
-from typing import Optional
+from typing import Optional, List
 from fastapi import status
 from bs4 import BeautifulSoup, Tag
 from requests import HTTPError
@@ -30,9 +30,7 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.error(
-                f"Unable to connect to the ModHub - got status code: {response.status_code}"
-            )
+            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
@@ -57,20 +55,22 @@ class ModHubService:
                 f"Mod ID: {mod_id} - Unable to scrape mod information as 'mod-info div' was not found."
             )
 
-    def scrape_mods(self, category: Optional[str] = None) -> list:
+    def scrape_mods(self, category: Optional[str] = None, page: Optional[str] = None) -> list:
         """
         Scrape the 'mods' pages and get the ids for each mod displayed
         :param category: the category to get mods for i.e. MapFilters constants
+        :param page: the page to get mods from.
         :return: a list of mod_ids scraped from the page.
         """
-        url = self.create_mods_url(category_filter=category if category else "")
+        url = self.create_mods_url(
+            category_filter=category if category else "",
+            page=page if category else ""
+        )
 
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.error(
-                f"Unable to connect to the ModHub - got status code: {response.status_code}"
-            )
+            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
@@ -90,6 +90,49 @@ class ModHubService:
                     mod_ids.append(self.get_mod_id(mod_item))
 
         return mod_ids
+
+    def get_pages(self, category_filter: Optional[str] = None) -> List:
+        """
+        Get the amount of 'mod pages' per category, zero indexed for the URL.
+        :param category_filter: the category to filter by.
+        :return: a list of page numbers from first page to last.
+        """
+        url = self.create_mods_url(category_filter=category_filter if category_filter else "")
+
+        response = requests.get(url)
+
+        if response.status_code != status.HTTP_200_OK:
+            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            raise HTTPError(f"Request failed with status code: {response.status_code}")
+
+        page_contents = BeautifulSoup(response.content, 'html.parser')
+        pagination = self._get_pagination_element(page_contents)
+
+        page_numbers = []
+
+        for li in pagination.find_all('li'):
+            # If it's the current page, get the number from the span object.
+            if 'current' in li.get('class', ""):
+                text = li.get_text(strip=True)
+                number = ''.join([char for char in text if char.isdigit()])
+            else:
+                a = li.find('a')
+                number = a.text.strip() if a and a.text.strip().isdigit() else None
+
+            # Ensure the number is a digit before casting it to int.
+            if number and number.isdigit():
+                page_numbers.append(int(number))
+
+        if not page_numbers:
+            logger.info("No page numbers within the pagination DOM object - returning empty list.")
+            return []
+
+        # take one away to zero index the first and last page to match 'pages'.
+        first_page = min(page_numbers) - 1
+        last_page = max(page_numbers) - 1
+
+        logger.info(f"found pages returning all pages between first page: '{first_page}' and last page: '{last_page}'")
+        return list(range(first_page, last_page + 1))
 
     @staticmethod
     def create_mods_url(
@@ -155,3 +198,18 @@ class ModHubService:
                 return int(mod_id)
 
         return None
+
+    @staticmethod
+    def _get_pagination_element(page_contents: BeautifulSoup) -> Tag:
+        """
+        get the pagination element containing page numbers from the ModHub website.
+        :param page_contents: the contents of the page
+        :return: the pagination page element if it exists.
+        """
+        # Find the pagination content
+        pagination = page_contents.find('ul', class_='pagination')
+        if not pagination:
+            logger.info("No pagination object found within the DOM - returning empty page number list.")
+            return []
+
+        return pagination
