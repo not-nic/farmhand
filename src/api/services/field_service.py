@@ -33,6 +33,7 @@ class FieldService:
         """
         existing_field = Field.get_field_by_number(field_request.number, current_farm.id)
         if existing_field:
+            logger.info(f"Field {field_request.number} already exists on this farm.")
             raise ValueError(f"Field {field_request.number} already exists on this farm.")
 
         field: Field = Field.create(
@@ -65,6 +66,7 @@ class FieldService:
             return self.get_field_details(field)
 
         else:
+            logger.warning(f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm.")
             raise ValueError(
                 f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm."
             )
