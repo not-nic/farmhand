@@ -130,6 +130,7 @@ class FieldUpdate(BaseModel):
     number: Optional[conint(ge=0, le=1000)] = None
     ground_type: Optional[str] = None
     size: Optional[condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)] = None
+    owned: Optional[bool] = None
     plowed: Optional[bool] = None
     rolled: Optional[bool] = None
     mulched: Optional[bool] = None
