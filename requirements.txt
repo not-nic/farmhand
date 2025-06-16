@@ -18,7 +18,7 @@ pydantic_core==2.27.2
 python-dotenv==1.0.1
 ruff==0.9.9
 StrEnum==0.4.15
-requests==2.32.3
+requests==2.32.4
 beautifulsoup4==4.13.3
 authlib==1.5.1
 itsdangerous==2.2.0
