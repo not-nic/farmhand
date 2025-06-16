@@ -30,7 +30,11 @@ class CropService:
         :return: the new created field crop.
         """
         crop = await self.get_crop_by_type(crop_request.crop_type)
-        Field.update(id=current_field.id, ground_type=crop_request.ground_type)
+
+        if not crop_request.ground_type:
+            Field.update(id=current_field.id, ground_type=crop_request.ground_type)
+
+        logger.info(f"[Crop Service]: Planting '{crop.type}' in field: '{current_field.id}'")
         return FieldCrop.create(crop_id=crop.id, field_id=current_field.id)
 
     async def get_past_crops(self, current_field: Field) -> list[CropResponse]:
@@ -91,6 +95,7 @@ class CropService:
         crop = Crop.get_by_type(crop_type)
 
         if not crop:
+            logger.info(f"[Crop Service]: Invalid crop: '{crop_type}' not found")
             raise ValueError(f"Invalid crop: '{crop_type}' not found")
         return crop
 
@@ -104,6 +109,7 @@ class CropService:
         crop = Crop.get(crop_id)
 
         if not crop:
+            logger.info(f"[Crop Service]: Invalid crop: '{crop_id}' not found")
             raise ValueError(f"Invalid crop: '{crop_id}' not found")
         return crop
 

@@ -33,6 +33,7 @@ class FieldService:
         """
         existing_field = Field.get_field_by_number(field_request.number, current_farm.id)
         if existing_field:
+            logger.info(f"[Farm: {current_farm.id}] Field {field_request.number} already exists on this farm.")
             raise ValueError(f"Field {field_request.number} already exists on this farm.")
 
         field: Field = Field.create(
@@ -49,22 +50,22 @@ class FieldService:
         )
 
         if self._is_base_game_field(field_request, current_farm):
-            logger.info(
-                f"Creating base game field for farm: {current_farm.name} ({current_farm.id})"
-            )
+            logger.info(f"[Farm: {current_farm.id}] Creating base game field.")
 
             self._create_base_game_field(field.id, field_request)
             return self.get_field_details(field)
 
         elif self._is_precision_farming_field(field_request, current_farm):
-            logger.info(
-                f"Creating precision farming field for farm: {current_farm.name} ({current_farm.id})"
-            )
+            logger.info(f"[Farm: {current_farm.id}] Creating precision farming field.")
 
             self._create_precision_farming_field(field.id, field_request)
             return self.get_field_details(field)
 
         else:
+            logger.warning(
+                f"[Farm: {current_farm.id}] Cannot create a {field_request.field_type} "
+                f"on a {current_farm.farm_type} farm."
+            )
             raise ValueError(
                 f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm."
             )
@@ -81,10 +82,14 @@ class FieldService:
 
         # ensure that the field exists.
         if not field:
+            logger.info(f"[Farm: {farm_id}] field not found.")
             raise ValueError("Field not found")
 
         # ensure that the field belongs to the farm that requested it.
         if field.farm_id != farm_id:
+            logger.info(
+                f"Found field: '{field_id}' ({field.number}) but this field.farm_id ({field.farm_id})"
+                f" does not match current_farm.id ({farm_id}).")
             raise PermissionError("You dont have access to view this field.")
 
         return field
@@ -100,6 +105,7 @@ class FieldService:
         field: Field = Field.get_field_by_number(field_number, farm_id)
 
         if not field:
+            logger.info(f"[Farm: {farm_id}] field not found.")
             raise ValueError("Field not found")
 
         return field
@@ -194,9 +200,7 @@ class FieldService:
         :param field: the field to update
         :param field_update: the field update request
         """
-        logger.info(
-            f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}"
-        )
+        logger.info(f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}")
         update_data = field_update.model_dump(exclude_unset=True)
         Field.update(field.id, **update_data)
 
