@@ -21,6 +21,8 @@ services:
       GITHUB_OAUTH_CALLBACK_URL: ${GITHUB_OAUTH_CALLBACK_URL}
 
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+
+      FRONTEND_REDIRECT_URL: ${FRONTEND_REDIRECT_URL}
     container_name: farmhand-api
     depends_on:
       - database
