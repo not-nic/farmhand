@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     GITHUB_OAUTH_CALLBACK_URL: str
     GITHUB_TOKEN_EXPIRATION_TIME: timedelta = timedelta(days=7)
 
+    FRONTEND_REDIRECT_URL: str
+
     JWT_TOKEN_EXPIRATION_TIME: timedelta = timedelta(minutes=60)
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
