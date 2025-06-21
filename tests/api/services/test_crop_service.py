@@ -4,7 +4,6 @@ Crop Service Unit Tests.
 
 import pytest
 
-from src.api.core.db.models.crops import Crop
 from src.api.services.crop_service import CropService
 from tests.utils import crop_data
 
