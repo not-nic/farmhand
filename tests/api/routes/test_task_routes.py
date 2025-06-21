@@ -24,7 +24,7 @@ class TestTaskRoutes:
         return f"{settings.API_V1_STR}/farms/{farm_id}/tasks{task_id_path}{filter_by_query}"
 
     @pytest.mark.parametrize("filter", ["none", "complete", "incomplete"])
-    def test_get_tasks_by_filters(self, client, session, farm, filter):
+    def test_get_tasks_by_filters(self, db, client, session, farm, filter):
         """
         Test that tasks can be retrieved from the endpoint and filtered.
         :param client: FastAPI test client
@@ -32,7 +32,7 @@ class TestTaskRoutes:
         :param farm: Farm Fixture.
         :param filter: Filter parameter.
         """
-        task_service = TaskService()
+        task_service = TaskService(db)
         tasks = task_service.get_tasks(farm, filter_by=filter)
         result = TestClientHelper.get(self.task_url(farm_id=farm.id, filter_by=filter), client)
 
@@ -42,7 +42,7 @@ class TestTaskRoutes:
         assert result.json()["count"] == len(tasks)
         assert result.json() == expected_task_json
 
-    def test_create_task(self, client, session, farm):
+    def test_create_task(self, db, client, session, farm):
         """
         Test that a POST request to the task endpoint creates a new task.
         :param client: FastAPI test client
@@ -56,7 +56,7 @@ class TestTaskRoutes:
 
         result = TestClientHelper.post(self.task_url(farm_id=farm.id), json=payload, client=client)
 
-        task_service = TaskService()
+        task_service = TaskService(db)
         task = task_service.get_task_by_id(UUID(result.json()["id"]))
 
         expected_task_json = TaskResponse(**task.to_dict()).model_dump(mode="json")
@@ -115,8 +115,6 @@ class TestTaskRoutes:
         task_id = tasks[0].id
 
         result = TestClientHelper.put(self.task_url(farm_id=farm.id, task_id=task_id), json=payload, client=client)
-
-        print(result.json())
 
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert result.json() == {"detail": "String should have at most 280 characters"}

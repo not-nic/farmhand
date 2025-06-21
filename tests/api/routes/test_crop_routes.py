@@ -8,6 +8,7 @@ from typing import Optional
 from uuid import UUID
 from fastapi import status
 
+from src.api.core.db.models import Crop
 from src.api.core.db.models.fields import FieldCrop
 from src.api.core.schema.crops.crops import CropsResponse
 from src.api.services.crop_service import CropService
@@ -26,7 +27,7 @@ class TestCropRoutes:
     def crop_url(farm_id: UUID, field_number: Optional[int] = None):
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields/{field_number}/crops"
 
-    async def test_get_field_crops(self, client, session, farm, base_game_field):
+    async def test_get_field_crops(self, client, session, farm, base_game_field, field_crop_repository, db):
         """
         Test that when a GET request is made for a fields crops all are returned
         and match the specified json output.
@@ -36,10 +37,10 @@ class TestCropRoutes:
         :param base_game_field: base game field fixture
         """
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
 
         response = TestClientHelper.get(self.crop_url(farm_id=farm.id, field_number=base_game_field.number), client)
-        crop_service = CropService()
+        crop_service = CropService(db)
         expected_crops = await crop_service.get_all_crops(base_game_field)
 
         assert response.status_code == status.HTTP_200_OK
@@ -62,7 +63,15 @@ class TestCropRoutes:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == CropsResponse(crops=[], count=0).model_dump(mode="json")
 
-    async def test_getting_the_current_field_crop(self, client, session, farm, base_game_field):
+    async def test_getting_the_current_field_crop(
+            self,
+            client,
+            session,
+            farm,
+            base_game_field,
+            field_crop_repository,
+            db
+    ):
         """
         Test that when a GET request is made with the query '?current=true' only
         the current field crop is returned.
@@ -72,13 +81,13 @@ class TestCropRoutes:
         :param base_game_field: base game field fixture
         """
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=1)
-        FieldCrop.create(field_id=base_game_field.id, crop_id=5)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=5)
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=base_game_field.number)}/?current=true"
 
         response = TestClientHelper.get(url, client)
-        crop_service = CropService()
+        crop_service = CropService(db)
         expected_crops = await crop_service.get_current_crop(base_game_field)
 
         assert response.status_code == status.HTTP_200_OK
@@ -86,7 +95,15 @@ class TestCropRoutes:
             crops=expected_crops, count=len(expected_crops)
         ).model_dump(mode="json")
 
-    async def test_getting_the_past_field_crops(self, client, session, farm, base_game_field):
+    async def test_getting_the_past_field_crops(
+            self,
+            client,
+            session,
+            farm,
+            base_game_field,
+            field_crop_repository,
+            db
+    ):
         """
         Test that when a GET request is made with the query '?past=true' only
         the past field crops are returned.
@@ -96,14 +113,14 @@ class TestCropRoutes:
         :param base_game_field: base game field fixture
         """
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=1)
-        FieldCrop.create(field_id=base_game_field.id, crop_id=5)
-        FieldCrop.create(field_id=base_game_field.id, crop_id=2)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=5)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=2)
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=base_game_field.number)}/?past=true"
 
         response = TestClientHelper.get(url, client)
-        crop_service = CropService()
+        crop_service = CropService(db)
         expected_crops = await crop_service.get_past_crops(base_game_field)
 
         assert response.status_code == status.HTTP_200_OK
@@ -129,7 +146,10 @@ class TestCropRoutes:
         )
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert base_game_field.current_crop().crop.type == "Canola"
+
+        f_crop: FieldCrop = base_game_field.current_crop()
+
+        assert f_crop.crop.type == "Canola"
 
     async def test_planting_crop_that_does_not_exist(self, client, session, farm, base_game_field):
         """
