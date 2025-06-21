@@ -12,6 +12,7 @@ from authlib.integrations.starlette_client import OAuth
 
 from src.api.constants import AuthTypes
 from src.api.core.db.models.users import User
+from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import TokenModel
 from src.config import settings
 
@@ -60,18 +61,19 @@ class Security:
         return pwd_context.hash(password)
 
     @staticmethod
-    def get_user_by_auth_type(token: TokenModel) -> Optional[User]:
+    def get_user_by_auth_type(token: TokenModel, user_repository: UserRepository) -> Optional[User]:
         """
         Get a user based on the auth claim in the JWT Token.
         :param token: the JWT token values
+        :param user_repository: User Repository instance
         :return: (User) if it exists for the matching auth type.
         """
 
         if token.auth_type == AuthTypes.DEFAULT:
-            return User.get(token.id)
+            return user_repository.get_by_id(token.id)
 
         if token.auth_type == AuthTypes.GITHUB:
-            return User.get_by_github_id(token.id)
+            return user_repository.get_by_github_id(token.id)
 
         return None
 
