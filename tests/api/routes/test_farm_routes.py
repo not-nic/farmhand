@@ -7,7 +7,6 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi import status
 
-from src.api.core.db.models.farms import Farm
 from src.api.core.repositories import FarmRepository
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER

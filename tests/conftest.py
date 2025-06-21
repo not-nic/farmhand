@@ -20,12 +20,7 @@ from main import app
 from main import settings
 from src.api.core.db.db_setup import engine, SessionLocal
 from src.api.core.repositories import (
-    UserRepository,
-    FarmRepository,
-    FieldRepository,
-    FieldCropRepository,
-    MapRepository,
-    CropRepository, TaskRepository
+    UserRepository
 )
 from src.api.core.db.models import User
 from src.api.core.db.models._model_base import SqlAlchemyBase

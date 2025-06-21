@@ -7,7 +7,6 @@ import pytest
 
 from uuid import UUID
 
-from src.api.core.db.models import Task
 from src.api.core.repositories import TaskRepository
 from src.api.services.tasks_service import TaskService
 

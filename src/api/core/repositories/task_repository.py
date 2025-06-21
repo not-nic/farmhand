@@ -2,7 +2,6 @@
 Task Repository containing database interactions with the Task Model.
 see: base_repository.py to see the base repository to inherit from.
 """
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import and_

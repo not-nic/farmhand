@@ -9,7 +9,6 @@ from uuid import UUID, uuid4
 from fastapi import status
 
 from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.db.models import FieldCrop
 from src.api.core.repositories import FieldRepository, FieldCropRepository
 from src.api.core.schema.fields import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService

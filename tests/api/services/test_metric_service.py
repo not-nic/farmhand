@@ -5,7 +5,7 @@ Metrics Service Unit Tests.
 import pytest
 
 from src.api.constants import FSData, Difficulty, FertilizerTypes
-from src.api.core.db.models import FieldCrop, Crop
+from src.api.core.db.models import FieldCrop
 from src.api.core.repositories import FieldCropRepository, CropRepository
 from src.api.services.metrics import MetricService
 from src.api.services.metrics.utils import (
