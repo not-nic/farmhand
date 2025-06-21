@@ -1,17 +1,16 @@
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Farm
 
 
-class Map(Repository):
+class Map(SqlAlchemyBase):
     """
     Database Model for a ModHub Map.
 
@@ -33,9 +32,7 @@ class Map(Repository):
     category: Mapped[str] = mapped_column(String(100), nullable=True)
     author: Mapped[str] = mapped_column(String(100), nullable=True)
     release_date: Mapped[str] = mapped_column(String(100), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     version: Mapped[str] = mapped_column(String(50), default="1.0.0.0", nullable=False)
 
     farms: Mapped[list["Farm"]] = relationship("Farm", back_populates="map")

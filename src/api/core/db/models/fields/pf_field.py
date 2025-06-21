@@ -4,13 +4,13 @@ from sqlalchemy import UUID, ForeignKey, Integer, Double, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import SoilTypes
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Field
 
 
-class PrecisionFarmingField(Repository):
+class PrecisionFarmingField(SqlAlchemyBase):
     """
     Database Model for a PrecisionFarmingField.
 
@@ -30,9 +30,7 @@ class PrecisionFarmingField(Repository):
     nitrogen_level: Mapped[int] = mapped_column(Integer, nullable=True)
     ph_level: Mapped[float] = mapped_column(Double, nullable=True)
     soil_type: Mapped[SoilTypes] = mapped_column(
-        Enum(SoilTypes, native_enum=False),
-        nullable=True,
-        default=SoilTypes.LOAM
+        Enum(SoilTypes, native_enum=False), nullable=True, default=SoilTypes.LOAM
     )
 
     field: Mapped["Field"] = relationship("Field", back_populates="precision_farming_field")

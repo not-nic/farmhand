@@ -3,14 +3,13 @@ from uuid import uuid4
 from datetime import datetime
 from sqlalchemy import UUID, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Field, Crop
 
 
-class FieldCrop(Repository):
+class FieldCrop(SqlAlchemyBase):
     """
     Database Model for a FieldCrop, which tracks all crops planted in
     an associated field.
@@ -29,9 +28,7 @@ class FieldCrop(Repository):
     id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
     field_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("fields.id"), nullable=False)
     crop_id: Mapped[int] = mapped_column(Integer, ForeignKey("crops.id"), nullable=False)
-    planted_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False
-    )
+    planted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
     field: Mapped["Field"] = relationship("Field", back_populates="crops")
     crop: Mapped["Crop"] = relationship("Crop")

@@ -7,21 +7,26 @@ from uuid import UUID
 
 import jwt
 from fastapi import HTTPException, Depends, Path
+from sqlalchemy.orm import Session
 from starlette import status
 from starlette.requests import Request
 
+from src.api.core.db.db_setup import get_db
 from src.api.core.db.models import Task
 from src.api.core.db.models.fields import Field
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
 from src.api.core.logger import logger
+from src.api.core.repositories import UserRepository, FarmRepository
 from src.api.core.security import Security
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
 from src.config import settings
 
+SessionDep = Annotated[Session, Depends(get_db)]
 
-async def get_current_user(request: Request) -> User:
+
+async def get_current_user(request: Request, db: SessionDep) -> User:
     """
     Function to get the current user based on the JWT token stored in the user's
     session.
@@ -36,8 +41,9 @@ async def get_current_user(request: Request) -> User:
         )
 
     try:
+        user_repository = UserRepository(db)
         token = Security.decode_jwt(session_token)
-        user = Security.get_user_by_auth_type(token)
+        user = Security.get_user_by_auth_type(token, user_repository)
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
@@ -77,16 +83,15 @@ def is_service_user(current_user: CurrentUser) -> bool:
 ServiceUser = Annotated[bool, Depends(is_service_user)]
 
 
-def get_farm(
-    id: Annotated[UUID, Path(title="The ID of the farm to get")], current_user: CurrentUser
-) -> Farm:
+def get_farm(id: UUID, current_user: CurrentUser, db: SessionDep) -> Farm:
     """
     Get the farm for the current logged-in user
     :param id: the id of the farm to get
     :param current_user: the current user of the farm
     :return: the requested Farm
     """
-    farm = Farm.get(id)
+    farm_repository = FarmRepository(db)
+    farm = farm_repository.get_by_id(id)
 
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
@@ -104,8 +109,9 @@ CurrentFarm = Annotated[Farm, Depends(get_farm)]
 
 
 def get_field(
-        current_farm: CurrentFarm,
-        field_number: Annotated[int, Path(title="The number of the field to get")],
+    db: SessionDep,
+    current_farm: CurrentFarm,
+    field_number: Annotated[int, Path(title="The number of the field to get")],
 ) -> Optional[Field]:
     """
     dependency to get the current field by its ID or return
@@ -114,7 +120,8 @@ def get_field(
     :param field_number: the id of the field to get
     """
     try:
-        return FieldService.get_field_by_number(field_number=field_number, farm_id=current_farm.id)
+        field_service = FieldService(db)
+        return field_service.get_field_by_number(field_number=field_number, farm_id=current_farm.id)
     except ValueError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Field not found.")
 
@@ -123,8 +130,9 @@ CurrentField = Annotated[Field, Depends(get_field)]
 
 
 def get_task(
-        current_farm: CurrentFarm,
-        task_id: UUID,
+    db: SessionDep,
+    current_farm: CurrentFarm,
+    task_id: UUID,
 ) -> Optional[Task]:
     """
     dependency to get a task by its ID or return
@@ -132,14 +140,13 @@ def get_task(
     :param current_farm: the farm requested with the field.
     :param task_id: the id of the field to get
     """
-
-    task = TaskService.get_task_by_id(task_id=task_id)
+    task_service = TaskService(db)
+    task = task_service.get_task_by_id(task_id=task_id)
 
     if not task:
         logger.info(f"Unable to find task for id: '{task_id}'...")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Task '{task_id}' not found."
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task '{task_id}' not found."
         )
 
     if task.farm_id != current_farm.id:
@@ -149,7 +156,7 @@ def get_task(
         )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Task '{task_id}' does not belong to this farm."
+            detail=f"Task '{task_id}' does not belong to this farm.",
         )
 
     return task

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 from datetime import datetime
 from uuid import uuid4
 
@@ -6,13 +6,13 @@ from sqlalchemy import UUID, Integer, DateTime, Double, String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.constants import FieldTypes, WeedStates
-from src.api.core.repositories import FieldRepository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Farm, FieldCrop, BaseGameField, PrecisionFarmingField
 
 
-class Field(FieldRepository):
+class Field(SqlAlchemyBase):
     """
     Database Model for a Field.
 
@@ -36,9 +36,7 @@ class Field(FieldRepository):
 
     id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
     number: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     size: Mapped[float] = mapped_column(Double, nullable=True, default=0.0)
     ground_type: Mapped[str] = mapped_column(String(50), nullable=True)  # Ground Type Enum
     owned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -66,18 +64,30 @@ class Field(FieldRepository):
     )
 
     base_game_field: Mapped["BaseGameField"] = relationship(
-        "BaseGameField",
-        back_populates="field",
-        uselist=False,
-        cascade="all, delete-orphan"
+        "BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
     precision_farming_field: Mapped["PrecisionFarmingField"] = relationship(
-        "PrecisionFarmingField",
-        back_populates="field",
-        uselist=False,
-        cascade="all, delete-orphan"
+        "PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
     def __repr__(self):
         return f"<Field {self.number} in Farm {self.farm_id} | Current Crop: {self.current_crop()}>"
+
+    def current_crop(self) -> Optional["FieldCrop"]:
+        """
+        Get the most recent crop planted as a dictionary.
+        """
+        return self.crops[0] if self.crops else []
+
+    def past_crops(self: "Field") -> List["FieldCrop"]:
+        """
+        Get all previous crops (excluding the current one) as dictionaries.
+        """
+        return self.crops[1:]
+
+    def get_crops(self) -> List["FieldCrop"]:
+        """
+        Get all crops for the field as a readable dictionary.
+        """
+        return self.crops

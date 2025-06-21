@@ -18,8 +18,10 @@ load_dotenv("tests/resources/test.env", override=True)
 # ruff: noqa: E402
 from main import app
 from main import settings
-from src.api.core.db.db_setup import Base, engine
-from src.api.core.db.models.users import User
+from src.api.core.db.db_setup import engine, SessionLocal
+from src.api.core.repositories import UserRepository
+from src.api.core.db.models import User
+from src.api.core.db.models._model_base import SqlAlchemyBase
 from src.api.core.security import Security, github
 from src.api.services.crop_service import CropService
 
@@ -36,13 +38,26 @@ def create_database():
     """
     Fixture to create database and tables
     """
-    Base.metadata.create_all(bind=engine)
+    SqlAlchemyBase.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    SqlAlchemyBase.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="module")
-def client(create_database) -> Generator[TestClient, None, None]:
+def db(create_database):
+    """
+    Fixture providing a database session
+    :return: database session fixture.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture(scope="module")
+def client(db) -> Generator[TestClient, None, None]:
     """
     Fixture for the FastAPI test client
     :return:
@@ -50,41 +65,43 @@ def client(create_database) -> Generator[TestClient, None, None]:
     settings.ENVIRONMENT = "testing"
     with TestClient(app) as c:
         yield c
-        Base.metadata.drop_all(engine)
+        SqlAlchemyBase.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="function")
-def unit_test_user() -> Generator[User, Any, None]:
+def unit_test_user(db) -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
     """
-    test_user = User.create(
+    user_repository = UserRepository(db)
+    test_user = user_repository.create(
         username=UNIT_TESTING_USER,
         password=Security.get_password_hash(UNIT_TESTING_PASSWORD),
         email_address="unit-test@mail.com",
         name="unit-tester",
     )
 
-    yield User.get(test_user.id)
-    User.delete(test_user.id)
+    yield user_repository.get_by_id(test_user.id)
+    user_repository.delete(test_user.id)
 
 
 @pytest.fixture(scope="function")
-def github_user() -> Generator[User, Any, None]:
+def github_user(db) -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
     """
-    github_test_user = User.create(
+    user_repository = UserRepository(db)
+    github_test_user = user_repository.create(
         username=GITHUB_TESTING_USER,
         github_id=123456,
         email_address="github-user@github.com",
         name="github-user",
     )
 
-    yield User.get(github_test_user.id)
-    User.delete(github_test_user.id)
+    yield user_repository.get_by_id(github_test_user.id)
+    user_repository.delete(github_test_user.id)
 
 
 @pytest.fixture
@@ -125,7 +142,7 @@ def mock_mod_hub_page(mocker) -> callable:
 
 
 @pytest.fixture
-async def mock_crop_data(mocker) -> None:
+async def mock_crop_data(mocker, db) -> None:
     """
     Fixture for mocking the crop data JSON.
     :param mocker: pytest mocker
@@ -134,7 +151,7 @@ async def mock_crop_data(mocker) -> None:
         "src.api.services.crop_service.CropService._load_crop_data_from_fixture"
     ).return_value = crop_data()
 
-    crop_service = CropService()
+    crop_service = CropService(db)
     await crop_service.load_crops()
 
 

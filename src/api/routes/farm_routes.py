@@ -18,11 +18,12 @@ Dependencies:
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
+from src.api.core.repositories import MapRepository, FarmRepository
 from src.api.core.schema.farms import FarmRequest, FarmUpdate, FarmResponse, FarmsResponse
 from src.api.core.db.models.maps import Map
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
-from src.api.core.dependencies import get_current_user, get_farm
+from src.api.core.dependencies import get_current_user, get_farm, SessionDep
 
 router = APIRouter(prefix="/farms", tags=["Farms"])
 
@@ -34,30 +35,33 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
     status_code=status.HTTP_201_CREATED,
 )
 async def create_farm(
-    farm_request: FarmRequest, current_user: User = Depends(get_current_user)
+    farm_request: FarmRequest, db: SessionDep, current_user: User = Depends(get_current_user)
 ) -> FarmResponse:
     """
     Create a farm linked for the logged-in user.
     :param current_user: current logged-in user
+    :param db: database session dependency.
     :param farm_request: farm request model
     :return: (FarmResponse) Return a response of the farm
     """
+    map_repository = MapRepository(db)
+    farm_repository = FarmRepository(db)
     if farm_request.map_id:
-        map: Map = Map.get(farm_request.map_id)
+        map: Map = map_repository.get_by_id(farm_request.map_id)
 
         if not map:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
 
         farm_request.map_name = map.name
 
-    farm: Farm = Farm.create(
+    farm: Farm = farm_repository.create(
         name=farm_request.name,
         description=farm_request.description,
         map_name=farm_request.map_name,
         owner_id=current_user.id,
         map_id=farm_request.map_id,
         farm_type=farm_request.farm_type,
-        difficulty=farm_request.difficulty
+        difficulty=farm_request.difficulty,
     )
 
     return FarmResponse(**farm.to_dict())
@@ -98,23 +102,30 @@ async def get_farm_by_id(farm: Farm = Depends(get_farm)) -> FarmResponse:
 @router.put(
     "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
-async def update_farm(farm_update: FarmUpdate, farm: Farm = Depends(get_farm)) -> None:
+async def update_farm(
+    db: SessionDep, farm_update: FarmUpdate, farm: Farm = Depends(get_farm)
+) -> None:
     """
     Update a farm for the current logged-in user.
+    :param db: database session dependency.
     :param farm_update: Farm update model
     :param farm: The farm fetched by the dependency
     :return: No Content
     """
+    farm_repository = FarmRepository(db)
     update_data = farm_update.model_dump(exclude_unset=True)
-    farm.update(farm.id, **update_data)
+    farm_repository.update(farm.id, **update_data)
 
 
 @router.delete(
     "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_farm(farm: Farm = Depends(get_farm)) -> None:
+async def delete_farm(db: SessionDep, farm: Farm = Depends(get_farm)) -> None:
     """
     Delete a farm by its ID.
+    :param db: database session dependency.
+    :param farm: Farm dependency.
     :return: No Content
     """
-    Farm.delete(farm.id)
+    farm_repository = FarmRepository(db)
+    farm_repository.delete(farm.id)

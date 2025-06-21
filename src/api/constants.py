@@ -109,6 +109,7 @@ class Difficulty(str, Enum):
     """
     Enum for Farming Simulator difficulty levels.
     """
+
     EASY = "EASY"
     MEDIUM = "MEDIUM"
     HARD = "HARD"
@@ -167,6 +168,7 @@ class FertilizerTypes(StrEnum):
     """
     Types of Fertilizer in Farming Simulator
     """
+
     SOLID = "solid"
     LIQUID = "liquid"
     MANURE = "manure"

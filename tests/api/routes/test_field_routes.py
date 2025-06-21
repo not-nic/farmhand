@@ -9,8 +9,7 @@ from uuid import UUID, uuid4
 from fastapi import status
 
 from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.db.models.fields import FieldCrop
-from src.api.core.db.models.fields import Field
+from src.api.core.repositories import FieldRepository, FieldCropRepository
 from src.api.core.schema.fields import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
 from src.config import settings
@@ -19,13 +18,21 @@ from tests.utils import TestClientHelper
 
 @pytest.mark.usefixtures("client", "session", "mock_crop_data")
 class TestFieldRoutes:
-
     @staticmethod
     def field_url(farm_id: UUID, field_number: Optional[int] = None):
         field_number_path = f"/{field_number}" if field_number else ""
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_number_path}"
 
-    def test_create_base_field(self, client, session, farms):
+    @pytest.fixture
+    def field_repository(self, db):
+        """
+        Field Repository Instance fixture.
+        :param db: database session fixture.
+        :return: field repository instance.
+        """
+        return FieldRepository(db)
+
+    def test_create_base_field(self, db, client, session, farms, field_repository):
         """
         test that a base field is created and the correct field object is returned.
         :param client: FastAPI test client
@@ -50,14 +57,16 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        field_service = FieldService()
+        field_service = FieldService(db)
         expected_field: FieldResponse = field_service.get_field_details(
-            Field.get(UUID(result_json["id"]))
+            field_repository.get_by_id(UUID(result_json["id"]))
         )
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
-    def test_create_field_with_same_field_number_raises_error(self, client, session, farms):
+    def test_create_field_with_same_field_number_raises_error(
+        self, client, session, farms, field_repository
+    ):
         """
         Test that when creating a field with the same number it raises an HTTP 400 error
         :param client: FastAPI test client
@@ -65,12 +74,12 @@ class TestFieldRoutes:
         :param farms: farms fixture to create farms on test run
         """
 
-        Field.create(
+        field_repository.create(
             number=50,
             field_type="base_field",
             ground_type="planted",
             size=10.0,
-            farm_id=farms[0].id
+            farm_id=farms[0].id,
         )
 
         payload = {
@@ -88,11 +97,9 @@ class TestFieldRoutes:
         result = TestClientHelper.post(self.field_url(farm_id=farms[0].id), payload, client)
 
         assert result.status_code == status.HTTP_400_BAD_REQUEST
-        assert result.json() == {
-            "detail": "Field 50 already exists on this farm."
-        }
+        assert result.json() == {"detail": "Field 50 already exists on this farm."}
 
-    def test_create_precision_farming_field(self, client, session, farms):
+    def test_create_precision_farming_field(self, db, client, session, farms, field_repository):
         """
         test that a precision farming field is created and the correct field object is returned.
         :param client: FastAPI test client
@@ -118,9 +125,9 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        field_service = FieldService()
+        field_service = FieldService(db)
         expected_field: FieldResponse = field_service.get_field_details(
-            Field.get(UUID(result_json["id"]))
+            field_repository.get_by_id(UUID(result_json["id"]))
         )
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
@@ -231,7 +238,7 @@ class TestFieldRoutes:
         }
 
         result = TestClientHelper.put(
-            self.field_url(farm_id=expected_farm.id,  field_number=precision_farming_field.number),
+            self.field_url(farm_id=expected_farm.id, field_number=precision_farming_field.number),
             payload,
             client,
         )
@@ -249,7 +256,7 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = TestClientHelper.delete(
-            self.field_url(farm_id=expected_farm.id,  field_number=base_game_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=base_game_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -265,11 +272,12 @@ class TestFieldRoutes:
         expected_farm = farms[1]
 
         result = TestClientHelper.delete(
-            self.field_url(farm_id=expected_farm.id,  field_number=precision_farming_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=precision_farming_field.number),
+            client,
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_get_field_by_number(self, client, session, farms, base_game_field):
+    def test_get_field_by_number(self, db, client, session, farms, base_game_field):
         """
         Test that a single farm record can be retrieved from the get endpoint.
         :param client: FastAPI test client
@@ -280,10 +288,10 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = TestClientHelper.get(
-            self.field_url(farm_id=expected_farm.id,  field_number=base_game_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=base_game_field.number), client
         )
 
-        field_service = FieldService()
+        field_service = FieldService(db)
         expected_field = field_service.get_field_details(base_game_field)
 
         assert result.status_code == status.HTTP_200_OK
@@ -299,12 +307,14 @@ class TestFieldRoutes:
 
         expected_farm = farms[0]
 
-        result = TestClientHelper.get(self.field_url(farm_id=expected_farm.id,  field_number=66), client)
+        result = TestClientHelper.get(
+            self.field_url(farm_id=expected_farm.id, field_number=66), client
+        )
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Field not found."}
 
-    def test_get_field_for_a_different_farm(self, client, session, farms):
+    def test_get_field_for_a_different_farm(self, client, session, farms, field_repository):
         """
         Test that when getting a farm for a different user it returns a 403 forbidden error.
         :param client: FastAPI test client
@@ -313,7 +323,7 @@ class TestFieldRoutes:
 
         expected_farm = farms[0]
 
-        expected_field = Field.create(
+        expected_field = field_repository.create(
             number=123,
             size=5.0,
             ground_type="unit-test-ground-type",
@@ -326,9 +336,7 @@ class TestFieldRoutes:
         )
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {
-            "detail": "Field not found."
-        }
+        assert result.json() == {"detail": "Field not found."}
 
     def test_get_all_fields_for_a_base_game_farm(self, client, session, farms, base_game_fields):
         """
@@ -344,13 +352,15 @@ class TestFieldRoutes:
         assert base_fields_results.status_code == status.HTTP_200_OK
         assert base_fields_results.json()["count"] == len(base_game_fields)
 
-        expected_field_json = FieldsResponse(fields=base_game_fields, count=len(base_game_fields)).model_dump(
-            mode="json", exclude_none=True
-        )
+        expected_field_json = FieldsResponse(
+            fields=base_game_fields, count=len(base_game_fields)
+        ).model_dump(mode="json", exclude_none=True)
 
         assert base_fields_results.json() == expected_field_json
 
-    def test_get_all_fields_for_a_precision_farming_farm(self, client, session, farms, precision_farming_fields):
+    def test_get_all_fields_for_a_precision_farming_farm(
+        self, client, session, farms, precision_farming_fields
+    ):
         """
         Test that all fields for a base game farm can be retrieved and returned in the correct format.
         :param client: FastAPI test client
@@ -359,7 +369,9 @@ class TestFieldRoutes:
         :param precision_farming_fields: fixture of precision farming fields
         """
 
-        precision_farming_results = TestClientHelper.get(self.field_url(farm_id=farms[1].id), client)
+        precision_farming_results = TestClientHelper.get(
+            self.field_url(farm_id=farms[1].id), client
+        )
 
         assert precision_farming_results.status_code == status.HTTP_200_OK
         assert precision_farming_results.json()["count"] == len(precision_farming_fields)
@@ -371,11 +383,7 @@ class TestFieldRoutes:
         assert precision_farming_results.json() == expected_field_json
 
     def test_getting_fields_with_the_current_crop(
-            self,
-            client,
-            session,
-            farms,
-            base_game_field
+        self, client, session, farms, base_game_field, db
     ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
@@ -384,32 +392,34 @@ class TestFieldRoutes:
         :param session: Unit test session
         :param farms: farms fixture
         :param base_game_field: base field fixture
+        :param db: database session fixture
         """
+        field_crop_repository = FieldCropRepository(db)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=1)
-
-        url = (
-            f"{self.field_url(farm_id=farms[0].id, field_number=base_game_field.number)}?show_crop=true"
-        )
+        url = f"{self.field_url(farm_id=farms[0].id, field_number=base_game_field.number)}?show_crop=true"
         response = TestClientHelper.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_200_OK
         assert "crop" in response.json()
 
-    def test_getting_fields_that_have_the_same_crop(self, client, session, farms, base_game_fields):
+    def test_getting_fields_that_have_the_same_crop(
+        self, client, session, farms, base_game_fields, db
+    ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
         object exists in the response and a 200 response code is asserted.
         :param client: FastAPI Test Client
-        :param session: Unit test session
+        :param session: unit test session fixture
         :param farms: farms fixture
         :param base_game_fields: base game fields fixture
+        :param db: database session fixture
         :return:
         """
-
-        FieldCrop.create(field_id=base_game_fields[0].id, crop_id=1)
-        FieldCrop.create(field_id=base_game_fields[1].id, crop_id=1)
-        FieldCrop.create(field_id=base_game_fields[2].id, crop_id=1)
+        field_crop_repository = FieldCropRepository(db)
+        field_crop_repository.create(field_id=base_game_fields[0].id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_fields[1].id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_fields[2].id, crop_id=1)
 
         url = f"{self.field_url(farm_id=farms[0].id)}?crop_type=Wheat"
         response = TestClientHelper.get(url=url, client=client)

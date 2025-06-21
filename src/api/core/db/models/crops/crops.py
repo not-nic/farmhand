@@ -1,11 +1,10 @@
-
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import Integer, String, Double, Boolean
 
-from src.api.core.repositories import CropRepository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 
-class Crop(CropRepository):
+class Crop(SqlAlchemyBase):
     """
     Database Model for a Crop.
 

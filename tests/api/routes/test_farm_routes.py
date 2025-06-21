@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi import status
 
-from src.api.core.db.models.farms import Farm
+from src.api.core.repositories import FarmRepository
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 from tests.utils import TestClientHelper
@@ -16,6 +16,15 @@ from tests.utils import TestClientHelper
 @pytest.mark.usefixtures("client", "session")
 class TestFarmRoutes:
     url = f"{settings.API_V1_STR}/farms"
+
+    @pytest.fixture
+    def farm_repository(self, db):
+        """
+        Farm Repository Instance fixture.
+        :param db: database session fixture.
+        :return: farm repository instance.
+        """
+        return FarmRepository(db)
 
     def test_get_multiple_farms(self, client, session, farms):
         """
@@ -68,14 +77,14 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Farm not found."}
 
-    def test_get_farm_for_a_different_user(self, client, session):
+    def test_get_farm_for_a_different_user(self, client, session, farm_repository):
         """
         Test that when getting a farm for a different user it returns a 403 forbidden error.
         :param client: FastAPI test client
         :param session: the user's session
+        :param farm_repository: farm repository fixture.
         """
-
-        farm = Farm.create(
+        farm = farm_repository.create(
             name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )
 
@@ -84,7 +93,7 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_403_FORBIDDEN
         assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not own this farm."}
 
-    def test_create_farm_by_map_name(self, client, session):
+    def test_create_farm_by_map_name(self, client, session, farm_repository):
         """
         Test creating a farm by a custom map_name and validate it is in the database.
         :param client: FastAPI test client
@@ -102,12 +111,12 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_farm = Farm.get(UUID(result_json["id"])).to_dict()
+        expected_farm = farm_repository.get_by_id(UUID(result_json["id"])).to_dict()
 
         for key, value in payload.items():
             assert expected_farm.get(key) == value
 
-    def test_create_farm_by_map_id(self, client, session, farm_map):
+    def test_create_farm_by_map_id(self, client, session, farm_map, farm_repository):
         """
         Test creating a farm by a map_id and validate it is in the database.
         :param client: FastAPI test client
@@ -125,7 +134,7 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
-        expected_farm = Farm.get(UUID(result_json["id"]))
+        expected_farm = farm_repository.get_by_id(UUID(result_json["id"]))
         expected_farm_dict = expected_farm.to_dict()
 
         for key, value in payload.items():
@@ -165,7 +174,7 @@ class TestFarmRoutes:
         result = TestClientHelper.post(self.url, payload, client)
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def test_update_farm(self, client, session, user_id):
+    def test_update_farm(self, client, session, user_id, farm_repository):
         """
         Test updating a value in a farm record
         :param client: FastAPI test client
@@ -173,7 +182,7 @@ class TestFarmRoutes:
         :param user_id: the id of the unit test user
         """
 
-        expected_farm = Farm.create(
+        expected_farm = farm_repository.create(
             name="Old farm name",
             description="test description",
             map_name="test map",
@@ -185,7 +194,7 @@ class TestFarmRoutes:
         result = TestClientHelper.put(f"{self.url}/{expected_farm.id}", payload, client)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_delete_farm(self, client, session, user_id):
+    def test_delete_farm(self, client, session, user_id, farm_repository):
         """
         Test deleting a farm record
         :param client: FastAPI test client
@@ -193,11 +202,8 @@ class TestFarmRoutes:
         :param user_id: the id of the unit test user
         """
 
-        expected_farm = Farm.create(
-            name="test name",
-            description="test description",
-            map_name="test map",
-            owner_id=user_id
+        expected_farm = farm_repository.create(
+            name="test name", description="test description", map_name="test map", owner_id=user_id
         )
 
         result = TestClientHelper.delete(f"{self.url}/{expected_farm.id}", client)

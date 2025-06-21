@@ -8,96 +8,81 @@ e.g. getting all fields that share the same crop it should be written
 as a method within its own <model_name>Repository.
 """
 
-from typing import Optional, TypeVar
+from typing import TypeVar, Generic, Type, Optional, List
 from uuid import UUID
+
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from src.api.core.db.db_setup import Base, db_session
-
-T = TypeVar("T", bound="Repository")
+T = TypeVar("T", bound=DeclarativeMeta)
 
 
-class Repository(Base):
+class Repository(Generic[T]):
     """
-    Repository class to provide re-usable interactions with DB, all models should inherit from here (see models.py).
-        i.e. Model(Repository)
-                -> Model.create(...)
+    Base Repository class for generic CRUD database operations.
     """
 
-    __abstract__ = True
+    def __init__(self, db: Session, model: Type[T]):
+        self.db = db
+        self.model = model
 
-    @classmethod
-    def get_session(cls) -> Session:
-        """Get the current session"""
-        return db_session
-
-    @classmethod
-    def all(cls) -> list:
+    def all(self) -> List[T]:
         """
         get all items from DB using inherited class.
         :return: all items in a specific database table.
         """
-        session = cls.get_session()
-        return session.query(cls).all()
+        return self.db.query(self.model).all()
 
-    @classmethod
-    def get(cls, id: Optional[UUID | int]) -> Optional[T]:
-        """
-        Get a single record from DB by its ID.
-        :param id: id of the item to get
-        :return: a single record from the database matching the associated id.
-        """
-        session = cls.get_session()
-        return session.query(cls).get(id)
-
-    @classmethod
-    def create(cls, **kwargs) -> Optional[T]:
+    def create(self, **kwargs) -> T:
         """
         Create an object in the specified DB table
         :param kwargs: kwargs: parameters to update, i.e. Model.update(id, value_1="some-id")
         :return: the created object
         """
-        session = cls.get_session()
-        obj = cls(**kwargs)
-        session.add(obj)
-        session.commit()
-        return obj
+        db_obj = self.model(**kwargs)
+        self.db.add(db_obj)
+        self.db.commit()
+        self.db.refresh(db_obj)
+        return db_obj
 
-    @classmethod
-    def delete(cls, id: UUID) -> Optional[T]:
+    def get_by_id(self, id: Optional[UUID | int]) -> Optional[T]:
+        """
+        Get a single record from DB by its ID.
+        :param id: id of the item to get
+        :return: a single record from the database matching the associated id.
+        """
+        return self.db.query(self.model).get(id)
+
+    def delete(self, id: Optional[UUID | int]) -> None:
         """
         delete an object by an ID
         :param id: the id of the record to be deleted
         :return: the deleted object
         """
-        session = cls.get_session()
-        obj = cls.get(id)
+        obj = self.get_by_id(id)
         if obj:
-            session.delete(obj)
-            session.commit()
-        return obj
+            self.db.delete(obj)
+            self.db.commit()
 
-    @classmethod
-    def update(cls, id: Optional[UUID | int], **kwargs) -> Optional[T]:
+    def update(self, id: Optional[UUID | int], **kwargs) -> Optional[T]:
         """
         Update an existing record in the database.
         :param id: the id of the record to update.
         :param kwargs: parameters to update, i.e. Model.update(id, value_1="some-id")
         :return: the updated object, or None if the object doesn't exist
         """
-        session = cls.get_session()
-        obj = cls.get(id)
+        obj = self.get_by_id(id)
         if obj:
             for key, value in kwargs.items():
                 setattr(obj, key, value)
-            session.commit()
+            self.db.commit()
             return obj
         return None
 
-    def to_dict(self):
+    @staticmethod
+    def to_dict(obj: T):
         """
         Return a dictionary representation of the object.
         :return: dict with column names as keys and their values.
         """
-        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
-
+        return {column.name: getattr(obj, column.name) for column in obj.__table__.columns}

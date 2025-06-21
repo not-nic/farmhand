@@ -11,17 +11,18 @@ import pytest
 
 from src.api.constants import AuthTypes
 from src.api.core.db.models import User
+from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import TokenModel
 from src.api.core.security import Security
 from src.config import settings
 
 
 class TestSecurity:
-    def test_get_user_by_default_auth_type(self, create_database, unit_test_user: User):
+    def test_get_user_by_default_auth_type(self, db, unit_test_user: User):
         """
         Test that when passed a TokenModel containing a 'default' AuthType claim
         the user is retrieved by their id and returned.
-        :param create_database: Create database fixture
+        :param db: database fixture
         :param unit_test_user: Create unit test user fixture
         """
         expected_token = TokenModel(
@@ -31,15 +32,18 @@ class TestSecurity:
             iat=datetime.now(timezone.utc),
         )
 
-        expected_user = Security.get_user_by_auth_type(token=expected_token)
+        user_repository = UserRepository(db)
+        expected_user = Security.get_user_by_auth_type(
+            token=expected_token, user_repository=user_repository
+        )
 
         assert expected_user == unit_test_user
 
-    def test_get_user_by_github_auth_type(self, create_database, github_user: User):
+    def test_get_user_by_github_auth_type(self, db, github_user: User):
         """
         Test that when passed a TokenModel containing a 'GitHub' AuthType claim
         the user is retrieved by their GitHub id and returned.
-        :param create_database: Create database fixture.
+        :param db: Create database fixture.
         :param github_user: GitHub Unit Testing user.
         """
         expected_token = TokenModel(
@@ -49,7 +53,10 @@ class TestSecurity:
             iat=datetime.now(timezone.utc),
         )
 
-        expected_user = Security.get_user_by_auth_type(token=expected_token)
+        user_repository = UserRepository(db)
+        expected_user = Security.get_user_by_auth_type(
+            token=expected_token, user_repository=user_repository
+        )
         assert expected_user == github_user
 
     def test_security_encode_and_decode_jwt(self):

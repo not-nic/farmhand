@@ -4,7 +4,7 @@ from .fields import (
     FieldUpdate,
     FieldResponse,
     PrecisionFarmingFieldModel,
-    BaseGameFieldModel
+    BaseGameFieldModel,
 )
 
 __all__ = [
@@ -13,5 +13,5 @@ __all__ = [
     "FieldsResponse",
     "FieldUpdate",
     "BaseGameFieldModel",
-    "PrecisionFarmingFieldModel"
+    "PrecisionFarmingFieldModel",
 ]

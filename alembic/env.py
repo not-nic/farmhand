@@ -9,7 +9,7 @@ from alembic import context
 
 load_dotenv()
 
-from src.api.core.db.db_setup import Base
+from src.api.core.db.models._model_base import SqlAlchemyBase
 from src.config import settings
 
 # As using repository pattern Base.metadata requires models to be imported
@@ -32,7 +32,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-target_metadata = Base.metadata
+target_metadata = SqlAlchemyBase.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

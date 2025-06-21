@@ -19,24 +19,29 @@ from typing import Optional
 from fastapi import APIRouter, status, HTTPException
 
 from src.api.core.schema.crops.crops import CropRequest, CropsResponse
-from src.api.core.dependencies import CurrentField
+from src.api.core.dependencies import CurrentField, SessionDep
 from src.api.services.crop_service import CropService
 
 router = APIRouter(prefix="/{field_number}/crops", tags=["Crops"])
-crop_service = CropService()
 
 
 @router.put(
     "",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
+async def plant_crop(
+    field: CurrentField,
+    db: SessionDep,
+    crop_request: CropRequest,
+) -> None:
     """
     Plant a crop in a field and update its ground type to match a new state e.g. growing, harvested.
     :param crop_request: the CropRequest model.
+    :param db: database session dependency.
     :param field: the current field to plant a crop in.
     """
     try:
+        crop_service = CropService(db)
         await crop_service.plant_crop(current_field=field, crop_request=crop_request)
     except ValueError as exc:
         raise HTTPException(detail=str(exc), status_code=status.HTTP_400_BAD_REQUEST)
@@ -48,16 +53,19 @@ async def plant_crop(field: CurrentField, crop_request: CropRequest) -> None:
 )
 async def get_crops(
     field: CurrentField,
+    db: SessionDep,
     current: Optional[bool] = False,
-    past: Optional[bool] = False
+    past: Optional[bool] = False,
 ) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
     :param field: the current field
+    :param db: database session dependency.
     :param current: the current crop planted in the field
     :param past: the past crops that have been planted in the field.
     :return: Pydantic model showing the id, crop_type and when it was planted.
     """
+    crop_service = CropService(db)
 
     if current:
         crops = await crop_service.get_current_crop(field)

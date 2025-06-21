@@ -54,10 +54,7 @@ class TestAuthRoutes:
 
     @pytest.mark.asyncio
     async def test_github_callback_existing_user(
-            self,
-            client,
-            mock_github_authentication,
-            github_user
+        self, client, mock_github_authentication, github_user
     ):
         """
         Test github callback and mock logging in a github user.

@@ -30,7 +30,9 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            logger.error(
+                f"Unable to connect to the ModHub - got status code: {response.status_code}"
+            )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
@@ -63,14 +65,15 @@ class ModHubService:
         :return: a list of mod_ids scraped from the page.
         """
         url = self.create_mods_url(
-            category_filter=category if category else "",
-            page=page if category else ""
+            category_filter=category if category else "", page=page if category else ""
         )
 
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            logger.error(
+                f"Unable to connect to the ModHub - got status code: {response.status_code}"
+            )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
         page_contents = BeautifulSoup(response.content, "html.parser")
@@ -102,21 +105,23 @@ class ModHubService:
         response = requests.get(url)
 
         if response.status_code != status.HTTP_200_OK:
-            logger.error(f"Unable to connect to the ModHub - got status code: {response.status_code}")
+            logger.error(
+                f"Unable to connect to the ModHub - got status code: {response.status_code}"
+            )
             raise HTTPError(f"Request failed with status code: {response.status_code}")
 
-        page_contents = BeautifulSoup(response.content, 'html.parser')
+        page_contents = BeautifulSoup(response.content, "html.parser")
         pagination = self._get_pagination_element(page_contents)
 
         page_numbers = []
 
-        for li in pagination.find_all('li'):
+        for li in pagination.find_all("li"):
             # If it's the current page, get the number from the span object.
-            if 'current' in li.get('class', ""):
+            if "current" in li.get("class", ""):
                 text = li.get_text(strip=True)
-                number = ''.join([char for char in text if char.isdigit()])
+                number = "".join([char for char in text if char.isdigit()])
             else:
-                a = li.find('a')
+                a = li.find("a")
                 number = a.text.strip() if a and a.text.strip().isdigit() else None
 
             # Ensure the number is a digit before casting it to int.
@@ -131,7 +136,9 @@ class ModHubService:
         first_page = min(page_numbers) - 1
         last_page = max(page_numbers) - 1
 
-        logger.info(f"found pages returning all pages between first page: '{first_page}' and last page: '{last_page}'")
+        logger.info(
+            f"found pages returning all pages between first page: '{first_page}' and last page: '{last_page}'"
+        )
         return list(range(first_page, last_page + 1))
 
     @staticmethod
@@ -207,9 +214,11 @@ class ModHubService:
         :return: the pagination page element if it exists.
         """
         # Find the pagination content
-        pagination = page_contents.find('ul', class_='pagination')
+        pagination = page_contents.find("ul", class_="pagination")
         if not pagination:
-            logger.info("No pagination object found within the DOM - returning empty page number list.")
+            logger.info(
+                "No pagination object found within the DOM - returning empty page number list."
+            )
             return []
 
         return pagination

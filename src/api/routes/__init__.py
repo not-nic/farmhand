@@ -14,7 +14,7 @@ from src.api.routes import (
     field_routes,
     crop_routes,
     metrics_routes,
-    tasks_routes
+    tasks_routes,
 )
 
 api_router = APIRouter()
@@ -22,13 +22,11 @@ api_router.include_router(auth_routes.router)
 api_router.include_router(user_routes.router)
 
 field_routes.router.include_router(
-    router=metrics_routes.router,
-    dependencies=[Depends(get_current_user), Depends(get_farm)]
+    router=metrics_routes.router, dependencies=[Depends(get_current_user), Depends(get_farm)]
 )
 
 field_routes.router.include_router(
-    router=crop_routes.router,
-    dependencies=[Depends(get_current_user), Depends(get_farm)]
+    router=crop_routes.router, dependencies=[Depends(get_current_user), Depends(get_farm)]
 )
 
 api_router.include_router(field_routes.router)

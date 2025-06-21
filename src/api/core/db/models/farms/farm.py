@@ -6,13 +6,13 @@ from sqlalchemy import UUID, String, Text, DateTime, ForeignKey, Integer, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FarmTypes, Difficulty
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import User, Map, Field, Task
 
 
-class Farm(Repository):
+class Farm(SqlAlchemyBase):
     """
     Database Model for a User's Farm.
 

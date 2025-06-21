@@ -7,6 +7,8 @@ import os.path
 
 from typing import Optional
 
+from sqlalchemy.orm import Session
+from src.api.core.repositories import FieldRepository, CropRepository, FieldCropRepository
 from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
 from src.api.core.db.models.fields import FieldCrop, Field
 from src.api.core.db.models.crops import Crop
@@ -22,6 +24,11 @@ class CropService:
     It also handles the initialization of crops during the application's startup.
     """
 
+    def __init__(self, db: Session):
+        self.field_repository = FieldRepository(db)
+        self.crop_repository = CropRepository(db)
+        self.field_crop_repository = FieldCropRepository(db)
+
     async def plant_crop(self, current_field: Field, crop_request: CropRequest) -> FieldCrop:
         """
         Plant (create) a crop and assign it to a field.
@@ -32,10 +39,10 @@ class CropService:
         crop = await self.get_crop_by_type(crop_request.crop_type)
 
         if not crop_request.ground_type:
-            Field.update(id=current_field.id, ground_type=crop_request.ground_type)
+            self.field_repository.update(id=current_field.id, ground_type=crop_request.ground_type)
 
         logger.info(f"[Crop Service]: Planting '{crop.type}' in field: '{current_field.id}'")
-        return FieldCrop.create(crop_id=crop.id, field_id=current_field.id)
+        return self.field_crop_repository.create(crop_id=crop.id, field_id=current_field.id)
 
     async def get_past_crops(self, current_field: Field) -> list[CropResponse]:
         """
@@ -73,40 +80,38 @@ class CropService:
             crop_data = CropModel(**crop)
             crop_dict = crop_data.model_dump()
 
-            existing_crop = Crop.get_by_type(type=crop_data.type)
+            existing_crop = self.crop_repository.get_by_type(type=crop_data.type)
 
             if existing_crop:
-                existing_crop.update(existing_crop.id, **crop_dict)
+                self.crop_repository.update(existing_crop.id, **crop_dict)
             else:
                 logger.info(f"[Crop Service]: Creating new crop '{crop_data.type}'")
-                Crop.create(**crop_dict)
+                self.crop_repository.create(**crop_dict)
 
         logger.info(
             "[Crop Service]: All Crops created, updated values successfully if any changed."
         )
 
-    @staticmethod
-    async def get_crop_by_type(crop_type: str) -> Optional[Crop]:
+    async def get_crop_by_type(self, crop_type: str) -> Optional[Crop]:
         """
         Get a crop by its crop_type e.g. wheat, barley etc.
         :param crop_type: the crop type to get
         :return: the crop if it exists.
         """
-        crop = Crop.get_by_type(crop_type)
+        crop = self.crop_repository.get_by_type(type=crop_type)
 
         if not crop:
             logger.info(f"[Crop Service]: Invalid crop: '{crop_type}' not found")
             raise ValueError(f"Invalid crop: '{crop_type}' not found")
         return crop
 
-    @staticmethod
-    async def get_crop_details(crop_id: int) -> Optional[Crop]:
+    async def get_crop_details(self, crop_id: int) -> Optional[Crop]:
         """
         Get all the details for a 'Crop' i.e.
         :param crop_id: the id of the crop to get
         :return:
         """
-        crop = Crop.get(crop_id)
+        crop = self.crop_repository.get_by_id(crop_id)
 
         if not crop:
             logger.info(f"[Crop Service]: Invalid crop: '{crop_id}' not found")
@@ -121,7 +126,9 @@ class CropService:
         :return: CropsResponse pydantic model containing the field crops and the count.
         """
         return [
-            CropResponse(id=field_crop.id, crop_type=field_crop.crop.type, planted_at=field_crop.planted_at)
+            CropResponse(
+                id=field_crop.id, crop_type=field_crop.crop.type, planted_at=field_crop.planted_at
+            )
             for field_crop in field_crops
         ]
 

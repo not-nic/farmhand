@@ -1,6 +1,7 @@
 """
 Farmhand util functions.
 """
+
 from typing import Union
 
 from fastapi.exceptions import RequestValidationError
@@ -13,10 +14,12 @@ def parse_version(v: str) -> list:
     :param v: (str) mod version
     :return: a list of the integer parts.
     """
-    return [int(part) for part in v.split('.')]
+    return [int(part) for part in v.split(".")]
 
 
-def format_pydantic_errors(validation_error: Union[ValidationError | RequestValidationError]) -> dict:
+def format_pydantic_errors(
+    validation_error: Union[ValidationError | RequestValidationError],
+) -> dict:
     """
     Util function to nicely format pydantic validation errors.
     :param validation_error: Pydantic ValidationError

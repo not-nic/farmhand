@@ -3,13 +3,13 @@ from sqlalchemy import UUID, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import FertilizerStates
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Field
 
 
-class BaseGameField(Repository):
+class BaseGameField(SqlAlchemyBase):
     """
     Database Model for a BaseGameField.
 
@@ -28,7 +28,7 @@ class BaseGameField(Repository):
     fertilized: Mapped[FertilizerStates] = mapped_column(
         Enum(FertilizerStates, native_enum=False),
         nullable=False,
-        default=FertilizerStates.ZER0_PERCENT
+        default=FertilizerStates.ZER0_PERCENT,
     )
     limed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     field: Mapped["Field"] = relationship("Field", back_populates="base_game_field")
