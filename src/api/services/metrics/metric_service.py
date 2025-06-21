@@ -4,6 +4,8 @@ Metric Service Module for calculating and managing costs that are associated wit
 
 from typing import Optional
 
+from sqlalchemy.orm import Session
+
 from src.api.constants import (
     FSData,
     FieldTypes,
@@ -13,7 +15,7 @@ from src.api.constants import (
     FertilizerEffect,
     FertilizerStates
 )
-from src.api.core.db.models import Field, Crop
+from src.api.core.db.models import Field, Crop, FieldCrop
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
 from src.api.services.metrics.utils import (
@@ -31,6 +33,9 @@ class MetricService:
     This service is responsible for calculating yield, costs and other number-based stats relating
     to a farm and its fields, but could be expanded to handle other numeric values / calculations.
     """
+    def __init__(self, db: Session):
+        self.db = db
+        self.crop_service = CropService(self.db)
 
     async def calculate_yield(self, current_field: Field, future_crop: Optional[str] = None) -> float:
         """
@@ -283,14 +288,16 @@ class MetricService:
 
         return 0
 
-    @staticmethod
-    async def _get_crop(current_field: Field, future_crop: Optional[str]) -> Crop:
+    async def _get_crop(self, current_field: Field, future_crop: Optional[str]) -> Crop:
         """
         Util to get either the current crop or a future crop sent with the request.
         :param current_field: the field to get the current crop from
         :param future_crop: get a 'future' crop by its type i.e. wheat.
         :return: (Crop) a crop from the database.
         """
+
         if future_crop:
-            return await CropService.get_crop_by_type(future_crop)
-        return await CropService.get_crop_details(current_field.current_crop().crop_id)
+            return await self.crop_service.get_crop_by_type(future_crop)
+
+        current_crop: FieldCrop = current_field.current_crop()
+        return await self.crop_service.get_crop_details(current_crop.crop_id)

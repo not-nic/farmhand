@@ -2,9 +2,10 @@
 Map Service Module currently used for manually scraping map data
 when new maps are released.
 """
+from sqlalchemy.orm import Session
 
 from src.api.constants import MapFilters
-from src.api.core.db.models.maps import Map
+from src.api.core.repositories import MapRepository
 from src.api.services.modhub_service import ModHubService
 from src.api.core.logger import logger
 from src.api.utils import parse_version
@@ -16,8 +17,9 @@ class MapService:
     and creating map entries in the database.
     """
 
-    def __init__(self):
+    def __init__(self, db: Session):
         self.mod_hub_service = ModHubService()
+        self.map_repository = MapRepository(db)
 
     async def get_maps(self):
         """
@@ -39,11 +41,11 @@ class MapService:
         for mod_id in map_ids:
             mod_detail = self.mod_hub_service.scrape_mod(mod_id)
 
-            mod_map = Map.get(mod_id)
+            mod_map = self.map_repository.get_by_id(mod_id)
 
             if not mod_map:
                 logger.info(f"Creating Map {mod_detail.name} ({mod_detail.id})")
-                Map.create(
+                self.map_repository.create(
                     id=mod_detail.id,
                     name=mod_detail.name,
                     category=mod_detail.category,
@@ -55,7 +57,7 @@ class MapService:
                 if self.is_newer_version(current_version=mod_map.version, new_version=mod_detail.version):
                     logger.info(f"Updating Map {mod_detail.name} ({mod_detail.id}) "
                                 f"from version {mod_map.version} to {mod_detail.version}")
-                    mod_map.update(mod_map.id, version=mod_detail.version)
+                    self.map_repository.update(mod_map.id, version=mod_detail.version)
                 else:
                     logger.info(f"Map: {mod_detail.name} ({mod_detail.id}) is already up-to-date "
                                 f"(version {mod_map.version}).")
