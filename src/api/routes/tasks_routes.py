@@ -34,6 +34,7 @@ async def get_tasks(
 ) -> TasksResponse:
     """
     Return a list of all tasks associated with a farm.
+    :param db: database session dependency
     :param current_farm: The current farm to get tasks for
     :param filter_by: filter by 'incomplete' and 'complete' tasks.
     :return: (TasksResponse) pydantic model.
@@ -50,6 +51,7 @@ async def get_tasks(
 async def create_task(db: SessionDep, current_farm: CurrentFarm, task: TaskRequest) -> TaskResponse:
     """
     Create a task in the database.
+    :param db: database session dependency
     :param current_farm: the current farm to create a task on.
     :param task: the TaskRequest object containing the status and content.
     :return: a new completed task.
@@ -81,6 +83,7 @@ async def get_task_by_id(task: TaskDep) -> TaskResponse:
 async def complete_task(db: SessionDep, task: TaskDep) -> None:
     """
     Change the completed status of a task.
+    :param db: database session dependency
     :param task: (Task) The task Dependency.
     :return: 204 No content message.
     """
@@ -92,6 +95,7 @@ async def complete_task(db: SessionDep, task: TaskDep) -> None:
 async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -> None:
     """
     Delete a task by its ID, if a task exists.
+    :param db: database session dependency
     :param task: (Task) The task Dependency.
     :param task_update: Task update request model.
     :return: 204 No content message.
@@ -111,6 +115,7 @@ async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -
 async def delete_task(db: SessionDep, task: TaskDep) -> None:
     """
     Delete a task by its ID, if a task exists.
+    :param db: database session dependency
     :param task: (Task) The task Dependency.
     :return: 204 No content message.
     """

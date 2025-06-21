@@ -38,6 +38,7 @@ async def create_field(
     """
     Create a field based on the current farm type.
     Precision Farm's cannot create a 'Base' field and vice versa.
+    :param db: database session dependency
     :param current_farm: the id of the farm in the request
     :param field_request: the field request object.
     """
@@ -59,6 +60,7 @@ async def get_fields(
 ) -> dict:
     """
     Get all fields associated with a farm.
+    :param db: database session dependency
     :param current_farm: the farm for the logged-in user
     :param show_crop: Show crops planted in the fields
     :param crop_type: The type of crop to filter fields by
@@ -84,9 +86,11 @@ async def get_field_by_field_number(
     """
     Get a field by its number.
     :param field: the field to get all details for
+    :param db: database session dependency
     :param show_crop: Show crops in the response from the service.
     :return: Pydantic PrecisionFarmingField or BaseFieldModel
     """
+
     field_service = FieldService(db)
     return field_service.get_field_details(field, show_crop).model_dump(
         exclude_none=True
@@ -101,6 +105,7 @@ async def get_field_by_field_number(
 async def update_field(db: SessionDep, field: CurrentField, field_update: FieldUpdate):
     """
     Update a field by its id.
+    :param db: database session dependency
     :param field_update: the update field request model
     :param field: the field to update
     """
@@ -116,6 +121,7 @@ async def update_field(db: SessionDep, field: CurrentField, field_update: FieldU
 async def delete_field(db: SessionDep, field: CurrentField):
     """
     Delete a field and its associated field type by its id.
+    :param db: database session dependency
     :param field: the field to delete
     """
     field_service = FieldService(db)

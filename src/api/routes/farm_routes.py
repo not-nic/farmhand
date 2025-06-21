@@ -80,7 +80,6 @@ async def get_farms(
 ) -> FarmsResponse:
     """
     Get all farms associated to the current logged-in user.
-    :param db: database session dependency.
     :param current_user: the current logged-in user.
     :return: (FarmsResponse) - Response of farm information and count
     """
@@ -96,12 +95,10 @@ async def get_farms(
     status_code=status.HTTP_200_OK,
 )
 async def get_farm_by_id(
-        db: SessionDep,
         farm: Farm = Depends(get_farm)
 ) -> FarmResponse:
     """
     Get all farms associated to the current logged-in user.
-    :param db: database session dependency.
     :param farm: farm from dependency
     :return: (FarmsResponse) - Response of farm information and count
     """

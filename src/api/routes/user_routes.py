@@ -12,23 +12,23 @@ Dependencies:
     - get_current_user: Fetches the current authenticated user.
 """
 
-from fastapi import APIRouter, Depends, status, HTTPException
-from src.api.core.dependencies import get_current_user, SessionDep
+from fastapi import APIRouter, status, HTTPException
+from src.api.core.dependencies import SessionDep, CurrentUser
 from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import UserCreate
-from src.api.core.db.models.users import User
 from src.api.core.security import Security
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me")
-async def get_user_info(current_user: User = Depends(get_current_user)) -> dict:
+async def get_user_info(current_user: CurrentUser) -> dict:
     """
     (Temp) Get the information of a current logged-in user.
-    :param current_user:
-    :return:
+    :param current_user: current user dependency
+    :return: (dict) of the current user details
     """
+    # TODO: Make this response return a pydantic object
     return {
         "email": current_user.email_address,
         "username": current_user.username,

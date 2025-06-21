@@ -16,7 +16,7 @@ from typing import Optional
 from fastapi import APIRouter
 
 from src.api.constants import FertilizerTypes
-from src.api.core.dependencies import CurrentField
+from src.api.core.dependencies import CurrentField, SessionDep
 from src.api.core.schema.fields.metrics import (
     MetricsResponseModel,
     SeedUsageModel,
@@ -30,15 +30,16 @@ router = APIRouter(prefix="/{field_number}/metrics", tags=["Field Metrics"])
 
 
 @router.get("")
-async def get_metrics(field: CurrentField, next_crop: Optional[str] = None) -> MetricsResponseModel:
+async def get_metrics(field: CurrentField, db: SessionDep, next_crop: Optional[str] = None) -> MetricsResponseModel:
     """
     Retrieves various metrics associated with a field from the metrics response,
     including yield, profit, fertilizer usage, seed usage, and their respective costs.
     :param field: The requested field,
+    :param db: database session dependency
     :param next_crop: See the metrics for a different / future crop in the field.
     :return: (MetricsResponse) A Pydantic model containing the field's metric data.
     """
-    metric_service = MetricService()
+    metric_service = MetricService(db)
 
     fertilizer_usage = await metric_service.calculate_fertilizer_usage(field)
     fertilizer_costs = metric_service.calculate_fertilizer_cost(fertilizer_usage, FertilizerTypes.SOLID)
