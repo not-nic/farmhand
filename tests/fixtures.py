@@ -13,7 +13,6 @@ from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, Fert
 from src.api.core.db.models import Field
 from src.api.core.db.models.maps import Map
 from src.api.core.db.models.farms import Farm
-from src.api.core.db.models.users import User
 from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
@@ -21,20 +20,21 @@ from tests.conftest import UNIT_TESTING_USER
 
 
 @pytest.fixture
-def farms(user_id) -> list[Farm]:
+def farms(user_id, farm_repository) -> list[Farm]:
     """
     Fixture containing farms for the unit test user.
+    :param farm_repository:
     :param user_id: the unit test user id
     :return: a list of farms.
     """
     farms = [
-        Farm.create(
+        farm_repository.create(
             name="farm 1",
             description="description 1",
             map_name="map 1",
             owner_id=user_id
         ),
-        Farm.create(
+        farm_repository.create(
             name="farm 2",
             description="description 2",
             farm_type=FarmTypes.PRECISION_FARMING,
@@ -56,11 +56,11 @@ def farm(farms) -> Farm:
 
 
 @pytest.fixture
-def farm_map():
+def farm_map(map_repository):
     """
     Fixture of a ModHub map
     """
-    expected_map: Map = Map.create(
+    expected_map: Map = map_repository.create(
         id=123456,
         name="custom-map-1",
         category="European Map",
@@ -72,21 +72,21 @@ def farm_map():
 
 
 @pytest.fixture
-def user_id() -> UUID:
+def user_id(user_repository) -> UUID:
     """
     Fixture for the user_id of the unit testing account.
     :return: (UUID) unit test user id
     """
-    return User.get_by_username(UNIT_TESTING_USER).id
+    return user_repository.get_by_username(UNIT_TESTING_USER).id
 
 
 @pytest.fixture
-def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
+def base_game_fields(farms: list[Farm], db) -> list[FieldResponse]:
     """
     Fixture containing a list of base game fields.
     :return: list(FieldResponse) of base game fields.
     """
-    field_service = FieldService()
+    field_service = FieldService(db)
     return [
         field_service.create_field_by_field_type(
             field_request=FieldRequest(
@@ -140,12 +140,12 @@ def base_game_fields(farms: list[Farm]) -> list[FieldResponse]:
 
 
 @pytest.fixture
-def precision_farming_fields(farms) -> list[FieldResponse]:
+def precision_farming_fields(farms, db) -> list[FieldResponse]:
     """
     Fixture containing a list of precision farming fields.
     :param farms: the farms to link fields to
     """
-    field_service = FieldService()
+    field_service = FieldService(db)
 
     precision_fields = [
         field_service.create_field_by_field_type(
@@ -205,29 +205,29 @@ def precision_farming_fields(farms) -> list[FieldResponse]:
 
 
 @pytest.fixture
-def base_game_field(base_game_fields) -> Field:
+def base_game_field(base_game_fields, field_repository) -> Field:
     """
     Fixture for a single base game field.
     :param base_game_fields: base fields fixture.
     """
-    return Field.get(base_game_fields[0].id)
+    return field_repository.get_by_id(base_game_fields[0].id)
 
 
 @pytest.fixture
-def precision_farming_field(precision_farming_fields) -> Field:
+def precision_farming_field(precision_farming_fields, field_repository) -> Field:
     """
     Fixture for a single precision farming field.
     :param precision_farming_fields: precision farming fields fixture.
     """
-    return Field.get(precision_farming_fields[0].id)
+    return field_repository.get_by_id(precision_farming_fields[0].id)
 
 
 @pytest.fixture
-def tasks(farm):
+def tasks(farm, db):
     """
     Pytest tasks fixture
     """
-    task_service = TaskService()
+    task_service = TaskService(db)
     task_service.create_task("new task data 1", completed=False, farm_id=farm.id)
     task_service.create_task("new task data 2", completed=True, farm_id=farm.id)
     task_service.create_task("new task data 3", completed=False, farm_id=farm.id)
