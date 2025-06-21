@@ -58,19 +58,19 @@ class TestMapService:
 
         mocker.patch.object(ModHubService, "scrape_mod", return_value=mod_detail)
 
-    async def test_get_map_that_does_not_exist(self, mock_mod_hub_service, mod_detail):
+    async def test_get_map_that_does_not_exist(self, db, map_repository, mock_mod_hub_service, mod_detail):
         """
         Test that the map_service creates a map from the mock mod hub service fixture.
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
 
-        map_service = MapService()
+        map_service = MapService(db)
         await map_service.get_maps()
 
-        assert len(Map.all()) == 1
+        assert len(map_repository.all()) == 1
 
-        expected_map: Map = Map.get(mod_detail.id)
+        expected_map: Map = map_repository.get_by_id(mod_detail.id)
 
         assert expected_map.id == mod_detail.id
         assert expected_map.name == mod_detail.name
@@ -79,7 +79,7 @@ class TestMapService:
         assert expected_map.release_date == str(mod_detail.release_date)
         assert expected_map.version == mod_detail.version
 
-    async def test_get_map_updates_based_on_mod_version(self, mock_mod_hub_service, mod_detail):
+    async def test_get_map_updates_based_on_mod_version(self, db, mock_mod_hub_service, mod_detail, map_repository):
         """
         Test that the map service updates a map based on its version when scraping maps
         from modhub.
@@ -87,7 +87,7 @@ class TestMapService:
         :param mod_detail: mod detail fixture
         """
 
-        Map.create(
+        map_repository.create(
             id=654321,
             name="Calmsden Farms",
             category="European Maps",
@@ -100,16 +100,22 @@ class TestMapService:
         mod_detail.name = "Oak Bridge Farm"
         mod_detail.version = "1.1.0.0"
 
-        map_service = MapService()
+        map_service = MapService(db)
         await map_service.get_maps()
 
-        expected_map: Map = Map.get(mod_detail.id)
+        expected_map: Map = map_repository.get_by_id(mod_detail.id)
 
         # assert the mod_detail version and mod detail name are not equal.
         assert mod_detail.version != expected_map.version
         assert mod_detail.name != expected_map.name
 
-    async def test_get_map_does_not_update_for_same_mod_version(self, mock_mod_hub_service, mod_detail):
+    async def test_get_map_does_not_update_for_same_mod_version(
+            self,
+            db,
+            mock_mod_hub_service,
+            mod_detail,
+            map_repository
+    ):
         """
         Test that when getting maps from modhub, no update is applied if the
         version number is the same.
@@ -119,7 +125,7 @@ class TestMapService:
 
         map_id = random.randint(100000, 999999)
 
-        Map.create(
+        map_repository.create(
             id=map_id,
             name="Custom Map 1",
             category="European Maps",
@@ -130,10 +136,10 @@ class TestMapService:
 
         mod_detail.id = map_id
 
-        map_service = MapService()
+        map_service = MapService(db)
         await map_service.get_maps()
 
-        expected_map: Map = Map.get(mod_detail.id)
+        expected_map: Map = map_repository.get_by_id(mod_detail.id)
 
         assert mod_detail.version == expected_map.version
         assert mod_detail.name == expected_map.name

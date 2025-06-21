@@ -18,28 +18,29 @@ from src.api.services.metrics.utils import (
 class TestMetricService:
 
     @pytest.fixture
-    def valid_crop(self, base_game_field, precision_farming_field) -> None:
+    def valid_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
         """Fixture of a normal valid crop."""
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=1)
-        FieldCrop.create(field_id=precision_farming_field.id, crop_id=1)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
+        field_crop_repository.create(field_id=precision_farming_field.id, crop_id=1)
 
     @pytest.fixture
-    def edge_case_crop(self, base_game_field, precision_farming_field) -> None:
+    def edge_case_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
         """Fixture of an edge case crop (one with 0 nitrogen)."""
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=4)
-        FieldCrop.create(field_id=precision_farming_field.id, crop_id=4)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=4)
+        field_crop_repository.create(field_id=precision_farming_field.id, crop_id=4)
 
     @pytest.fixture
-    def invalid_crop(self, base_game_field, precision_farming_field) -> None:
+    def invalid_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
         """Fixture of a crop that doesn't exist."""
 
-        FieldCrop.create(field_id=base_game_field.id, crop_id=50)
-        FieldCrop.create(field_id=precision_farming_field.id, crop_id=50)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=50)
+        field_crop_repository.create(field_id=precision_farming_field.id, crop_id=50)
 
     async def test_calculate_yield_on_base_field_type(
             self,
+            db,
             base_game_field,
             valid_crop
     ):
@@ -50,7 +51,7 @@ class TestMetricService:
         :param base_game_field: base game field fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         actual_yield = await metrics_service.calculate_yield(base_game_field)
 
         # magic number for tests instead of calculating yield again
@@ -61,6 +62,7 @@ class TestMetricService:
 
     async def test_calculate_yield_on_precision_farming_field_type(
             self,
+            db,
             precision_farming_field,
             valid_crop
     ):
@@ -71,7 +73,7 @@ class TestMetricService:
         :param precision_farming_field: field fixture
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         actual_yield = await metrics_service.calculate_yield(precision_farming_field)
 
         # magic number for tests instead of calculating yield again
@@ -82,6 +84,7 @@ class TestMetricService:
 
     async def test_calculate_yield_on_precision_farming_field_with_edge_case_crop(
             self,
+            db,
             precision_farming_field,
             edge_case_crop
     ):
@@ -93,13 +96,14 @@ class TestMetricService:
         :param edge_case_crop: edge case crop fixture
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         actual_yield = await metrics_service.calculate_yield(precision_farming_field)
 
         assert actual_yield == 0
 
     async def test_calculate_yield_on_precision_farming_field_with_excess_nitrogen(
             self,
+            db,
             precision_farming_field,
             valid_crop
     ):
@@ -111,7 +115,7 @@ class TestMetricService:
         :param valid_crop: valid crop fixture
         """
         precision_farming_field.precision_farming_field.nitrogen_level = 250
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         actual_yield = await metrics_service.calculate_yield(precision_farming_field)
 
         # magic number for tests instead of calculating yield again
@@ -126,6 +130,7 @@ class TestMetricService:
     ])
     async def test_calculate_yield_on_precision_farming_field_with_different_ph_levels(
             self,
+            db,
             precision_farming_field,
             valid_crop,
             ph_level: float,
@@ -141,7 +146,7 @@ class TestMetricService:
         """
 
         precision_farming_field.precision_farming_field.ph_level = ph_level
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         actual_yield = await metrics_service.calculate_yield(precision_farming_field)
 
         yield_improvement_value = 16465.0
@@ -156,6 +161,7 @@ class TestMetricService:
     ])
     async def test_estimate_profit_with_difficulties(
             self,
+            db,
             farm,
             base_game_field,
             valid_crop,
@@ -173,14 +179,16 @@ class TestMetricService:
 
         farm.difficulty = difficulty
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         field_yield = await metrics_service.calculate_yield(base_game_field)
         actual_profit = await metrics_service.estimate_profit(base_game_field, field_yield)
-        expected_profit = (field_yield * base_game_field.current_crop().crop.price) * expected_multiplier
+        current_crop: FieldCrop = base_game_field.current_crop()
+
+        expected_profit = (field_yield * current_crop.crop.price) * expected_multiplier
 
         assert actual_profit == expected_profit
 
-    async def test_calculate_seed_usage(self, base_game_field, valid_crop):
+    async def test_calculate_seed_usage(self, db, base_game_field, valid_crop, crop_repository):
         """
         Test that when the seed usage is calculated for a field
         and its crop the correct value is returned.
@@ -188,14 +196,14 @@ class TestMetricService:
         :param valid_crop: valid crop fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
 
         result = await metrics_service.calculate_seed_usage(base_game_field)
-        expected_seed_usage = Crop.get(1).seeds_per_ha * base_game_field.size
+        expected_seed_usage = crop_repository.get_by_id(1).seeds_per_ha * base_game_field.size
 
         assert result == expected_seed_usage
 
-    async def test_calculate_seed_usage_for_future_crop(self, base_game_field, valid_crop):
+    async def test_calculate_seed_usage_for_future_crop(self, db, base_game_field, valid_crop, crop_repository):
         """
         Test that when the seed usage is calculated for a field
         and a future crop the correct result is returned.
@@ -203,23 +211,23 @@ class TestMetricService:
         :param valid_crop: valid crop fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
 
-        future_crop = Crop.get_by_type("Maize")
+        future_crop = crop_repository.get_by_type("Maize")
         result = await metrics_service.calculate_seed_usage(base_game_field, future_crop=future_crop.type)
         expected_seed_usage = future_crop.seeds_per_ha * base_game_field.size
 
         assert result == expected_seed_usage
         assert base_game_field.current_crop().crop_id != future_crop.id
 
-    async def test_calculate_seed_usage_with_invalid_crop(self, base_game_field, invalid_crop):
+    async def test_calculate_seed_usage_with_invalid_crop(self, db, base_game_field, invalid_crop):
         """
         test that when calculating the seed usage with an invalid crop
         a ValueError is raised.
         :param base_game_field: base game field fixture.
         :param invalid_crop: invalid crop fixture.
         """
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
 
         with pytest.raises(
                 ValueError,
@@ -227,14 +235,14 @@ class TestMetricService:
         ):
             await metrics_service.calculate_seed_usage(base_game_field)
 
-    async def test_estimate_seed_costs(self, base_game_field, valid_crop):
+    async def test_estimate_seed_costs(self, db, base_game_field, valid_crop):
         """
         test that the seed costs are correctly calculated.
         :param base_game_field: base game field fixture.
         :param valid_crop: valid crop fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         usage = await metrics_service.calculate_seed_usage(base_game_field)
 
         result = metrics_service.estimate_seed_costs(usage)
@@ -242,7 +250,7 @@ class TestMetricService:
 
         assert result == expected_result
 
-    async def test_calculate_base_game_fertilizer_usage(self, base_game_field):
+    async def test_calculate_base_game_fertilizer_usage(self, db, base_game_field):
         """
         Test calculating the fertilizer usage on a base game field,
         by calculating the size of the fixture's field against the
@@ -250,7 +258,7 @@ class TestMetricService:
         :param base_game_field: base game field fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         result = await metrics_service.calculate_fertilizer_usage(base_game_field)
         expected_result = calculate_fertilizer_usage_by_time(
             field_size=base_game_field.size,
@@ -261,6 +269,7 @@ class TestMetricService:
 
     async def test_calculate_precision_farming_field_fertilizer_usage(
             self,
+            db,
             precision_farming_field
     ):
         """
@@ -271,7 +280,7 @@ class TestMetricService:
 
         precision_farming_field.precision_farming_field.nitrogen_level = 10
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         result = await metrics_service.calculate_fertilizer_usage(precision_farming_field)
 
         expected_result = calculate_fertilizer_kg(
@@ -281,14 +290,14 @@ class TestMetricService:
 
         assert result == expected_result
 
-    async def test_calculate_fertilizer_cost(self, base_game_field):
+    async def test_calculate_fertilizer_cost(self, db, base_game_field):
         """
         Test that when calculating the cost to fertilize a field
         it matches the calculation of 'fertilzer' * BASE_FERTILIZER PRICE (1.92)
         :param base_game_field: base game field fixture.
         """
 
-        metrics_service = MetricService()
+        metrics_service = MetricService(db)
         fertilizer = await metrics_service.calculate_fertilizer_usage(base_game_field)
 
         result = metrics_service.calculate_fertilizer_cost(
