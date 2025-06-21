@@ -4,14 +4,13 @@ from typing import TYPE_CHECKING
 from datetime import datetime
 from sqlalchemy import UUID, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
-from src.api.core.repositories import UserRepository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Farm
 
 
-class User(UserRepository):
+class User(SqlAlchemyBase):
     """
     Database Model for the User.
 

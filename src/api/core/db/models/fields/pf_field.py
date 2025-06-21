@@ -4,13 +4,13 @@ from sqlalchemy import UUID, ForeignKey, Integer, Double, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from src.api.constants import SoilTypes
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Field
 
 
-class PrecisionFarmingField(Repository):
+class PrecisionFarmingField(SqlAlchemyBase):
     """
     Database Model for a PrecisionFarmingField.
 

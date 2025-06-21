@@ -3,14 +3,13 @@ from uuid import uuid4
 from datetime import datetime
 from sqlalchemy import UUID, ForeignKey, Integer, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
-from src.api.core.repositories import Repository
+from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
     from src.api.core.db.models import Field, Crop
 
 
-class FieldCrop(Repository):
+class FieldCrop(SqlAlchemyBase):
     """
     Database Model for a FieldCrop, which tracks all crops planted in
     an associated field.
