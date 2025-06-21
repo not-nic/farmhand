@@ -42,7 +42,7 @@ async def create_farm(
     """
     Create a farm linked for the logged-in user.
     :param current_user: current logged-in user
-    :param db: TODO
+    :param db: database session dependency.
     :param farm_request: farm request model
     :return: (FarmResponse) Return a response of the farm
     """
@@ -80,7 +80,7 @@ async def get_farms(
 ) -> FarmsResponse:
     """
     Get all farms associated to the current logged-in user.
-    :param db: TODO
+    :param db: database session dependency.
     :param current_user: the current logged-in user.
     :return: (FarmsResponse) - Response of farm information and count
     """
@@ -101,7 +101,7 @@ async def get_farm_by_id(
 ) -> FarmResponse:
     """
     Get all farms associated to the current logged-in user.
-    :param db: TODO
+    :param db: database session dependency.
     :param farm: farm from dependency
     :return: (FarmsResponse) - Response of farm information and count
     """
@@ -118,6 +118,7 @@ async def update_farm(
 ) -> None:
     """
     Update a farm for the current logged-in user.
+    :param db: database session dependency.
     :param farm_update: Farm update model
     :param farm: The farm fetched by the dependency
     :return: No Content
@@ -133,6 +134,8 @@ async def update_farm(
 async def delete_farm(db: SessionDep, farm: Farm = Depends(get_farm)) -> None:
     """
     Delete a farm by its ID.
+    :param db: database session dependency.
+    :param farm: Farm dependency.
     :return: No Content
     """
     farm_repository = FarmRepository(db)

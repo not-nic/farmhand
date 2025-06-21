@@ -33,7 +33,7 @@ async def plant_crop(field: CurrentField, db: SessionDep, crop_request: CropRequ
     """
     Plant a crop in a field and update its ground type to match a new state e.g. growing, harvested.
     :param crop_request: the CropRequest model.
-    :param db: TODO
+    :param db: database session dependency.
     :param field: the current field to plant a crop in.
     """
     try:
@@ -56,7 +56,7 @@ async def get_crops(
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.
     :param field: the current field
-    :param db: TODO
+    :param db: database session dependency.
     :param current: the current crop planted in the field
     :param past: the past crops that have been planted in the field.
     :return: Pydantic model showing the id, crop_type and when it was planted.

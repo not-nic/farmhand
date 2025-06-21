@@ -111,7 +111,6 @@ async def authenticate_github(request: Request, db: SessionDep) -> Response:
 
     session_token = Security.encode_jwt(payload)
 
-    # TODO: Have this redirect to either the URL the user had last visited or the frontend.
     response = RedirectResponse(url=settings.FRONTEND_REDIRECT_URL)
     response.set_cookie(key="farmhand_user", value=session_token, httponly=True, secure=True)
     return response
