@@ -40,15 +40,6 @@ UNIT_TESTING_PASSWORD = "unit-testing-password"
 GITHUB_TESTING_USER = "github-testing-user"
 
 
-@pytest.fixture
-def db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
 @pytest.fixture(scope="module")
 def create_database():
     """
@@ -60,7 +51,20 @@ def create_database():
 
 
 @pytest.fixture(scope="module")
-def client(create_database) -> Generator[TestClient, None, None]:
+def db(create_database):
+    """
+    Fixture providing a database session
+    :return: database session fixture.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture(scope="module")
+def client(db) -> Generator[TestClient, None, None]:
     """
     Fixture for the FastAPI test client
     :return:
@@ -72,11 +76,12 @@ def client(create_database) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture(scope="function")
-def unit_test_user(user_repository) -> Generator[User, Any, None]:
+def unit_test_user(db) -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
     """
+    user_repository = UserRepository(db)
     test_user = user_repository.create(
         username=UNIT_TESTING_USER,
         password=Security.get_password_hash(UNIT_TESTING_PASSWORD),
@@ -89,11 +94,12 @@ def unit_test_user(user_repository) -> Generator[User, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def github_user(user_repository) -> Generator[User, Any, None]:
+def github_user(db) -> Generator[User, Any, None]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
     """
+    user_repository = UserRepository(db)
     github_test_user = user_repository.create(
         username=GITHUB_TESTING_USER,
         github_id=123456,
@@ -197,55 +203,3 @@ async def mock_github_authentication(mocker, github_user):
 
     # Mock the authorisation of the github user and their token
     mocker.patch.object(github, "get", side_effect=_mock_github_token_response)
-
-
-def get_repository(repo_class, db):
-    """
-    util function to get the return an instance of the repository.
-    :param repo_class: the repository instance
-    :param db:
-    :return: an instance of the repository
-    """
-    return repo_class(db)
-
-
-@pytest.fixture
-def user_repository(db):
-    """user repository fixture"""
-    return get_repository(UserRepository, db)
-
-
-@pytest.fixture
-def farm_repository(db):
-    """farm repository fixture"""
-    return get_repository(FarmRepository, db)
-
-
-@pytest.fixture
-def field_repository(db):
-    """field repository fixture"""
-    return get_repository(FieldRepository, db)
-
-
-@pytest.fixture
-def field_crop_repository(db):
-    """field crop repository fixture"""
-    return get_repository(FieldCropRepository, db)
-
-
-@pytest.fixture
-def map_repository(db):
-    """map repository fixture"""
-    return get_repository(MapRepository, db)
-
-
-@pytest.fixture
-def crop_repository(db):
-    """crop repository fixture"""
-    return get_repository(CropRepository, db)
-
-
-@pytest.fixture
-def task_repository(db):
-    """tasm repository fixture"""
-    return get_repository(TaskRepository, db)
