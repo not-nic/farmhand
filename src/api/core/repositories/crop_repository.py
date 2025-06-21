@@ -3,25 +3,23 @@ Crop Repository containing crop database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
-from typing import Optional, TYPE_CHECKING
-from src.api.core.repositories.base_repository import Repository
+from typing import Optional
+from sqlalchemy.orm import Session
+from src.api.core.repositories import Repository
+from src.api.core.db.models.crops import Crop
 
-if TYPE_CHECKING:
-    from src.api.core.db.models.crops import Crop
 
-
-class CropRepository(Repository):
+class CropRepository(Repository[Crop]):
     """
-    User Repository for interaction with the DB
+    Crop Repository for interaction with the DB
     """
+    def __init__(self, db: Session):
+        super().__init__(db, Crop)
 
-    __abstract__ = True
-
-    @classmethod
-    def get_by_type(cls: "Crop", type: str) -> Optional["Crop"]:
+    def get_by_type(self, type: str) -> Optional[Crop]:
         """
         Get a crop by its type / plaintext name e.g. Wheat.
         :param type: the type of crop.
         :return: the crop object.
         """
-        return cls.get_session().query(cls).filter(cls.type == type).first()
+        return self.db.query(Crop).filter(Crop.type == type).first()
