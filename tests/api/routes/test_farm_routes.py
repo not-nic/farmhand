@@ -8,6 +8,7 @@ import pytest
 from fastapi import status
 
 from src.api.core.db.models.farms import Farm
+from src.api.core.repositories import FarmRepository
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 from tests.utils import TestClientHelper
@@ -16,6 +17,15 @@ from tests.utils import TestClientHelper
 @pytest.mark.usefixtures("client", "session")
 class TestFarmRoutes:
     url = f"{settings.API_V1_STR}/farms"
+
+    @pytest.fixture
+    def farm_repository(self, db):
+        """
+        Farm Repository Instance fixture.
+        :param db: database session fixture.
+        :return: farm repository instance.
+        """
+        return FarmRepository(db)
 
     def test_get_multiple_farms(self, client, session, farms):
         """
@@ -73,8 +83,8 @@ class TestFarmRoutes:
         Test that when getting a farm for a different user it returns a 403 forbidden error.
         :param client: FastAPI test client
         :param session: the user's session
+        :param farm_repository: farm repository fixture.
         """
-
         farm = farm_repository.create(
             name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )

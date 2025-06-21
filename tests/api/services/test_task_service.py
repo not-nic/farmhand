@@ -8,20 +8,22 @@ import pytest
 from uuid import UUID
 
 from src.api.core.db.models import Task
+from src.api.core.repositories import TaskRepository
 from src.api.services.tasks_service import TaskService
 
 
-@pytest.mark.usefixtures("create_database", "unit_test_user", "tasks")
+@pytest.mark.usefixtures("db", "unit_test_user", "tasks")
 class TestTaskService:
 
-    def test_create_task(self, db, farm, task_repository):
+    def test_create_task(self, db, farm):
         """
         Test that a task can be created and when retrieved
         it is the same as the created task.
         :param farm: Farm Fixture.
         """
-        task_service = TaskService(db,)
+        task_service = TaskService(db)
         new_task = task_service.create_task("new task data", completed=False, farm_id=farm.id)
+        task_repository = TaskRepository(db)
         db_task = task_repository.get_by_id(new_task.id)
 
         assert new_task is db_task

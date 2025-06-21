@@ -8,8 +8,8 @@ from typing import Optional
 from uuid import UUID
 from fastapi import status
 
-from src.api.core.db.models import Crop
 from src.api.core.db.models.fields import FieldCrop
+from src.api.core.repositories import FieldCropRepository
 from src.api.core.schema.crops.crops import CropsResponse
 from src.api.services.crop_service import CropService
 from src.config import settings
@@ -22,6 +22,14 @@ class TestCropRoutes:
     """
     Class for unit testing the Crops API PUT & GET Methods.
     """
+    @pytest.fixture
+    def field_crop_repository(self, db):
+        """
+        Field Crop Repository fixture
+        :param db: database session fixture
+        :return: FieldCropRepository instance
+        """
+        return FieldCropRepository(db)
 
     @staticmethod
     def crop_url(farm_id: UUID, field_number: Optional[int] = None):

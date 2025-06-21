@@ -9,7 +9,8 @@ from uuid import UUID, uuid4
 from fastapi import status
 
 from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.db.db_setup import get_db
+from src.api.core.db.models import FieldCrop
+from src.api.core.repositories import FieldRepository, FieldCropRepository
 from src.api.core.schema.fields import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
 from src.config import settings
@@ -23,6 +24,15 @@ class TestFieldRoutes:
     def field_url(farm_id: UUID, field_number: Optional[int] = None):
         field_number_path = f"/{field_number}" if field_number else ""
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_number_path}"
+
+    @pytest.fixture
+    def field_repository(self, db):
+        """
+        Field Repository Instance fixture.
+        :param db: database session fixture.
+        :return: field repository instance.
+        """
+        return FieldRepository(db)
 
     def test_create_base_field(self, db, client, session, farms, field_repository):
         """
@@ -375,7 +385,7 @@ class TestFieldRoutes:
             session,
             farms,
             base_game_field,
-            field_crop_repository
+            db
     ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
@@ -384,8 +394,9 @@ class TestFieldRoutes:
         :param session: Unit test session
         :param farms: farms fixture
         :param base_game_field: base field fixture
+        :param db: database session fixture
         """
-
+        field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
 
         url = (
@@ -402,18 +413,19 @@ class TestFieldRoutes:
             session,
             farms,
             base_game_fields,
-            field_crop_repository
+            db
     ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
         object exists in the response and a 200 response code is asserted.
         :param client: FastAPI Test Client
-        :param session: Unit test session
+        :param session: unit test session fixture
         :param farms: farms fixture
         :param base_game_fields: base game fields fixture
+        :param db: database session fixture
         :return:
         """
-
+        field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_fields[0].id, crop_id=1)
         field_crop_repository.create(field_id=base_game_fields[1].id, crop_id=1)
         field_crop_repository.create(field_id=base_game_fields[2].id, crop_id=1)

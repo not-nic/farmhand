@@ -6,6 +6,7 @@ import pytest
 
 from src.api.constants import FSData, Difficulty, FertilizerTypes
 from src.api.core.db.models import FieldCrop, Crop
+from src.api.core.repositories import FieldCropRepository, CropRepository
 from src.api.services.metrics import MetricService
 from src.api.services.metrics.utils import (
     calculate_fertilizer_usage_by_time,
@@ -14,27 +15,29 @@ from src.api.services.metrics.utils import (
 
 
 @pytest.mark.asyncio
-@pytest.mark.usefixtures("create_database", "unit_test_user", "mock_crop_data")
+@pytest.mark.usefixtures("db", "unit_test_user", "mock_crop_data")
 class TestMetricService:
 
     @pytest.fixture
-    def valid_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
+    def valid_crop(self, db, base_game_field, precision_farming_field) -> None:
         """Fixture of a normal valid crop."""
-
+        field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
         field_crop_repository.create(field_id=precision_farming_field.id, crop_id=1)
 
     @pytest.fixture
-    def edge_case_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
+    def edge_case_crop(self, db, base_game_field, precision_farming_field) -> None:
         """Fixture of an edge case crop (one with 0 nitrogen)."""
 
+        field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=4)
         field_crop_repository.create(field_id=precision_farming_field.id, crop_id=4)
 
     @pytest.fixture
-    def invalid_crop(self, base_game_field, precision_farming_field, field_crop_repository) -> None:
+    def invalid_crop(self, db, base_game_field, precision_farming_field) -> None:
         """Fixture of a crop that doesn't exist."""
 
+        field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=50)
         field_crop_repository.create(field_id=precision_farming_field.id, crop_id=50)
 
@@ -188,7 +191,7 @@ class TestMetricService:
 
         assert actual_profit == expected_profit
 
-    async def test_calculate_seed_usage(self, db, base_game_field, valid_crop, crop_repository):
+    async def test_calculate_seed_usage(self, db, base_game_field, valid_crop):
         """
         Test that when the seed usage is calculated for a field
         and its crop the correct value is returned.
@@ -197,13 +200,14 @@ class TestMetricService:
         """
 
         metrics_service = MetricService(db)
+        crop_repository = CropRepository(db)
 
         result = await metrics_service.calculate_seed_usage(base_game_field)
         expected_seed_usage = crop_repository.get_by_id(1).seeds_per_ha * base_game_field.size
 
         assert result == expected_seed_usage
 
-    async def test_calculate_seed_usage_for_future_crop(self, db, base_game_field, valid_crop, crop_repository):
+    async def test_calculate_seed_usage_for_future_crop(self, db, base_game_field, valid_crop):
         """
         Test that when the seed usage is calculated for a field
         and a future crop the correct result is returned.
@@ -212,6 +216,7 @@ class TestMetricService:
         """
 
         metrics_service = MetricService(db)
+        crop_repository = CropRepository(db)
 
         future_crop = crop_repository.get_by_type("Maize")
         result = await metrics_service.calculate_seed_usage(base_game_field, future_crop=future_crop.type)

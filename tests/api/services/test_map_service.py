@@ -7,13 +7,14 @@ import pytest
 
 from src.api.constants import MapFilters
 from src.api.core.db.models import Map
+from src.api.core.repositories import MapRepository
 from src.api.core.schema.mods import ModModel
 from src.api.services.map_service import MapService
 from src.api.services.modhub_service import ModHubService
 
 
 @pytest.mark.asyncio
-@pytest.mark.usefixtures("create_database", "unit_test_user")
+@pytest.mark.usefixtures("db", "unit_test_user")
 class TestMapService:
 
     @pytest.fixture
@@ -58,7 +59,7 @@ class TestMapService:
 
         mocker.patch.object(ModHubService, "scrape_mod", return_value=mod_detail)
 
-    async def test_get_map_that_does_not_exist(self, db, map_repository, mock_mod_hub_service, mod_detail):
+    async def test_get_map_that_does_not_exist(self, db, mock_mod_hub_service, mod_detail):
         """
         Test that the map_service creates a map from the mock mod hub service fixture.
         :param mock_mod_hub_service: mock modhub service fixture
@@ -66,6 +67,7 @@ class TestMapService:
         """
 
         map_service = MapService(db)
+        map_repository = MapRepository(db)
         await map_service.get_maps()
 
         assert len(map_repository.all()) == 1
@@ -79,14 +81,14 @@ class TestMapService:
         assert expected_map.release_date == str(mod_detail.release_date)
         assert expected_map.version == mod_detail.version
 
-    async def test_get_map_updates_based_on_mod_version(self, db, mock_mod_hub_service, mod_detail, map_repository):
+    async def test_get_map_updates_based_on_mod_version(self, db, mock_mod_hub_service, mod_detail):
         """
         Test that the map service updates a map based on its version when scraping maps
         from modhub.
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
-
+        map_repository = MapRepository(db)
         map_repository.create(
             id=654321,
             name="Calmsden Farms",
@@ -113,8 +115,7 @@ class TestMapService:
             self,
             db,
             mock_mod_hub_service,
-            mod_detail,
-            map_repository
+            mod_detail
     ):
         """
         Test that when getting maps from modhub, no update is applied if the
@@ -122,7 +123,7 @@ class TestMapService:
         :param mock_mod_hub_service: mock modhub service fixture
         :param mod_detail: mod detail fixture
         """
-
+        map_repository = MapRepository(db)
         map_id = random.randint(100000, 999999)
 
         map_repository.create(
