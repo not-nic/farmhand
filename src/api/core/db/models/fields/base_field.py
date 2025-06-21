@@ -28,7 +28,7 @@ class BaseGameField(SqlAlchemyBase):
     fertilized: Mapped[FertilizerStates] = mapped_column(
         Enum(FertilizerStates, native_enum=False),
         nullable=False,
-        default=FertilizerStates.ZER0_PERCENT
+        default=FertilizerStates.ZER0_PERCENT,
     )
     limed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     field: Mapped["Field"] = relationship("Field", back_populates="base_game_field")

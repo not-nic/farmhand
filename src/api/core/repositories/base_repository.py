@@ -86,5 +86,3 @@ class Repository(Generic[T]):
         :return: dict with column names as keys and their values.
         """
         return {column.name: getattr(obj, column.name) for column in obj.__table__.columns}
-
-

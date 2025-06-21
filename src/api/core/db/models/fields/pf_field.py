@@ -30,9 +30,7 @@ class PrecisionFarmingField(SqlAlchemyBase):
     nitrogen_level: Mapped[int] = mapped_column(Integer, nullable=True)
     ph_level: Mapped[float] = mapped_column(Double, nullable=True)
     soil_type: Mapped[SoilTypes] = mapped_column(
-        Enum(SoilTypes, native_enum=False),
-        nullable=True,
-        default=SoilTypes.LOAM
+        Enum(SoilTypes, native_enum=False), nullable=True, default=SoilTypes.LOAM
     )
 
     field: Mapped["Field"] = relationship("Field", back_populates="precision_farming_field")

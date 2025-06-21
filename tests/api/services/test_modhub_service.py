@@ -45,7 +45,7 @@ class TestModHubService:
         with pytest.raises(
             ValueError,
             match="Mod ID: 12345 - Unable to scrape mod information "
-                  "as 'mod-info div' was not found.",
+            "as 'mod-info div' was not found.",
         ):
             mod_hub_service = ModHubService()
             mod_hub_service.scrape_mod(mod_id=12345)

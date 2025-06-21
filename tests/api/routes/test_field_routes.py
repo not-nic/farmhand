@@ -18,7 +18,6 @@ from tests.utils import TestClientHelper
 
 @pytest.mark.usefixtures("client", "session", "mock_crop_data")
 class TestFieldRoutes:
-
     @staticmethod
     def field_url(farm_id: UUID, field_number: Optional[int] = None):
         field_number_path = f"/{field_number}" if field_number else ""
@@ -65,7 +64,9 @@ class TestFieldRoutes:
 
         assert expected_field.model_dump(mode="json", exclude_none=True) == result_json
 
-    def test_create_field_with_same_field_number_raises_error(self, client, session, farms, field_repository):
+    def test_create_field_with_same_field_number_raises_error(
+        self, client, session, farms, field_repository
+    ):
         """
         Test that when creating a field with the same number it raises an HTTP 400 error
         :param client: FastAPI test client
@@ -78,7 +79,7 @@ class TestFieldRoutes:
             field_type="base_field",
             ground_type="planted",
             size=10.0,
-            farm_id=farms[0].id
+            farm_id=farms[0].id,
         )
 
         payload = {
@@ -96,9 +97,7 @@ class TestFieldRoutes:
         result = TestClientHelper.post(self.field_url(farm_id=farms[0].id), payload, client)
 
         assert result.status_code == status.HTTP_400_BAD_REQUEST
-        assert result.json() == {
-            "detail": "Field 50 already exists on this farm."
-        }
+        assert result.json() == {"detail": "Field 50 already exists on this farm."}
 
     def test_create_precision_farming_field(self, db, client, session, farms, field_repository):
         """
@@ -239,7 +238,7 @@ class TestFieldRoutes:
         }
 
         result = TestClientHelper.put(
-            self.field_url(farm_id=expected_farm.id,  field_number=precision_farming_field.number),
+            self.field_url(farm_id=expected_farm.id, field_number=precision_farming_field.number),
             payload,
             client,
         )
@@ -257,7 +256,7 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = TestClientHelper.delete(
-            self.field_url(farm_id=expected_farm.id,  field_number=base_game_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=base_game_field.number), client
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -273,7 +272,8 @@ class TestFieldRoutes:
         expected_farm = farms[1]
 
         result = TestClientHelper.delete(
-            self.field_url(farm_id=expected_farm.id,  field_number=precision_farming_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=precision_farming_field.number),
+            client,
         )
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
@@ -288,7 +288,7 @@ class TestFieldRoutes:
         expected_farm = farms[0]
 
         result = TestClientHelper.get(
-            self.field_url(farm_id=expected_farm.id,  field_number=base_game_field.number), client
+            self.field_url(farm_id=expected_farm.id, field_number=base_game_field.number), client
         )
 
         field_service = FieldService(db)
@@ -307,7 +307,9 @@ class TestFieldRoutes:
 
         expected_farm = farms[0]
 
-        result = TestClientHelper.get(self.field_url(farm_id=expected_farm.id,  field_number=66), client)
+        result = TestClientHelper.get(
+            self.field_url(farm_id=expected_farm.id, field_number=66), client
+        )
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Field not found."}
@@ -334,9 +336,7 @@ class TestFieldRoutes:
         )
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {
-            "detail": "Field not found."
-        }
+        assert result.json() == {"detail": "Field not found."}
 
     def test_get_all_fields_for_a_base_game_farm(self, client, session, farms, base_game_fields):
         """
@@ -352,13 +352,15 @@ class TestFieldRoutes:
         assert base_fields_results.status_code == status.HTTP_200_OK
         assert base_fields_results.json()["count"] == len(base_game_fields)
 
-        expected_field_json = FieldsResponse(fields=base_game_fields, count=len(base_game_fields)).model_dump(
-            mode="json", exclude_none=True
-        )
+        expected_field_json = FieldsResponse(
+            fields=base_game_fields, count=len(base_game_fields)
+        ).model_dump(mode="json", exclude_none=True)
 
         assert base_fields_results.json() == expected_field_json
 
-    def test_get_all_fields_for_a_precision_farming_farm(self, client, session, farms, precision_farming_fields):
+    def test_get_all_fields_for_a_precision_farming_farm(
+        self, client, session, farms, precision_farming_fields
+    ):
         """
         Test that all fields for a base game farm can be retrieved and returned in the correct format.
         :param client: FastAPI test client
@@ -367,7 +369,9 @@ class TestFieldRoutes:
         :param precision_farming_fields: fixture of precision farming fields
         """
 
-        precision_farming_results = TestClientHelper.get(self.field_url(farm_id=farms[1].id), client)
+        precision_farming_results = TestClientHelper.get(
+            self.field_url(farm_id=farms[1].id), client
+        )
 
         assert precision_farming_results.status_code == status.HTTP_200_OK
         assert precision_farming_results.json()["count"] == len(precision_farming_fields)
@@ -379,12 +383,7 @@ class TestFieldRoutes:
         assert precision_farming_results.json() == expected_field_json
 
     def test_getting_fields_with_the_current_crop(
-            self,
-            client,
-            session,
-            farms,
-            base_game_field,
-            db
+        self, client, session, farms, base_game_field, db
     ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop
@@ -398,21 +397,14 @@ class TestFieldRoutes:
         field_crop_repository = FieldCropRepository(db)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
 
-        url = (
-            f"{self.field_url(farm_id=farms[0].id, field_number=base_game_field.number)}?show_crop=true"
-        )
+        url = f"{self.field_url(farm_id=farms[0].id, field_number=base_game_field.number)}?show_crop=true"
         response = TestClientHelper.get(url=url, client=client)
 
         assert response.status_code == status.HTTP_200_OK
         assert "crop" in response.json()
 
     def test_getting_fields_that_have_the_same_crop(
-            self,
-            client,
-            session,
-            farms,
-            base_game_fields,
-            db
+        self, client, session, farms, base_game_fields, db
     ):
         """
         test getting a field with the query 'show_crops' true and assert that a crop

@@ -60,4 +60,3 @@ class Farm(SqlAlchemyBase):
 
     def __repr__(self):
         return f"<Farm: {self.name}, Map: {self.map_name}>"
-

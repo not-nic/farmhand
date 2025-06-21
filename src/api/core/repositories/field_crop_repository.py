@@ -13,5 +13,6 @@ class FieldCropRepository(Repository[FieldCrop]):
     """
     FieldCrop Repository for interaction with the DB
     """
+
     def __init__(self, db: Session):
         super().__init__(db, FieldCrop)

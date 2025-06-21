@@ -30,10 +30,7 @@ def farms(user_id, db) -> list[Farm]:
     farm_repository = FarmRepository(db)
     farms = [
         farm_repository.create(
-            name="farm 1",
-            description="description 1",
-            map_name="map 1",
-            owner_id=user_id
+            name="farm 1", description="description 1", map_name="map 1", owner_id=user_id
         ),
         farm_repository.create(
             name="farm 2",
@@ -68,7 +65,7 @@ def farm_map(db):
         category="European Map",
         author="Simon Pegg",
         release_date=datetime.date(year=2025, month=3, day=11),
-        version="1.0.0.0"
+        version="1.0.0.0",
     )
     return expected_map
 

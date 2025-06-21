@@ -35,9 +35,7 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
     status_code=status.HTTP_201_CREATED,
 )
 async def create_farm(
-        farm_request: FarmRequest,
-        db: SessionDep,
-        current_user: User = Depends(get_current_user)
+    farm_request: FarmRequest, db: SessionDep, current_user: User = Depends(get_current_user)
 ) -> FarmResponse:
     """
     Create a farm linked for the logged-in user.
@@ -63,7 +61,7 @@ async def create_farm(
         owner_id=current_user.id,
         map_id=farm_request.map_id,
         farm_type=farm_request.farm_type,
-        difficulty=farm_request.difficulty
+        difficulty=farm_request.difficulty,
     )
 
     return FarmResponse(**farm.to_dict())
@@ -75,9 +73,7 @@ async def create_farm(
     dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_200_OK,
 )
-async def get_farms(
-        current_user: User = Depends(get_current_user)
-) -> FarmsResponse:
+async def get_farms(current_user: User = Depends(get_current_user)) -> FarmsResponse:
     """
     Get all farms associated to the current logged-in user.
     :param current_user: the current logged-in user.
@@ -94,9 +90,7 @@ async def get_farms(
     dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_200_OK,
 )
-async def get_farm_by_id(
-        farm: Farm = Depends(get_farm)
-) -> FarmResponse:
+async def get_farm_by_id(farm: Farm = Depends(get_farm)) -> FarmResponse:
     """
     Get all farms associated to the current logged-in user.
     :param farm: farm from dependency
@@ -109,9 +103,7 @@ async def get_farm_by_id(
     "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
 )
 async def update_farm(
-        db: SessionDep,
-        farm_update: FarmUpdate,
-        farm: Farm = Depends(get_farm)
+    db: SessionDep, farm_update: FarmUpdate, farm: Farm = Depends(get_farm)
 ) -> None:
     """
     Update a farm for the current logged-in user.

@@ -13,7 +13,6 @@ from src.api.services.tasks_service import TaskService
 
 @pytest.mark.usefixtures("db", "unit_test_user", "tasks")
 class TestTaskService:
-
     def test_create_task(self, db, farm):
         """
         Test that a task can be created and when retrieved
@@ -34,11 +33,7 @@ class TestTaskService:
         """
         with pytest.raises(ValueError, match="Tasks must be shorter than '280' characters."):
             task_service = TaskService(db)
-            task_service.create_task(
-                content=("A" * 281),
-                completed=False,
-                farm_id=farm.id
-            )
+            task_service.create_task(content=("A" * 281), completed=False, farm_id=farm.id)
 
     def test_get_tasks(self, db, farm, tasks):
         """
@@ -51,7 +46,7 @@ class TestTaskService:
         task_service.create_task(
             "different farm task",
             completed=False,
-            farm_id=UUID("3ba72831-2faa-4fae-87b2-6a4cbab16b34")
+            farm_id=UUID("3ba72831-2faa-4fae-87b2-6a4cbab16b34"),
         )
 
         tasks = task_service.get_tasks(farm)

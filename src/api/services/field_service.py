@@ -12,8 +12,14 @@ from src.api.core.db.models import FieldCrop, Crop
 from src.api.core.db.models.fields import Field, PrecisionFarmingField, BaseGameField
 from src.api.core.db.models.farms import Farm
 from src.api.core.repositories import FieldRepository, Repository
-from src.api.core.schema.fields import FieldRequest, PrecisionFarmingFieldModel, BaseGameFieldModel, \
-    FieldResponse, FieldsResponse, FieldUpdate
+from src.api.core.schema.fields import (
+    FieldRequest,
+    PrecisionFarmingFieldModel,
+    BaseGameFieldModel,
+    FieldResponse,
+    FieldsResponse,
+    FieldUpdate,
+)
 from src.api.core.schema.crops.crops import CropResponse
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
@@ -23,6 +29,7 @@ class FieldService:
     """
     Field Service class for field CRUD methods and any additional logic relating to fields.
     """
+
     def __init__(self, db: Session):
         self.db = db
         self.field_repository = FieldRepository(self.db)
@@ -37,9 +44,13 @@ class FieldService:
         :param field_request: the field request object.
         :return: Pydantic Model for Base Game Field, Precision Farming Field
         """
-        existing_field = self.field_repository.get_field_by_number(field_request.number, current_farm.id)
+        existing_field = self.field_repository.get_field_by_number(
+            field_request.number, current_farm.id
+        )
         if existing_field:
-            logger.info(f"[Farm: {current_farm.id}] Field {field_request.number} already exists on this farm.")
+            logger.info(
+                f"[Farm: {current_farm.id}] Field {field_request.number} already exists on this farm."
+            )
             raise ValueError(f"Field {field_request.number} already exists on this farm.")
 
         field: Field = self.field_repository.create(
@@ -94,7 +105,8 @@ class FieldService:
         if field.farm_id != farm_id:
             logger.info(
                 f"Found field: '{field_id}' ({field.number}) but this field.farm_id ({field.farm_id})"
-                f" does not match current_farm.id ({farm_id}).")
+                f" does not match current_farm.id ({farm_id})."
+            )
             raise PermissionError("You dont have access to view this field.")
 
         return field
@@ -189,11 +201,15 @@ class FieldService:
         current_crop: FieldCrop = field.current_crop()
 
         if show_crops:
-            field_data.crop = CropResponse(
-                id=current_crop.id,
-                crop_type=current_crop.crop.type,
-                planted_at=current_crop.planted_at
-            ) if field.current_crop() else None
+            field_data.crop = (
+                CropResponse(
+                    id=current_crop.id,
+                    crop_type=current_crop.crop.type,
+                    planted_at=current_crop.planted_at,
+                )
+                if field.current_crop()
+                else None
+            )
 
         return field_data
 
@@ -203,7 +219,9 @@ class FieldService:
         :param field: the field to update
         :param field_update: the field update request
         """
-        logger.info(f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}")
+        logger.info(
+            f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}"
+        )
         update_data = field_update.model_dump(exclude_unset=True)
         self.field_repository.update(field.id, **update_data)
 
@@ -235,7 +253,6 @@ class FieldService:
             and current_farm.farm_type == FarmTypes.PRECISION_FARMING
         )
 
-
     def _create_base_game_field(self, field_id: UUID, field_request: FieldRequest):
         """
         Helper Function to create a Precision Farming field.
@@ -243,9 +260,7 @@ class FieldService:
         :param field_request: the FieldRequest object sent in the request.
         """
         repo = Repository(self.db, BaseGameField)
-        repo.create(
-            id=field_id, fertilized=field_request.fertilized, limed=field_request.limed
-        )
+        repo.create(id=field_id, fertilized=field_request.fertilized, limed=field_request.limed)
 
     def _create_precision_farming_field(self, field_id: UUID, field_request: FieldRequest):
         """

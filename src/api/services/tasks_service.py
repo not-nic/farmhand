@@ -17,6 +17,7 @@ class TaskService:
     """
     Task Service Class for creating, retrieving and managing users tasks.
     """
+
     def __init__(self, db: Session):
         self.MAX_TASK_LENGTH = 280
         self.db = db
@@ -29,7 +30,9 @@ class TaskService:
         :param filter_by: (str) filter by complete or incomplete tasks.
         :return: List of Tasks.
         """
-        logger.info(f"[Task Service]: Retrieving tasks for farm: '{farm.id}' - filtered by: {filter_by}")
+        logger.info(
+            f"[Task Service]: Retrieving tasks for farm: '{farm.id}' - filtered by: {filter_by}"
+        )
 
         if filter_by.lower() == "complete":
             return self.task_repository.get_completed_tasks(farm_id=farm.id)
@@ -39,7 +42,7 @@ class TaskService:
 
         return farm.tasks
 
-    def create_task(self, content: str,  completed: bool, farm_id: UUID) -> Task:
+    def create_task(self, content: str, completed: bool, farm_id: UUID) -> Task:
         """
         Create a new task tied to a farm.
         :param content: (str) the content of the task.
@@ -51,11 +54,7 @@ class TaskService:
 
         self._check_task_length(content)
 
-        return self.task_repository.create(
-            content=content,
-            completed=completed,
-            farm_id=farm_id
-        )
+        return self.task_repository.create(content=content, completed=completed, farm_id=farm_id)
 
     def get_task_by_id(self, task_id: UUID) -> Optional[Task]:
         """
@@ -75,10 +74,7 @@ class TaskService:
         self.task_repository.delete(task_id)
 
     def update_task(
-            self,
-            task_id: UUID,
-            content: Optional[str] = None,
-            completed: Optional[bool] = None
+        self, task_id: UUID, content: Optional[str] = None, completed: Optional[bool] = None
     ) -> None:
         """
         Update a task by its content or completed status.
@@ -92,9 +88,9 @@ class TaskService:
         self._check_task_length(content)
 
         if content is not None:
-            update_fields['content'] = content
+            update_fields["content"] = content
         if completed is not None:
-            update_fields['completed'] = completed
+            update_fields["completed"] = completed
 
         if update_fields:
             logger.info(f"[Task Service]: Updating Task: '{task_id}' with new content or status.")

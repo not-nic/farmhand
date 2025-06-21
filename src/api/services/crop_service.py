@@ -23,6 +23,7 @@ class CropService:
     and retrieving crop data.
     It also handles the initialization of crops during the application's startup.
     """
+
     def __init__(self, db: Session):
         self.field_repository = FieldRepository(db)
         self.crop_repository = CropRepository(db)
@@ -125,7 +126,9 @@ class CropService:
         :return: CropsResponse pydantic model containing the field crops and the count.
         """
         return [
-            CropResponse(id=field_crop.id, crop_type=field_crop.crop.type, planted_at=field_crop.planted_at)
+            CropResponse(
+                id=field_crop.id, crop_type=field_crop.crop.type, planted_at=field_crop.planted_at
+            )
             for field_crop in field_crops
         ]
 

@@ -64,9 +64,7 @@ def calculate_fertilizer_usage_by_time(
         )
 
     time_seconds = calculate_working_time(
-        size=field_size,
-        working_speed=working_speed,
-        implement_width=implement_width
+        size=field_size, working_speed=working_speed, implement_width=implement_width
     )
 
     fertilizer_usage = (rates[fertilizer_type] * time_seconds) * 1000

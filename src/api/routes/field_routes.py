@@ -32,8 +32,7 @@ router = APIRouter(prefix="/farms/{id}/fields", tags=["Fields"])
 
 @router.post("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 async def create_field(
-        db: SessionDep,
-        field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
+    db: SessionDep, field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
 ) -> dict:
     """
     Create a field based on the current farm type.
@@ -53,10 +52,10 @@ async def create_field(
 
 @router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 async def get_fields(
-        db: SessionDep,
-        current_farm: Farm = Depends(get_farm),
-        show_crop: Optional[bool] = False,
-        crop_type: Optional[str] = None,
+    db: SessionDep,
+    current_farm: Farm = Depends(get_farm),
+    show_crop: Optional[bool] = False,
+    crop_type: Optional[str] = None,
 ) -> dict:
     """
     Get all fields associated with a farm.
@@ -79,9 +78,7 @@ async def get_fields(
     status_code=status.HTTP_200_OK,
 )
 async def get_field_by_field_number(
-        field: CurrentField,
-        db: SessionDep,
-        show_crop: Optional[bool] = False
+    field: CurrentField, db: SessionDep, show_crop: Optional[bool] = False
 ) -> dict:
     """
     Get a field by its number.
@@ -92,9 +89,7 @@ async def get_field_by_field_number(
     """
 
     field_service = FieldService(db)
-    return field_service.get_field_details(field, show_crop).model_dump(
-        exclude_none=True
-    )
+    return field_service.get_field_details(field, show_crop).model_dump(exclude_none=True)
 
 
 @router.put(

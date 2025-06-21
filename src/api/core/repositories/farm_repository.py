@@ -13,5 +13,6 @@ class FarmRepository(Repository[Farm]):
     """
     Farm Repository for interaction with the DB
     """
+
     def __init__(self, db: Session):
         super().__init__(db, Farm)

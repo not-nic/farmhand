@@ -20,5 +20,5 @@ __all__ = [
     "User",
     "Map",
     "Crop",
-    "Task"
+    "Task",
 ]

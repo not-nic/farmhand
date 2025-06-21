@@ -83,11 +83,7 @@ def is_service_user(current_user: CurrentUser) -> bool:
 ServiceUser = Annotated[bool, Depends(is_service_user)]
 
 
-def get_farm(
-        id: UUID,
-        current_user: CurrentUser,
-        db: SessionDep
-) -> Farm:
+def get_farm(id: UUID, current_user: CurrentUser, db: SessionDep) -> Farm:
     """
     Get the farm for the current logged-in user
     :param id: the id of the farm to get
@@ -113,9 +109,9 @@ CurrentFarm = Annotated[Farm, Depends(get_farm)]
 
 
 def get_field(
-        db: SessionDep,
-        current_farm: CurrentFarm,
-        field_number: Annotated[int, Path(title="The number of the field to get")],
+    db: SessionDep,
+    current_farm: CurrentFarm,
+    field_number: Annotated[int, Path(title="The number of the field to get")],
 ) -> Optional[Field]:
     """
     dependency to get the current field by its ID or return
@@ -134,9 +130,9 @@ CurrentField = Annotated[Field, Depends(get_field)]
 
 
 def get_task(
-        db: SessionDep,
-        current_farm: CurrentFarm,
-        task_id: UUID,
+    db: SessionDep,
+    current_farm: CurrentFarm,
+    task_id: UUID,
 ) -> Optional[Task]:
     """
     dependency to get a task by its ID or return
@@ -150,8 +146,7 @@ def get_task(
     if not task:
         logger.info(f"Unable to find task for id: '{task_id}'...")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Task '{task_id}' not found."
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task '{task_id}' not found."
         )
 
     if task.farm_id != current_farm.id:
@@ -161,7 +156,7 @@ def get_task(
         )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Task '{task_id}' does not belong to this farm."
+            detail=f"Task '{task_id}' does not belong to this farm.",
         )
 
     return task

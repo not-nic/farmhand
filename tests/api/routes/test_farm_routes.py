@@ -203,10 +203,7 @@ class TestFarmRoutes:
         """
 
         expected_farm = farm_repository.create(
-            name="test name",
-            description="test description",
-            map_name="test map",
-            owner_id=user_id
+            name="test name", description="test description", map_name="test map", owner_id=user_id
         )
 
         result = TestClientHelper.delete(f"{self.url}/{expected_farm.id}", client)

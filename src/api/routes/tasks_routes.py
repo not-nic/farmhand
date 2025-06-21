@@ -16,6 +16,7 @@ Dependencies:
     - CurrentFarm: Fetches the Field for the given field_id.
     - TaskDep: Task Dependency.
 """
+
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
@@ -28,9 +29,7 @@ router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def get_tasks(
-        db: SessionDep,
-        current_farm: CurrentFarm,
-        filter_by: Optional[str] = ""
+    db: SessionDep, current_farm: CurrentFarm, filter_by: Optional[str] = ""
 ) -> TasksResponse:
     """
     Return a list of all tasks associated with a farm.
@@ -62,10 +61,7 @@ async def create_task(db: SessionDep, current_farm: CurrentFarm, task: TaskReque
             **task_service.create_task(**task.model_dump(), farm_id=current_farm.id).to_dict()
         )
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.get("/{task_id}", status_code=status.HTTP_200_OK)
@@ -105,10 +101,7 @@ async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -
     try:
         task_service.update_task(task.id, **task_update.model_dump(exclude_none=True))
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)

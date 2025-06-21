@@ -13,5 +13,6 @@ class MapRepository(Repository[Map]):
     """
     Map Repository for interaction with the DB
     """
+
     def __init__(self, db: Session):
         super().__init__(db, Map)

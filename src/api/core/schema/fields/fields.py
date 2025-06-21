@@ -3,7 +3,15 @@ from decimal import Decimal
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, conint, condecimal, Field, model_validator, PrivateAttr, computed_field
+from pydantic import (
+    BaseModel,
+    conint,
+    condecimal,
+    Field,
+    model_validator,
+    PrivateAttr,
+    computed_field,
+)
 from src.api.constants import FieldTypes, FertilizerStates, WeedStates, SoilTypes
 from src.api.core.schema.crops.crops import CropResponse
 from src.api.core.schema.validators import Validators

@@ -36,9 +36,7 @@ class Field(SqlAlchemyBase):
 
     id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4)
     number: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     size: Mapped[float] = mapped_column(Double, nullable=True, default=0.0)
     ground_type: Mapped[str] = mapped_column(String(50), nullable=True)  # Ground Type Enum
     owned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -66,17 +64,11 @@ class Field(SqlAlchemyBase):
     )
 
     base_game_field: Mapped["BaseGameField"] = relationship(
-        "BaseGameField",
-        back_populates="field",
-        uselist=False,
-        cascade="all, delete-orphan"
+        "BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
     precision_farming_field: Mapped["PrecisionFarmingField"] = relationship(
-        "PrecisionFarmingField",
-        back_populates="field",
-        uselist=False,
-        cascade="all, delete-orphan"
+        "PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
     def __repr__(self):

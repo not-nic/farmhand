@@ -10,14 +10,13 @@ from src.api.core.repositories import FieldCropRepository, CropRepository
 from src.api.services.metrics import MetricService
 from src.api.services.metrics.utils import (
     calculate_fertilizer_usage_by_time,
-    calculate_fertilizer_kg
+    calculate_fertilizer_kg,
 )
 
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("db", "unit_test_user", "mock_crop_data")
 class TestMetricService:
-
     @pytest.fixture
     def valid_crop(self, db, base_game_field, precision_farming_field) -> None:
         """Fixture of a normal valid crop."""
@@ -41,12 +40,7 @@ class TestMetricService:
         field_crop_repository.create(field_id=base_game_field.id, crop_id=50)
         field_crop_repository.create(field_id=precision_farming_field.id, crop_id=50)
 
-    async def test_calculate_yield_on_base_field_type(
-            self,
-            db,
-            base_game_field,
-            valid_crop
-    ):
+    async def test_calculate_yield_on_base_field_type(self, db, base_game_field, valid_crop):
         """
         Test that yield can be calculated on a base game field and
         return the expected results by getting the yield_improvement_score
@@ -64,10 +58,7 @@ class TestMetricService:
         assert actual_yield == expected_yield
 
     async def test_calculate_yield_on_precision_farming_field_type(
-            self,
-            db,
-            precision_farming_field,
-            valid_crop
+        self, db, precision_farming_field, valid_crop
     ):
         """
         Test that yield can be calculated on a precision farming field and
@@ -86,10 +77,7 @@ class TestMetricService:
         assert actual_yield == expected_yield
 
     async def test_calculate_yield_on_precision_farming_field_with_edge_case_crop(
-            self,
-            db,
-            precision_farming_field,
-            edge_case_crop
+        self, db, precision_farming_field, edge_case_crop
     ):
         """
         Test that yield can be calculated on a precision farming field and
@@ -105,10 +93,7 @@ class TestMetricService:
         assert actual_yield == 0
 
     async def test_calculate_yield_on_precision_farming_field_with_excess_nitrogen(
-            self,
-            db,
-            precision_farming_field,
-            valid_crop
+        self, db, precision_farming_field, valid_crop
     ):
         """
         Test that yield can be calculated on a precision farming field and
@@ -127,17 +112,15 @@ class TestMetricService:
 
         assert actual_yield == expected_yield
 
-    @pytest.mark.parametrize("ph_level, expected_yield", [
-        (9.0, 16465.0),
-        (0.0, 16465.0),
-    ])
+    @pytest.mark.parametrize(
+        "ph_level, expected_yield",
+        [
+            (9.0, 16465.0),
+            (0.0, 16465.0),
+        ],
+    )
     async def test_calculate_yield_on_precision_farming_field_with_different_ph_levels(
-            self,
-            db,
-            precision_farming_field,
-            valid_crop,
-            ph_level: float,
-            expected_yield: float
+        self, db, precision_farming_field, valid_crop, ph_level: float, expected_yield: float
     ):
         """
         Test that yield can be calculated on a precision farming field and
@@ -157,19 +140,16 @@ class TestMetricService:
 
         assert actual_yield == expected_yield_calculated
 
-    @pytest.mark.parametrize("difficulty, expected_multiplier", [
-        (Difficulty.EASY, Difficulty.EASY.multiplier),
-        (Difficulty.MEDIUM, Difficulty.MEDIUM.multiplier),
-        (Difficulty.HARD, Difficulty.HARD.multiplier)
-    ])
+    @pytest.mark.parametrize(
+        "difficulty, expected_multiplier",
+        [
+            (Difficulty.EASY, Difficulty.EASY.multiplier),
+            (Difficulty.MEDIUM, Difficulty.MEDIUM.multiplier),
+            (Difficulty.HARD, Difficulty.HARD.multiplier),
+        ],
+    )
     async def test_estimate_profit_with_difficulties(
-            self,
-            db,
-            farm,
-            base_game_field,
-            valid_crop,
-            difficulty,
-            expected_multiplier
+        self, db, farm, base_game_field, valid_crop, difficulty, expected_multiplier
     ):
         """
         Test estimating the profit for a field with farm difficulty levels.
@@ -219,7 +199,9 @@ class TestMetricService:
         crop_repository = CropRepository(db)
 
         future_crop = crop_repository.get_by_type("Maize")
-        result = await metrics_service.calculate_seed_usage(base_game_field, future_crop=future_crop.type)
+        result = await metrics_service.calculate_seed_usage(
+            base_game_field, future_crop=future_crop.type
+        )
         expected_seed_usage = future_crop.seeds_per_ha * base_game_field.size
 
         assert result == expected_seed_usage
@@ -235,8 +217,7 @@ class TestMetricService:
         metrics_service = MetricService(db)
 
         with pytest.raises(
-                ValueError,
-                match=f"Invalid crop: '{base_game_field.current_crop().crop_id}' not found"
+            ValueError, match=f"Invalid crop: '{base_game_field.current_crop().crop_id}' not found"
         ):
             await metrics_service.calculate_seed_usage(base_game_field)
 
@@ -273,9 +254,7 @@ class TestMetricService:
         assert result == expected_result
 
     async def test_calculate_precision_farming_field_fertilizer_usage(
-            self,
-            db,
-            precision_farming_field
+        self, db, precision_farming_field
     ):
         """
         Test calculating the fertilizer usage on a precision farming field,
@@ -288,10 +267,13 @@ class TestMetricService:
         metrics_service = MetricService(db)
         result = await metrics_service.calculate_fertilizer_usage(precision_farming_field)
 
-        expected_result = calculate_fertilizer_kg(
-            rate=precision_farming_field.precision_farming_field.nitrogen_level,
-            field_size=precision_farming_field.size,
-        ) / FSData.SOLID_FERTILIZER_DENSITY.value
+        expected_result = (
+            calculate_fertilizer_kg(
+                rate=precision_farming_field.precision_farming_field.nitrogen_level,
+                field_size=precision_farming_field.size,
+            )
+            / FSData.SOLID_FERTILIZER_DENSITY.value
+        )
 
         assert result == expected_result
 
@@ -306,8 +288,7 @@ class TestMetricService:
         fertilizer = await metrics_service.calculate_fertilizer_usage(base_game_field)
 
         result = metrics_service.calculate_fertilizer_cost(
-            fertilizer_usage=fertilizer,
-            fertilizer_type=FertilizerTypes.SOLID
+            fertilizer_usage=fertilizer, fertilizer_type=FertilizerTypes.SOLID
         )
 
         assert result == fertilizer * FSData.BASE_SOLID_FERTILIZER_PRICE.value
@@ -323,4 +304,3 @@ class TestMetricService:
                 field_size=base_game_field.size,
                 fertilizer_type="invalid-type",
             )
-

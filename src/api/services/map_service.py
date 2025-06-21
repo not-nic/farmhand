@@ -2,6 +2,7 @@
 Map Service Module currently used for manually scraping map data
 when new maps are released.
 """
+
 from sqlalchemy.orm import Session
 
 from src.api.constants import MapFilters
@@ -51,16 +52,22 @@ class MapService:
                     category=mod_detail.category,
                     author=mod_detail.author,
                     release_date=mod_detail.release_date,
-                    version=mod_detail.version
+                    version=mod_detail.version,
                 )
             else:
-                if self.is_newer_version(current_version=mod_map.version, new_version=mod_detail.version):
-                    logger.info(f"Updating Map {mod_detail.name} ({mod_detail.id}) "
-                                f"from version {mod_map.version} to {mod_detail.version}")
+                if self.is_newer_version(
+                    current_version=mod_map.version, new_version=mod_detail.version
+                ):
+                    logger.info(
+                        f"Updating Map {mod_detail.name} ({mod_detail.id}) "
+                        f"from version {mod_map.version} to {mod_detail.version}"
+                    )
                     self.map_repository.update(mod_map.id, version=mod_detail.version)
                 else:
-                    logger.info(f"Map: {mod_detail.name} ({mod_detail.id}) is already up-to-date "
-                                f"(version {mod_map.version}).")
+                    logger.info(
+                        f"Map: {mod_detail.name} ({mod_detail.id}) is already up-to-date "
+                        f"(version {mod_map.version})."
+                    )
 
     @staticmethod
     def is_newer_version(current_version: str, new_version: str) -> bool:

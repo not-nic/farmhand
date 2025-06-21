@@ -16,7 +16,6 @@ from src.api.services.modhub_service import ModHubService
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("db", "unit_test_user")
 class TestMapService:
-
     @pytest.fixture
     def mod_detail(self):
         """
@@ -33,7 +32,7 @@ class TestMapService:
             Size="30 MB",
             Version="1.0.0.0",
             Released="30.04.2025",
-            Platform="PC/MAC"
+            Platform="PC/MAC",
         )
 
     @pytest.fixture
@@ -48,14 +47,10 @@ class TestMapService:
         mocker.patch.object(
             ModHubService,
             "scrape_mods",
-            side_effect=[[123456]] + [[] for _ in range(len(MapFilters) - 1)]
+            side_effect=[[123456]] + [[] for _ in range(len(MapFilters) - 1)],
         )
 
-        mocker.patch.object(
-            ModHubService,
-            "get_pages",
-            return_value=[0]
-        )
+        mocker.patch.object(ModHubService, "get_pages", return_value=[0])
 
         mocker.patch.object(ModHubService, "scrape_mod", return_value=mod_detail)
 
@@ -95,7 +90,7 @@ class TestMapService:
             category="European Maps",
             author="user",
             release_date="30-04-2025",
-            version="1.0.0.0"
+            version="1.0.0.0",
         )
 
         mod_detail.id = 654321
@@ -112,10 +107,7 @@ class TestMapService:
         assert mod_detail.name != expected_map.name
 
     async def test_get_map_does_not_update_for_same_mod_version(
-            self,
-            db,
-            mock_mod_hub_service,
-            mod_detail
+        self, db, mock_mod_hub_service, mod_detail
     ):
         """
         Test that when getting maps from modhub, no update is applied if the
@@ -132,7 +124,7 @@ class TestMapService:
             category="European Maps",
             author="user",
             release_date="30-04-2025",
-            version="1.0.0.0"
+            version="1.0.0.0",
         )
 
         mod_detail.id = map_id

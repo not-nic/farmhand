@@ -29,7 +29,11 @@ router = APIRouter(prefix="/{field_number}/crops", tags=["Crops"])
     "",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def plant_crop(field: CurrentField, db: SessionDep, crop_request: CropRequest, ) -> None:
+async def plant_crop(
+    field: CurrentField,
+    db: SessionDep,
+    crop_request: CropRequest,
+) -> None:
     """
     Plant a crop in a field and update its ground type to match a new state e.g. growing, harvested.
     :param crop_request: the CropRequest model.
@@ -51,7 +55,7 @@ async def get_crops(
     field: CurrentField,
     db: SessionDep,
     current: Optional[bool] = False,
-    past: Optional[bool] = False
+    past: Optional[bool] = False,
 ) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.

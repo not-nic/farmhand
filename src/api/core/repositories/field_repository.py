@@ -51,7 +51,9 @@ class FieldRepository(Repository[Field]):
 
         # Check if the field is a precision_farming_field and get any kwargs from the update object and apply them.
         if field.precision_farming_field:
-            precision_field_kwargs = {key: kwargs[key] for key in precision_field_values if key in kwargs}
+            precision_field_kwargs = {
+                key: kwargs[key] for key in precision_field_values if key in kwargs
+            }
             if precision_field_kwargs:
                 precision_farming_field_repo = Repository(self.db, PrecisionFarmingField)
                 precision_farming_field_repo.update(field.id, **precision_field_kwargs)

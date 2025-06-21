@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -33,9 +32,7 @@ class Map(SqlAlchemyBase):
     category: Mapped[str] = mapped_column(String(100), nullable=True)
     author: Mapped[str] = mapped_column(String(100), nullable=True)
     release_date: Mapped[str] = mapped_column(String(100), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.now, nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     version: Mapped[str] = mapped_column(String(50), default="1.0.0.0", nullable=False)
 
     farms: Mapped[list["Farm"]] = relationship("Farm", back_populates="map")

@@ -21,7 +21,9 @@ from src.api.services.modhub_service import ModHubService
 router = APIRouter(prefix="/scrape", tags=["Scraper"])
 
 
-@router.get("/mods/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED)
+@router.get(
+    "/mods/{id}", dependencies=[Depends(is_service_user)], status_code=status.HTTP_202_ACCEPTED
+)
 async def scrape_mod(id: int, background_tasks: BackgroundTasks) -> dict:
     """
     Function to manually trigger scraping of an individual mod by its mod_id.
@@ -44,6 +46,4 @@ async def scrape_maps(background_tasks: BackgroundTasks, db: SessionDep) -> dict
     """
     map_service = MapService(db)
     background_tasks.add_task(map_service.get_maps)
-    return {
-        "detail": "Started scraping all maps from ModHub."
-    }
+    return {"detail": "Started scraping all maps from ModHub."}

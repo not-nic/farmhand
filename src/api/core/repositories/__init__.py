@@ -19,5 +19,5 @@ __all__ = [
     "FieldCropRepository",
     "CropRepository",
     "MapRepository",
-    "TaskRepository"
+    "TaskRepository",
 ]

@@ -13,7 +13,7 @@ from src.api.constants import (
     SoilTypes,
     FertilizerTypes,
     FertilizerEffect,
-    FertilizerStates
+    FertilizerStates,
 )
 from src.api.core.db.models import Field, Crop, FieldCrop
 from src.api.core.logger import logger
@@ -22,7 +22,7 @@ from src.api.services.metrics.utils import (
     calculate_fertilizer_kg,
     calculate_fertilizer_usage_by_time,
     get_fertilizer_effect,
-    get_soil_type_expected_ph
+    get_soil_type_expected_ph,
 )
 
 
@@ -33,11 +33,14 @@ class MetricService:
     This service is responsible for calculating yield, costs and other number-based stats relating
     to a farm and its fields, but could be expanded to handle other numeric values / calculations.
     """
+
     def __init__(self, db: Session):
         self.db = db
         self.crop_service = CropService(self.db)
 
-    async def calculate_yield(self, current_field: Field, future_crop: Optional[str] = None) -> float:
+    async def calculate_yield(
+        self, current_field: Field, future_crop: Optional[str] = None
+    ) -> float:
         """
         Calculate the yield for a field and its current crop based on the field stats.
         :param current_field: the current field to get stats from
@@ -47,13 +50,15 @@ class MetricService:
         crop: Crop = await self._get_crop(current_field, future_crop)
 
         base_yield = crop.yield_per_ha
-        expected_yield_per_ha = base_yield + self._calculate_base_yield_increases(base_yield, current_field)
+        expected_yield_per_ha = base_yield + self._calculate_base_yield_increases(
+            base_yield, current_field
+        )
 
         if current_field.field_type == FieldTypes.BASE_FIELD:
             expected_yield_per_ha += self._calculate_base_game_fertilization(
                 base_yield=base_yield,
                 fertilized_state=current_field.base_game_field.fertilized.name,
-                limed=current_field.base_game_field.limed
+                limed=current_field.base_game_field.limed,
             )
         elif current_field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
             expected_yield_per_ha += self._calculate_precision_farming_fertilization(
@@ -61,10 +66,12 @@ class MetricService:
                 nitrogen_level=current_field.precision_farming_field.nitrogen_level,
                 ph_level=current_field.precision_farming_field.ph_level,
                 soil_type=current_field.precision_farming_field.soil_type,
-                crop=crop
+                crop=crop,
             )
         else:
-            logger.error(f"Field: {current_field.id} - {current_field.field_type} not found, cannot calculate yield.")
+            logger.error(
+                f"Field: {current_field.id} - {current_field.field_type} not found, cannot calculate yield."
+            )
             raise ValueError("Field type not found.")
 
         logger.info(f"Base Yield Per Ha: {base_yield} for Crop: {crop.type}")
@@ -72,10 +79,7 @@ class MetricService:
         return current_field.size * expected_yield_per_ha
 
     async def estimate_profit(
-        self,
-        current_field: Field,
-        estimated_yield: float,
-        future_crop: Optional[str] = None
+        self, current_field: Field, estimated_yield: float, future_crop: Optional[str] = None
     ) -> float:
         """
         Estimate the profit for the crop on a field from the field size, difficulty
@@ -89,7 +93,9 @@ class MetricService:
         difficulty = current_field.farm.difficulty.multiplier
         return round((estimated_yield * crop.price) * difficulty, 3)
 
-    async def calculate_seed_usage(self, current_field: Field, future_crop: Optional[str] = None) -> float:
+    async def calculate_seed_usage(
+        self, current_field: Field, future_crop: Optional[str] = None
+    ) -> float:
         """
         Estimate the amount of seeds required to plant a specific crop in a field.
         :param current_field: the current field to check the usage of.
@@ -122,7 +128,9 @@ class MetricService:
         :param current_field: The current field.
         :return: Fertilizer usage in litres (float).
         """
-        logger.info(f"Calculating Fertilization on Field: {current_field.number} ({current_field.id})")
+        logger.info(
+            f"Calculating Fertilization on Field: {current_field.number} ({current_field.id})"
+        )
 
         if current_field.field_type == FieldTypes.BASE_FIELD:
             return calculate_fertilizer_usage_by_time(
@@ -132,7 +140,7 @@ class MetricService:
         elif current_field.field_type == FieldTypes.PRECISION_FARMING_FIELD:
             total_fertilizer_kg = calculate_fertilizer_kg(
                 rate=current_field.precision_farming_field.nitrogen_level,
-                field_size=current_field.size
+                field_size=current_field.size,
             )
             return total_fertilizer_kg / FSData.SOLID_FERTILIZER_DENSITY.value
         else:
@@ -143,8 +151,7 @@ class MetricService:
 
     @staticmethod
     def calculate_fertilizer_cost(
-        fertilizer_usage: float,
-        fertilizer_type: FertilizerTypes
+        fertilizer_usage: float, fertilizer_type: FertilizerTypes
     ) -> float:
         """
         Calculate the fertilizer costs for a field by multiplying the usage in litres
@@ -169,19 +176,24 @@ class MetricService:
         :param current_field: the field to get stats from.
         :return: float of the total 'base' increases.
         """
-        plowed_increase = self._calculate_bonus(base_yield, current_field.plowed, FSData.PLOWED.value)
-        rolled_increase = self._calculate_bonus(base_yield, current_field.rolled, FSData.ROLLED.value)
-        mulched_increase = self._calculate_bonus(base_yield, current_field.mulched, FSData.MULCHED.value)
+        plowed_increase = self._calculate_bonus(
+            base_yield, current_field.plowed, FSData.PLOWED.value
+        )
+        rolled_increase = self._calculate_bonus(
+            base_yield, current_field.rolled, FSData.ROLLED.value
+        )
+        mulched_increase = self._calculate_bonus(
+            base_yield, current_field.mulched, FSData.MULCHED.value
+        )
         weeds_increase = self._calculate_bonus(
-            base_yield, current_field.weeds in [WeedStates.NO_WEEDS, WeedStates.SPRAYED_WEEDS], FSData.WEEDS.value
+            base_yield,
+            current_field.weeds in [WeedStates.NO_WEEDS, WeedStates.SPRAYED_WEEDS],
+            FSData.WEEDS.value,
         )
         return plowed_increase + rolled_increase + mulched_increase + weeds_increase
 
     def _calculate_base_game_fertilization(
-        self,
-        base_yield: float,
-        fertilized_state: FertilizerStates,
-        limed: bool
+        self, base_yield: float, fertilized_state: FertilizerStates, limed: bool
     ) -> float:
         """
         Calculates the yield increases for a base game field values (fertilized and limed).
@@ -200,7 +212,7 @@ class MetricService:
         nitrogen_level: int,
         ph_level: float,
         soil_type: SoilTypes,
-        crop: Crop
+        crop: Crop,
     ) -> float:
         """
         Calculates the yield increases for a precision farming field (nitrogen level, ph level, soil type)
@@ -211,10 +223,9 @@ class MetricService:
         :param crop: the crop to get its perfect nitrogen level from.
         :return: (float) of the precision farming field increases.
         """
-        nitrogen_level_increase = base_yield * (self.nitrogen_level_to_percent(
-            nitrogen_level,
-            crop.nitrogen_per_kg_ha
-        ) / 100)
+        nitrogen_level_increase = base_yield * (
+            self.nitrogen_level_to_percent(nitrogen_level, crop.nitrogen_per_kg_ha) / 100
+        )
 
         ph_increase = base_yield * (self.ph_level_to_percent(ph_level, soil_type) / 100)
 
@@ -241,7 +252,9 @@ class MetricService:
         :param crop_required_nitrogen: the required nitrogen for a given crop.
         :return: (float) the percentage of fertilizer to apply to a field (max 45%).
         """
-        logger.info(f"Nitrogen Level: {nitrogen_level} - Crop Perfect Nitrogen: {crop_required_nitrogen}")
+        logger.info(
+            f"Nitrogen Level: {nitrogen_level} - Crop Perfect Nitrogen: {crop_required_nitrogen}"
+        )
 
         # catch edge cases for grass, oil seed and soybeans that have a 0kg/ha perfect nitrogen
         if crop_required_nitrogen == 0 or crop_required_nitrogen is None:
@@ -249,14 +262,18 @@ class MetricService:
 
         # Calculate the percentage when the nitrogen level is less than or equal to the perfect nitrogen level
         if nitrogen_level <= crop_required_nitrogen:
-            logger.info("Nitrogen level is less than or equal to crops returning up to a 45% percentage (max)")
-            nitrogen_percentage = (nitrogen_level / crop_required_nitrogen) * FertilizerEffect.FULLY_FERTILIZED.value
+            logger.info(
+                "Nitrogen level is less than or equal to crops returning up to a 45% percentage (max)"
+            )
+            nitrogen_percentage = (
+                nitrogen_level / crop_required_nitrogen
+            ) * FertilizerEffect.FULLY_FERTILIZED.value
         else:
             # Apply a penalty if the nitrogen level is greater than the perfect nitrogen level
             # Unsure exactly how this calculated in game (will likely need to revisit when PF comes out for FS25)
             logger.info("Nitrogen level is greater than required nitrogen, applying reduction")
             excess = nitrogen_level / crop_required_nitrogen
-            nitrogen_percentage = (FertilizerEffect.FULLY_FERTILIZED.value / excess)
+            nitrogen_percentage = FertilizerEffect.FULLY_FERTILIZED.value / excess
 
         return max(nitrogen_percentage, 0)
 
@@ -283,7 +300,9 @@ class MetricService:
         # and apply its bonus.
         for threshold, bonus in thresholds:
             if ph_level >= threshold:
-                logger.info(f"Calculating percentage bonus for pH Level: {ph_level}/{threshold} = {bonus}%")
+                logger.info(
+                    f"Calculating percentage bonus for pH Level: {ph_level}/{threshold} = {bonus}%"
+                )
                 return bonus
 
         return 0

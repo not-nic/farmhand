@@ -13,10 +13,7 @@ class TaskRequest(BaseModel):
     Request model for creating a new task.
     """
 
-    content: Annotated[
-        str,
-        StringConstraints(min_length=10, max_length=280, strip_whitespace=True)
-    ]
+    content: Annotated[str, StringConstraints(min_length=10, max_length=280, strip_whitespace=True)]
     completed: bool = False
 
 
@@ -41,4 +38,3 @@ class TasksResponse(BaseModel):
 
     tasks: list[TaskResponse]
     count: int
-

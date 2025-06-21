@@ -19,9 +19,7 @@ load_dotenv("tests/resources/test.env", override=True)
 from main import app
 from main import settings
 from src.api.core.db.db_setup import engine, SessionLocal
-from src.api.core.repositories import (
-    UserRepository
-)
+from src.api.core.repositories import UserRepository
 from src.api.core.db.models import User
 from src.api.core.db.models._model_base import SqlAlchemyBase
 from src.api.core.security import Security, github

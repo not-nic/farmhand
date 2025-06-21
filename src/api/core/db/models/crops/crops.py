@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import Integer, String, Double, Boolean
 

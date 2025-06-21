@@ -2,6 +2,7 @@
 Task Repository containing database interactions with the Task Model.
 see: base_repository.py to see the base repository to inherit from.
 """
+
 from uuid import UUID
 
 from sqlalchemy import and_
@@ -24,11 +25,19 @@ class TaskRepository(Repository[Task]):
         Get all completed tasks relating to a farm.
         :return: list of tasks.
         """
-        return self.db.query(Task).filter(Task.completed.is_(True), and_(Task.farm_id == farm_id)).all()
+        return (
+            self.db.query(Task)
+            .filter(Task.completed.is_(True), and_(Task.farm_id == farm_id))
+            .all()
+        )
 
     def get_incompleted_tasks(self, farm_id: UUID) -> list[type[Task]]:
         """
         Get all incomplete tasks relating to a farm.
         :return: list of tasks.
         """
-        return self.db.query(Task).filter(Task.completed.is_(False), and_(Task.farm_id == farm_id)).all()
+        return (
+            self.db.query(Task)
+            .filter(Task.completed.is_(False), and_(Task.farm_id == farm_id))
+            .all()
+        )

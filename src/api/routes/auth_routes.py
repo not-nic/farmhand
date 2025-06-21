@@ -15,7 +15,6 @@ Dependencies:
     - get_current_user: Fetches the current authenticated user.
 """
 
-
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
 from fastapi.responses import RedirectResponse
