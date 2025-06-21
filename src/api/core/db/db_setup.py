@@ -1,10 +1,12 @@
 """
 Python module for initialising the database instance used in the Farmhand API.
 """
+
 from contextlib import contextmanager
+from typing import Generator
 
 from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from src.config import settings
 
 
@@ -16,21 +18,9 @@ def get_engine() -> Engine:
     return create_engine(settings.DATABASE_URL, pool_size=10, max_overflow=20)
 
 
-def get_db():
+def _get_db() -> Generator[Session, None, None]:
     """
-    Create a DB session to be used within FastAPI and repositories.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@contextmanager
-def db_session():
-    """
-    Create a DB session to be used outside the FastAPI dependency injection.
+    Internal generator for DB session management.
     """
     db = SessionLocal()
     try:
@@ -39,5 +29,7 @@ def db_session():
         db.close()
 
 
+get_db = _get_db
+db_session = contextmanager(_get_db)
 engine = get_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
