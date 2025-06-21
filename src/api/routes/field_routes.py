@@ -24,16 +24,16 @@ from fastapi import HTTPException, APIRouter, Depends, status
 
 from src.api.core.db.models.farms import Farm
 from src.api.core.schema.fields import FieldRequest, FieldUpdate
-from src.api.core.dependencies import get_current_user, get_farm, CurrentField
+from src.api.core.dependencies import get_current_user, get_farm, CurrentField, SessionDep
 from src.api.services.field_service import FieldService
 
 router = APIRouter(prefix="/farms/{id}/fields", tags=["Fields"])
-field_service = FieldService()
 
 
 @router.post("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 async def create_field(
-    field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
+        db: SessionDep,
+        field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
 ) -> dict:
     """
     Create a field based on the current farm type.
@@ -42,6 +42,7 @@ async def create_field(
     :param field_request: the field request object.
     """
     try:
+        field_service = FieldService(db)
         return field_service.create_field_by_field_type(field_request, current_farm).model_dump(
             exclude_none=True
         )
@@ -51,9 +52,10 @@ async def create_field(
 
 @router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 async def get_fields(
-    current_farm: Farm = Depends(get_farm),
-    show_crop: Optional[bool] = False,
-    crop_type: Optional[str] = None,
+        db: SessionDep,
+        current_farm: Farm = Depends(get_farm),
+        show_crop: Optional[bool] = False,
+        crop_type: Optional[str] = None,
 ) -> dict:
     """
     Get all fields associated with a farm.
@@ -63,6 +65,7 @@ async def get_fields(
     :return: (FieldsResponse) of field information and amount of fields.
     """
     try:
+        field_service = FieldService(db)
         return await field_service.get_all_fields(current_farm, show_crop, crop_type)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
@@ -73,13 +76,18 @@ async def get_fields(
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
-async def get_field_by_field_number(field: CurrentField, show_crop: Optional[bool] = False) -> dict:
+async def get_field_by_field_number(
+        field: CurrentField,
+        db: SessionDep,
+        show_crop: Optional[bool] = False
+) -> dict:
     """
     Get a field by its number.
     :param field: the field to get all details for
     :param show_crop: Show crops in the response from the service.
     :return: Pydantic PrecisionFarmingField or BaseFieldModel
     """
+    field_service = FieldService(db)
     return field_service.get_field_details(field, show_crop).model_dump(
         exclude_none=True
     )
@@ -90,13 +98,14 @@ async def get_field_by_field_number(field: CurrentField, show_crop: Optional[boo
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def update_field(field: CurrentField, field_update: FieldUpdate):
+async def update_field(db: SessionDep, field: CurrentField, field_update: FieldUpdate):
     """
     Update a field by its id.
     :param field_update: the update field request model
     :param field: the field to update
     """
-    FieldService.update_field(field, field_update)
+    field_service = FieldService(db)
+    field_service.update_field(field, field_update)
 
 
 @router.delete(
@@ -104,9 +113,10 @@ async def update_field(field: CurrentField, field_update: FieldUpdate):
     dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def delete_field(field: CurrentField):
+async def delete_field(db: SessionDep, field: CurrentField):
     """
     Delete a field and its associated field type by its id.
     :param field: the field to delete
     """
-    FieldService.delete_field(field)
+    field_service = FieldService(db)
+    field_service.delete_field(field)

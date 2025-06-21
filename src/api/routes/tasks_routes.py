@@ -19,7 +19,7 @@ Dependencies:
 from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
-from src.api.core.dependencies import CurrentFarm, TaskDep
+from src.api.core.dependencies import CurrentFarm, TaskDep, SessionDep
 from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse
 from src.api.services.tasks_service import TaskService
 
@@ -28,6 +28,7 @@ router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def get_tasks(
+        db: SessionDep,
         current_farm: CurrentFarm,
         filter_by: Optional[str] = ""
 ) -> TasksResponse:
@@ -38,7 +39,7 @@ async def get_tasks(
     :return: (TasksResponse) pydantic model.
     """
 
-    task_service = TaskService()
+    task_service = TaskService(db)
     tasks = task_service.get_tasks(farm=current_farm, filter_by=filter_by)
 
     task_responses = [TaskResponse.model_validate(task) for task in tasks]
@@ -46,7 +47,7 @@ async def get_tasks(
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def create_task(current_farm: CurrentFarm, task: TaskRequest) -> TaskResponse:
+async def create_task(db: SessionDep, current_farm: CurrentFarm, task: TaskRequest) -> TaskResponse:
     """
     Create a task in the database.
     :param current_farm: the current farm to create a task on.
@@ -54,7 +55,7 @@ async def create_task(current_farm: CurrentFarm, task: TaskRequest) -> TaskRespo
     :return: a new completed task.
     """
     try:
-        task_service = TaskService()
+        task_service = TaskService(db)
         return TaskResponse(
             **task_service.create_task(**task.model_dump(), farm_id=current_farm.id).to_dict()
         )
@@ -77,24 +78,25 @@ async def get_task_by_id(task: TaskDep) -> TaskResponse:
 
 
 @router.put("/{task_id}/complete", status_code=status.HTTP_204_NO_CONTENT)
-async def complete_task(task: TaskDep) -> None:
+async def complete_task(db: SessionDep, task: TaskDep) -> None:
     """
     Change the completed status of a task.
     :param task: (Task) The task Dependency.
     :return: 204 No content message.
     """
-    TaskService.complete_task(task)
+    task_service = TaskService(db)
+    task_service.complete_task(task)
 
 
 @router.put("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_task(task: TaskDep, task_update: TaskRequest) -> None:
+async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -> None:
     """
     Delete a task by its ID, if a task exists.
     :param task: (Task) The task Dependency.
     :param task_update: Task update request model.
     :return: 204 No content message.
     """
-    task_service = TaskService()
+    task_service = TaskService(db)
 
     try:
         task_service.update_task(task.id, **task_update.model_dump(exclude_none=True))
@@ -106,10 +108,11 @@ async def update_task(task: TaskDep, task_update: TaskRequest) -> None:
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(task: TaskDep) -> None:
+async def delete_task(db: SessionDep, task: TaskDep) -> None:
     """
     Delete a task by its ID, if a task exists.
     :param task: (Task) The task Dependency.
     :return: 204 No content message.
     """
-    TaskService.delete_task(task.id)
+    task_service = TaskService(db)
+    task_service.delete_task(task.id)

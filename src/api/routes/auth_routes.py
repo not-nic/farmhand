@@ -21,7 +21,8 @@ from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
 from fastapi.responses import RedirectResponse
 
 from src.api.constants import AuthTypes
-from src.api.core.dependencies import get_current_user
+from src.api.core.dependencies import get_current_user, SessionDep
+from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import TokenModel
 from src.api.core.schema.users import GithubUser
 from src.api.core.schema.login import LoginRequest
@@ -34,14 +35,16 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(login_request: LoginRequest, response: Response) -> dict:
+async def login(login_request: LoginRequest, db: SessionDep, response: Response) -> dict:
     """
     Endpoint for logging into the service with a username and password
     :param login_request: login request pydantic model
+    :param db: database session.
     :param response: return a message and set a session token cookie.
     :return:
     """
-    user: User = User.get_by_username(login_request.username)
+    user_repository = UserRepository(db)
+    user: User = user_repository.get_by_username(login_request.username)
 
     if not user or not Security.verify_password(login_request.password, user.password):
         raise HTTPException(
@@ -71,25 +74,28 @@ async def github_login(request: Request) -> Response:
 
 
 @router.get("/github/callback", status_code=status.HTTP_302_FOUND)
-async def authenticate_github(request: Request) -> Response:
+async def authenticate_github(request: Request, db: SessionDep) -> Response:
     """
     Authenticate the user with a GitHub access token and create a user if
     they do not exist. Then encode the GitHub id into a JWT to be used on
      requests to the service.
 
     :param request: the users request
+    :param db: database session
     :return: (jwt) session token containing the users GitHub id.
     """
+    user_repository = UserRepository(db)
+
     token = await github.authorize_access_token(request)
     response = await github.get("https://api.github.com/user", token=token)
 
     github_user = GithubUser(**response.json())
-    user = User.get_by_github_id(github_user.id)
+    user = user_repository.get_by_github_id(github_user.id)
 
     # Create user if it does not exist
     if not user:
         logger.info("[Github Auth]: User does not exist, creating a new user")
-        User.create(
+        user_repository.create(
             github_id=github_user.id,
             email_address=github_user.email,
             username=github_user.username,

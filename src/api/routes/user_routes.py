@@ -13,7 +13,8 @@ Dependencies:
 """
 
 from fastapi import APIRouter, Depends, status, HTTPException
-from src.api.core.dependencies import get_current_user
+from src.api.core.dependencies import get_current_user, SessionDep
+from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import UserCreate
 from src.api.core.db.models.users import User
 from src.api.core.security import Security
@@ -37,14 +38,17 @@ async def get_user_info(current_user: User = Depends(get_current_user)) -> dict:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(user_create: UserCreate) -> dict:
+async def create_user(user_create: UserCreate, db: SessionDep) -> dict:
     """
     Create a new user in the service
     :param user_create: create user pydantic model
+    :param db: database session dependency
     :return: 201 Created message if successful.
     """
-    exists_by_username = User.get_by_username(user_create.username)
-    exists_by_email = User.get_by_email(user_create.email_address)
+    user_repository = UserRepository(db)
+
+    exists_by_username = user_repository.get_by_username(user_create.username)
+    exists_by_email = user_repository.get_by_email(user_create.email_address)
 
     if exists_by_username:
         raise HTTPException(
@@ -57,6 +61,6 @@ async def create_user(user_create: UserCreate) -> dict:
         )
 
     user_create.password = Security.get_password_hash(user_create.password)
-    User.create(**user_create.model_dump())
+    user_repository.create(**user_create.model_dump())
 
     return {"message": "Account created successfully"}
