@@ -14,10 +14,11 @@ from src.api.core.db.models import User
 from src.api.core.schema.users import TokenModel
 from src.api.core.security import Security
 from src.config import settings
+from tests.conftest import user_repository
 
 
 class TestSecurity:
-    def test_get_user_by_default_auth_type(self, create_database, unit_test_user: User):
+    def test_get_user_by_default_auth_type(self, create_database, unit_test_user: User, user_repository):
         """
         Test that when passed a TokenModel containing a 'default' AuthType claim
         the user is retrieved by their id and returned.
@@ -31,11 +32,11 @@ class TestSecurity:
             iat=datetime.now(timezone.utc),
         )
 
-        expected_user = Security.get_user_by_auth_type(token=expected_token)
+        expected_user = Security.get_user_by_auth_type(token=expected_token, user_repository=user_repository)
 
         assert expected_user == unit_test_user
 
-    def test_get_user_by_github_auth_type(self, create_database, github_user: User):
+    def test_get_user_by_github_auth_type(self, create_database, github_user: User, user_repository):
         """
         Test that when passed a TokenModel containing a 'GitHub' AuthType claim
         the user is retrieved by their GitHub id and returned.
@@ -49,7 +50,7 @@ class TestSecurity:
             iat=datetime.now(timezone.utc),
         )
 
-        expected_user = Security.get_user_by_auth_type(token=expected_token)
+        expected_user = Security.get_user_by_auth_type(token=expected_token, user_repository=user_repository)
         assert expected_user == github_user
 
     def test_security_encode_and_decode_jwt(self):
