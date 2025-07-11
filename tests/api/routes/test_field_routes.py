@@ -159,9 +159,9 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
         result_json = result.json()
+
         assert result_json["detail"] == (
-            "Value error, Precision Farming field values (nitrogen_level, ph_level, soil_type) cannot "
-            "be used with Base Game Field specific fields (fertilized, limed)."
+            "Value error, Unable to use Base Game Field values (fertilized, limed) on a Precision Farming field."
         )
 
     def test_creating_field_on_wrong_farm_type(self, client, session, farms):
