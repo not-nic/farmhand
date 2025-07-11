@@ -6,6 +6,8 @@ import re
 
 from datetime import datetime, date
 
+from src.api.constants import FieldTypes
+
 
 class Validators:
     """
@@ -89,6 +91,7 @@ class Validators:
         :param values: the request object to check values for.
         :return: the field_request model of a raise a Value Error.
         """
+        field_type = values.get("field_type")
         nitrogen_level = values.get("nitrogen_level")
         ph_level = values.get("ph_level")
         soil_type = values.get("soil_type")
@@ -97,6 +100,18 @@ class Validators:
 
         precision_farming_fields = [nitrogen_level, ph_level, soil_type]
         base_field_fields = [fertilized, limed]
+
+        if field_type == FieldTypes.PRECISION_FARMING_FIELD and any(base_field_fields):
+            raise ValueError(
+                "Unable to use Base Game Field values (fertilized, limed) on a Precision "
+                "Farming field."
+            )
+
+        if field_type == FieldTypes.BASE_FIELD and any(precision_farming_fields):
+            raise ValueError(
+                "Unable to use Precision Farming field values (nitrogen_level, ph_level, soil_type) "
+                "on a Base Game Field."
+            )
 
         if any(precision_farming_fields) and any(base_field_fields):
             raise ValueError(
