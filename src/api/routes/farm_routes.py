@@ -20,10 +20,9 @@ from fastapi import HTTPException, APIRouter, Depends, status
 
 from src.api.core.repositories import MapRepository, FarmRepository
 from src.api.core.schema.farms import FarmRequest, FarmUpdate, FarmResponse, FarmsResponse
-from src.api.core.db.models.maps import Map
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
-from src.api.core.dependencies import get_current_user, get_farm, SessionDep
+from src.api.core.dependencies import get_current_user, get_farm, SessionDep, CurrentUser
 
 router = APIRouter(prefix="/farms", tags=["Farms"])
 
@@ -31,11 +30,10 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
 @router.post(
     "/",
     response_model=FarmResponse,
-    dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_201_CREATED,
 )
 async def create_farm(
-    farm_request: FarmRequest, db: SessionDep, current_user: User = Depends(get_current_user)
+    farm_request: FarmRequest, db: SessionDep, current_user: CurrentUser
 ) -> FarmResponse:
     """
     Create a farm linked for the logged-in user.
@@ -46,15 +44,16 @@ async def create_farm(
     """
     map_repository = MapRepository(db)
     farm_repository = FarmRepository(db)
-    if farm_request.map_id:
-        map: Map = map_repository.get_by_id(farm_request.map_id)
+
+    if farm_request.map_id or farm_request.map_id == 0:
+        map = map_repository.get_by_id(farm_request.map_id)
 
         if not map:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
 
         farm_request.map_name = map.name
 
-    farm: Farm = farm_repository.create(
+    farm = farm_repository.create(
         name=farm_request.name,
         description=farm_request.description,
         map_name=farm_request.map_name,
