@@ -158,6 +158,7 @@ class TestFarmRoutes:
 
         result = TestClientHelper.post(self.url, payload, client)
         assert result.status_code == status.HTTP_404_NOT_FOUND
+        assert result.json() == {"detail": "Map not found"}
 
     def test_create_farm_returns_validation_error(self, client, session):
         """
