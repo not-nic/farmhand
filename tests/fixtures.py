@@ -67,7 +67,8 @@ def farm_map(db):
         release_date=datetime.date(year=2025, month=3, day=11),
         version="1.0.0.0",
     )
-    return expected_map
+    yield expected_map
+    map_repository.delete(expected_map.id)
 
 
 @pytest.fixture

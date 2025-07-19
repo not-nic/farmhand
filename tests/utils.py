@@ -56,6 +56,17 @@ class TestClientHelper:
         """
         return client.delete(url)
 
+    @staticmethod
+    def patch(url: str, json: dict, client: TestClient):
+        """
+        PATCH request helper.
+        :param url: the url to test
+        :param json: the json payload to send
+        :param client: the TestClient instance to use
+        :return: the response from the API.
+        """
+        return client.patch(url, json=json)
+
 
 def load_test_resource(filename: str) -> str:
     """
