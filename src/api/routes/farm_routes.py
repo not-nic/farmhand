@@ -98,22 +98,29 @@ async def get_farm_by_id(farm: Farm = Depends(get_farm)) -> FarmResponse:
     return FarmResponse(**farm.to_dict())
 
 
-@router.put(
-    "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
-)
+@router.patch("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_farm(
     db: SessionDep, farm_update: FarmUpdate, farm: Farm = Depends(get_farm)
 ) -> None:
     """
-    Update a farm for the current logged-in user.
     :param db: database session dependency.
     :param farm_update: Farm update model
     :param farm: The farm fetched by the dependency
     :return: No Content
     """
     farm_repository = FarmRepository(db)
-    update_data = farm_update.model_dump(exclude_unset=True)
-    farm_repository.update(farm.id, **update_data)
+    map_repository = MapRepository(db)
+
+    if farm_update.map_id:
+        map = map_repository.get_by_id(farm_update.map_id)
+
+        if not map:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+
+        farm_update.map_name = map.name
+        farm_repository.update(farm.id, **farm_update.model_dump(exclude_unset=True))
+
+    farm_repository.update(farm.id, **farm_update.model_dump(exclude_unset=True))
 
 
 @router.delete(
