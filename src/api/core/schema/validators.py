@@ -59,7 +59,7 @@ class Validators:
         return [platform.strip() for platform in value.split(",")]
 
     @staticmethod
-    def validate_map_id_or_name_exists(values):
+    def validate_map_id_or_name_exists(values: dict) -> dict:
         """
         Pydantic Validator to check that either a map_id or map_name exists
         in the FarmRequest object.
