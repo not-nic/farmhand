@@ -6,7 +6,6 @@ import pytest
 
 from fastapi import status
 from src.config import settings
-from tests.utils import TestClientHelper
 
 
 class TestAuthRoutes:
@@ -21,7 +20,7 @@ class TestAuthRoutes:
 
         payload = {"username": "notauser", "password": "notapassword"}
 
-        response = TestClientHelper.post(url=f"{self.url}/login", client=client, json=payload)
+        response = client.post(url=f"{self.url}/login", json=payload)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert response.json() == {"detail": "Username or password is incorrect"}
 
@@ -35,7 +34,7 @@ class TestAuthRoutes:
 
         payload = {"username": "unit-testing-user", "password": "unit-testing-password"}
 
-        response = TestClientHelper.post(url=f"{self.url}/login", json=payload, client=client)
+        response = client.post(url=f"{self.url}/login", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"message": "login successful"}
@@ -48,7 +47,7 @@ class TestAuthRoutes:
         :param github_user: GitHub user fixture
         """
 
-        response = TestClientHelper.get(f"{self.url}/github", client)
+        response = client.get(f"{self.url}/github")
         mock_github_login.assert_called_once()
         assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
 
@@ -63,7 +62,7 @@ class TestAuthRoutes:
         :param github_user: GitHub user fixture
         """
 
-        response = TestClientHelper.get(f"{self.url}/github/callback", client)
+        response = client.get(f"{self.url}/github/callback")
         assert response.status_code == status.HTTP_200_OK
 
     def test_logout_of_service(self, client, session):
@@ -73,5 +72,5 @@ class TestAuthRoutes:
         """
 
         # Log out of the service, and delete the JWT token.
-        response = TestClientHelper.post(url=f"{self.url}/logout", json={}, client=client)
+        response = client.post(url=f"{self.url}/logout")
         assert response.status_code == status.HTTP_204_NO_CONTENT

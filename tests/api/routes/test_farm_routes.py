@@ -10,7 +10,6 @@ from fastapi import status
 from src.api.core.repositories import FarmRepository
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
-from tests.utils import TestClientHelper
 
 
 @pytest.mark.usefixtures("client", "session")
@@ -34,7 +33,7 @@ class TestFarmRoutes:
         :param farms: create farms fixture
         """
 
-        result = TestClientHelper.get(self.url, client)
+        result = client.get(self.url)
 
         assert result.status_code == status.HTTP_200_OK
         assert result.json()["count"] == len(farms)
@@ -55,7 +54,7 @@ class TestFarmRoutes:
 
         expected_farm = farms[0]
 
-        result = TestClientHelper.get(f"{self.url}/{expected_farm.id}", client)
+        result = client.get(f"{self.url}/{expected_farm.id}")
         result_json = result.json()
 
         assert result.status_code == status.HTTP_200_OK
@@ -72,7 +71,7 @@ class TestFarmRoutes:
         :param session: the user's session
         """
 
-        result = TestClientHelper.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f", client)
+        result = client.get(f"{self.url}/f5a22bb2-d768-4cbd-a684-4826670d452f")
 
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Farm not found."}
@@ -88,7 +87,7 @@ class TestFarmRoutes:
             name="farm 1", description="description 1", map_name="map 1", owner_id=uuid4()
         )
 
-        result = TestClientHelper.get(f"{self.url}/{farm.id}", client)
+        result = client.get(f"{self.url}/{farm.id}")
 
         assert result.status_code == status.HTTP_403_FORBIDDEN
         assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not own this farm."}
@@ -106,7 +105,7 @@ class TestFarmRoutes:
             "map_name": "test-map",
         }
 
-        result = TestClientHelper.post(self.url, payload, client)
+        result = client.post(self.url, json=payload)
 
         assert result.status_code == status.HTTP_201_CREATED
 
@@ -130,7 +129,7 @@ class TestFarmRoutes:
             "map_id": 123456,
         }
 
-        result = TestClientHelper.post(self.url, payload, client)
+        result = client.post(self.url, json=payload)
         assert result.status_code == status.HTTP_201_CREATED
 
         result_json = result.json()
@@ -156,7 +155,7 @@ class TestFarmRoutes:
             "map_id": 1234,
         }
 
-        result = TestClientHelper.post(self.url, payload, client)
+        result = client.post(self.url, json=payload)
         assert result.status_code == status.HTTP_404_NOT_FOUND
         assert result.json() == {"detail": "Map not found"}
 
@@ -172,7 +171,7 @@ class TestFarmRoutes:
             "description": "test-description",
         }
 
-        result = TestClientHelper.post(self.url, payload, client)
+        result = client.post(self.url, json=payload)
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_update_farm(self, client, session, user_id, farm_repository):
@@ -192,7 +191,7 @@ class TestFarmRoutes:
 
         payload = {"map_name": "New farm name"}
 
-        result = TestClientHelper.patch(f"{self.url}/{expected_farm.id}", payload, client)
+        result = client.patch(f"{self.url}/{expected_farm.id}", json=payload)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_update_farm_with_new_map(self, client, db, session, user_id, farm_map, farm_repository):
@@ -221,7 +220,6 @@ class TestFarmRoutes:
         assert farm.map_id == farm_map.id
         assert farm.map_name == farm_map.name
 
-
     def test_delete_farm(self, client, session, user_id, farm_repository):
         """
         Test deleting a farm record
@@ -234,6 +232,6 @@ class TestFarmRoutes:
             name="test name", description="test description", map_name="test map", owner_id=user_id
         )
 
-        result = TestClientHelper.delete(f"{self.url}/{expected_farm.id}", client)
+        result = client.delete(f"{self.url}/{expected_farm.id}")
         assert result.status_code == status.HTTP_204_NO_CONTENT
 

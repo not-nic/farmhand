@@ -11,7 +11,6 @@ from fastapi import status
 from src.api.core.schema.tasks.tasks import TasksResponse, TaskResponse
 from src.api.services.tasks_service import TaskService
 from src.config import settings
-from tests.utils import TestClientHelper
 
 
 @pytest.mark.usefixtures("client", "session")
@@ -34,7 +33,7 @@ class TestTaskRoutes:
         """
         task_service = TaskService(db)
         tasks = task_service.get_tasks(farm, filter_by=filter)
-        result = TestClientHelper.get(self.task_url(farm_id=farm.id, filter_by=filter), client)
+        result = client.get(self.task_url(farm_id=farm.id, filter_by=filter))
 
         expected_task_json = TasksResponse(tasks=tasks, count=len(tasks)).model_dump(mode="json")
 
@@ -51,7 +50,7 @@ class TestTaskRoutes:
         """
         payload = {"content": "New Task Content", "completed": False}
 
-        result = TestClientHelper.post(self.task_url(farm_id=farm.id), json=payload, client=client)
+        result = client.post(self.task_url(farm_id=farm.id), json=payload)
 
         task_service = TaskService(db)
         task = task_service.get_task_by_id(UUID(result.json()["id"]))
@@ -71,7 +70,7 @@ class TestTaskRoutes:
         """
         payload = {"content": ("A" * 281), "completed": False}
 
-        result = TestClientHelper.post(self.task_url(farm_id=farm.id), json=payload, client=client)
+        result = client.post(self.task_url(farm_id=farm.id), json=payload)
 
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert result.json() == {"detail": "String should have at most 280 characters"}
@@ -86,9 +85,7 @@ class TestTaskRoutes:
         payload = {"content": "updated task content", "completed": True}
 
         task_id = tasks[0].id
-        result = TestClientHelper.put(
-            self.task_url(farm_id=farm.id, task_id=task_id), json=payload, client=client
-        )
+        result = client.put(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_update_task_endpoint_returns_bad_request_when_too_long(
@@ -106,9 +103,7 @@ class TestTaskRoutes:
 
         task_id = tasks[0].id
 
-        result = TestClientHelper.put(
-            self.task_url(farm_id=farm.id, task_id=task_id), json=payload, client=client
-        )
+        result = client.put(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
 
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert result.json() == {"detail": "String should have at most 280 characters"}
@@ -122,9 +117,7 @@ class TestTaskRoutes:
         :param tasks: Tasks Fixture.
         """
         task_id = tasks[0].id
-        result = TestClientHelper.delete(
-            self.task_url(farm_id=farm.id, task_id=task_id), client=client
-        )
+        result = client.delete(self.task_url(farm_id=farm.id, task_id=task_id))
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_get_task_by_id(self, client, session, farm, tasks):
@@ -136,9 +129,7 @@ class TestTaskRoutes:
         :param tasks: Tasks Fixture.
         """
         task = tasks[0]
-        result = TestClientHelper.get(
-            self.task_url(farm_id=farm.id, task_id=task.id), client=client
-        )
+        result = client.get(self.task_url(farm_id=farm.id, task_id=task.id))
 
         assert result.status_code == status.HTTP_200_OK
         assert TaskResponse(**task.to_dict()).model_dump(mode="json") == result.json()
@@ -152,9 +143,5 @@ class TestTaskRoutes:
         :param tasks: Tasks Fixture.
         """
         task = tasks[1]
-        result = TestClientHelper.put(
-            url=f"{self.task_url(farm_id=farm.id, task_id=task.id)}/complete",
-            json={},
-            client=client,
-        )
+        result = client.put(url=f"{self.task_url(farm_id=farm.id, task_id=task.id)}/complete")
         assert result.status_code == status.HTTP_204_NO_CONTENT
