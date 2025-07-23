@@ -2,10 +2,6 @@
 Module for Farmhand Data validators to be used alongside the pydantic models.
 """
 
-import re
-
-from datetime import datetime, date
-
 from src.api.constants import FieldTypes
 
 

@@ -27,5 +27,6 @@ for this stack to run you must first pull and build a docker image for the [farm
    ```
    docker compose --env-file ../.env -f docker-compose.yml up
    ```
+
    > [!NOTE]
    > This is using the .env file created from the steps within the README.md.
