@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str
 
+    DATA_API_URL: str = "http://localhost:8001/api/v1"
+
     @computed_field(return_type=str)
     def DATABASE_URL(self):
         if self.ENVIRONMENT == "development":

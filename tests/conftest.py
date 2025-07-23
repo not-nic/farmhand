@@ -2,16 +2,14 @@
 Pytest conftest.py containing test setup, TestClient Fixtures and other mocks.
 """
 
-from typing import Optional, Any, Generator
+from typing import Any, Generator
 
 import pytest
 
 from dotenv import load_dotenv
-from fastapi import status
 from fastapi.testclient import TestClient
-from requests import Response
 
-from tests.utils import load_test_resource, crop_data
+from tests.utils import crop_data
 
 load_dotenv("tests/resources/test.env", override=True)
 
@@ -57,12 +55,13 @@ def db(create_database):
 
 
 @pytest.fixture(scope="module")
-def client(db) -> Generator[TestClient, None, None]:
+def client(db, make_httpserver) -> Generator[TestClient, None, None]:
     """
     Fixture for the FastAPI test client
     :return:
     """
     settings.ENVIRONMENT = "testing"
+    settings.DATA_API_URL = make_httpserver.url_for("")
     with TestClient(app) as c:
         yield c
         SqlAlchemyBase.metadata.drop_all(engine)
@@ -117,28 +116,6 @@ def session(client, unit_test_user) -> Generator[str | None, Any, None]:
     session_token = result.cookies.get("farmhand_user")
     client.cookies["farmhand_user"] = session_token
     yield session_token
-
-
-@pytest.fixture
-def mock_mod_hub_page(mocker) -> callable:
-    """
-    Create a fixture for a modhub page, define which HTML resource should be
-    returned and what status code.
-    :param mocker: pytest mocker
-    :return: a callable _mock_page function
-    """
-
-    def _mock_page(file_name: Optional[str] = None, status_code: int = status.HTTP_200_OK) -> None:
-        html_content = load_test_resource(file_name) if file_name else None
-
-        mock_response = Response()
-        mock_response.status_code = status_code
-        if html_content:
-            mock_response._content = html_content
-
-        mocker.patch("requests.get", return_value=mock_response)
-
-    return _mock_page
 
 
 @pytest.fixture
