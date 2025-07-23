@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api:
     build:
-      context: .
+      context: ../
       dockerfile: Dockerfile
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       ENVIRONMENT: ${ENVIRONMENT}
 
-      DATA_API_URL: ${DATA_API_URL}
+      DATA_API_URL: "http://data-api:8000/api/v1"
 
       SERVICE_USER_USERNAME: ${SERVICE_USER_USERNAME}
       SERVICE_USER_EMAIL: ${SERVICE_USER_EMAIL}
@@ -25,16 +25,28 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
 
       FRONTEND_REDIRECT_URL: ${FRONTEND_REDIRECT_URL}
-    container_name: farmhand-api
     depends_on:
       - database
+      - data-api
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ../:/app
+  data-api:
+    # requires building locally from the farmhand-data-api repository
+    image: farmhand-data-api
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: "farmhand-data"
+      ENVIRONMENT: ${ENVIRONMENT}
+    depends_on:
+      - database
+    ports:
+      - "8001:8000"
   database:
     image: postgres:17
-    container_name: farmhand-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -43,6 +55,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init_dbs.sh:/docker-entrypoint-initdb.d/init_dbs.sh
+
 
 volumes:
   postgres_data:

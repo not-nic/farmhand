@@ -9,7 +9,7 @@ from src.api.constants import FarmTypes, Difficulty
 from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
-    from src.api.core.db.models import User, Map, Field, Task
+    from src.api.core.db.models import User, Field, Task
 
 
 class Farm(SqlAlchemyBase):
@@ -37,7 +37,7 @@ class Farm(SqlAlchemyBase):
     map_name: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     owner_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("users.id"), nullable=False)
-    map_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("maps.id"), nullable=True)
+    map_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     farm_type: Mapped[FarmTypes] = mapped_column(
         Enum(FarmTypes, native_enum=False), nullable=False, default=FarmTypes.BASE
@@ -48,7 +48,6 @@ class Farm(SqlAlchemyBase):
     )
 
     user: Mapped["User"] = relationship("User", back_populates="farms")
-    map: Mapped["Map"] = relationship("Map", back_populates="farms")
 
     fields: Mapped[list["Field"]] = relationship(
         "Field", back_populates="farm", cascade="all, delete-orphan"

@@ -10,7 +10,6 @@ from src.api.routes import (
     auth_routes,
     user_routes,
     farm_routes,
-    scrape_routes,
     field_routes,
     crop_routes,
     metrics_routes,
@@ -32,4 +31,3 @@ field_routes.router.include_router(
 api_router.include_router(field_routes.router)
 api_router.include_router(tasks_routes.router)
 api_router.include_router(farm_routes.router)
-api_router.include_router(scrape_routes.router)

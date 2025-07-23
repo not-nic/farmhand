@@ -18,11 +18,14 @@ Dependencies:
 
 from fastapi import HTTPException, APIRouter, Depends, status
 
-from src.api.core.repositories import MapRepository, FarmRepository
+from src.api.core.repositories import FarmRepository
 from src.api.core.schema.farms import FarmRequest, FarmUpdate, FarmResponse, FarmsResponse
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.users import User
 from src.api.core.dependencies import get_current_user, get_farm, SessionDep, CurrentUser
+from src.api.core.schema.maps.maps import MapModel
+from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
+from src.api.services.data_service import DataApiService
 
 router = APIRouter(prefix="/farms", tags=["Farms"])
 
@@ -42,14 +45,22 @@ async def create_farm(
     :param farm_request: farm request model
     :return: (FarmResponse) Return a response of the farm
     """
-    map_repository = MapRepository(db)
     farm_repository = FarmRepository(db)
 
     if farm_request.map_id or farm_request.map_id == 0:
-        map = map_repository.get_by_id(farm_request.map_id)
+        try:
+            data_service = DataApiService()
+            map_response = await data_service.get_map_by_id(farm_request.map_id)
+        except ServiceUnavailableError:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Unable to communicate with farmhand-data-api."
+            )
 
-        if not map:
+        if not map_response:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+
+        map = MapModel.model_validate(map_response)
 
         farm_request.map_name = map.name
 
@@ -109,13 +120,21 @@ async def update_farm(
     :return: No Content
     """
     farm_repository = FarmRepository(db)
-    map_repository = MapRepository(db)
 
     if farm_update.map_id:
-        map = map_repository.get_by_id(farm_update.map_id)
+        try:
+            data_service = DataApiService()
+            map_response = await data_service.get_map_by_id(farm_update.map_id)
+        except ServiceUnavailableError:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Unable to communicate with farmhand-data-api."
+            )
 
-        if not map:
+        if not map_response:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+
+        map = MapModel.model_validate(map_response)
 
         farm_update.map_name = map.name
         farm_repository.update(farm.id, **farm_update.model_dump(exclude_unset=True))

@@ -3,7 +3,6 @@ Collection of Enums used within the Farmhand service.
 """
 
 from enum import Enum
-
 from strenum import StrEnum
 
 
@@ -15,37 +14,6 @@ class AuthTypes(StrEnum):
 
     DEFAULT = "default"
     GITHUB = "github"
-
-
-class URLs(StrEnum):
-    """
-    ModHub URLs
-     - mods_url: The page that displays multiple mods
-     - mod_url: a page for an individual mod
-    """
-
-    BASE_MODS_URL = "https://www.farming-simulator.com/mods.php"
-    BASE_MOD_URL = "https://www.farming-simulator.com/mod.php"
-
-
-class MapFilters(StrEnum):
-    """
-    All map filters for the modhub, used to scrape all maps.
-    """
-
-    EUROPEAN_MAPS = "mapEurope"
-    NORTH_AMERICAN_MAPS = "mapNorthAmerica"
-    SOUTH_AMERICAN_MAPS = "mapSouthAmerica"
-    OTHER_MAPS = "mapOthers"
-
-
-class GameVersions(StrEnum):
-    """
-    Versions of the supported and used for scraping.
-    """
-
-    FS_2025 = "fs2025"
-    FS_2022 = "fs2022"
 
 
 class FarmTypes(StrEnum):

@@ -115,12 +115,12 @@ class TestFarmRoutes:
         for key, value in payload.items():
             assert expected_farm.get(key) == value
 
-    def test_create_farm_by_map_id(self, client, session, farm_map, farm_repository):
+    def test_create_farm_by_map_id(self, client, session, mock_map_response, farm_repository):
         """
         Test creating a farm by a map_id and validate it is in the database.
         :param client: FastAPI test client
         :param session: the user's session
-        :param farm_map: fixture to create a map
+        :param mock_map_response: fixture to create a map
         """
 
         payload = {
@@ -139,8 +139,8 @@ class TestFarmRoutes:
         for key, value in payload.items():
             assert expected_farm_dict.get(key) == value
 
-        assert expected_farm.map_name == farm_map.name
-        assert expected_farm.map.id == farm_map.id
+        assert expected_farm.map_name == 'custom-map-1'
+        assert expected_farm.map_id == 123456
 
     def test_create_farm_returns_404_if_no_map_is_found(self, client, session):
         """
@@ -194,7 +194,7 @@ class TestFarmRoutes:
         result = client.patch(f"{self.url}/{expected_farm.id}", json=payload)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
-    def test_update_farm_with_new_map(self, client, db, session, user_id, farm_map, farm_repository):
+    def test_update_farm_with_new_map(self, client, db, session, user_id, mock_map_response, farm_repository):
         """
         test that when a farm is updated with a new map the map_id and map_name
         are updated.
@@ -202,6 +202,8 @@ class TestFarmRoutes:
         :param session: the user session fixture
         :param farm_repository: farm database repository fixture.
         """
+        httpserver, mock_response = mock_map_response
+
         farm = farm_repository.create(
             name="Old farm name",
             description="test description",
@@ -209,16 +211,13 @@ class TestFarmRoutes:
             owner_id=user_id,
         )
 
-        payload = {"map_id": farm_map.id}
-
+        payload = {"map_id": mock_response["id"]}
         result = client.patch(f"{self.url}/{farm.id}", json=payload)
 
         assert result.status_code == status.HTTP_204_NO_CONTENT
-
         db.refresh(farm)
-
-        assert farm.map_id == farm_map.id
-        assert farm.map_name == farm_map.name
+        assert farm.map_id == mock_response["id"]
+        assert farm.map_name == mock_response["name"]
 
     def test_delete_farm(self, client, session, user_id, farm_repository):
         """

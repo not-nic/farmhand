@@ -26,13 +26,15 @@ Visit those repos here:
    POSTGRES_PASSWORD=postgres  
    POSTGRES_DB=farmhand  
    ENVIRONMENT=development  
+   
+   DATA_API_URL=http://data-api:8000/api/v1 # machine local IP address if running outside docker
   
    SERVICE_USER_USERNAME=service-user  
    SERVICE_USER_EMAIL=service-user@farmhand.uk  
    SERVICE_USER_PASSWORD=<your_password>
    
    JWT_SECRET_KEY=<your_secret_key>
-   
+
    # Only required if using GitHub OAuth
    GITHUB_CLIENT_ID=<your_client_id>
    GITHUB_CLIENT_SECRET=<your_secret>
@@ -116,3 +118,8 @@ To check the test coverage of the repository use the following command:
 ```bash
 pytest --cov src 
 ```
+
+## Running All Services
+
+To run all services such as the farmhand-data-api and the farmhand-api see
+the guide in: [farmhand-local/farmhand-local.md](/farmhand-local/farmhand-local.md)

@@ -8,7 +8,6 @@ from .field_repository import FieldRepository
 from .field_crop_repository import FieldCropRepository
 from .crop_repository import CropRepository
 from .farm_repository import FarmRepository
-from .map_repository import MapRepository
 from .task_repository import TaskRepository
 
 __all__ = [
@@ -18,6 +17,5 @@ __all__ = [
     "FarmRepository",
     "FieldCropRepository",
     "CropRepository",
-    "MapRepository",
     "TaskRepository",
 ]

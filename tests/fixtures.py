@@ -11,9 +11,8 @@ from uuid import UUID
 
 from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
 from src.api.core.db.models import Field, User
-from src.api.core.db.models.maps import Map
 from src.api.core.db.models.farms import Farm
-from src.api.core.repositories import UserRepository, FarmRepository, FieldRepository, MapRepository
+from src.api.core.repositories import UserRepository, FarmRepository, FieldRepository
 from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
@@ -54,22 +53,25 @@ def farm(farms) -> Farm:
 
 
 @pytest.fixture
-def farm_map(db):
+def mock_map_response(httpserver):
     """
-    Fixture of a ModHub map
-    """
-    map_repository = MapRepository(db)
-    expected_map: Map = map_repository.create(
-        id=123456,
-        name="custom-map-1",
-        category="European Map",
-        author="Simon Pegg",
-        release_date=datetime.date(year=2025, month=3, day=11),
-        version="1.0.0.0",
-    )
-    yield expected_map
-    map_repository.delete(expected_map.id)
 
+    :param httpserver:
+    :return:
+    """
+    mock_id = 123456
+    mock_response = {
+        "id": mock_id,
+        "name": "custom-map-1",
+        "category": "European Map",
+        "author": "Simon Pegg",
+        "release_date": str(datetime.date(year=2025, month=3, day=11)),
+        "version": "1.0.0.0",
+    }
+
+    httpserver.expect_request(f"/maps/{mock_id}", method="GET").respond_with_json(mock_response, status=200)
+
+    return httpserver, mock_response
 
 @pytest.fixture
 def user_id(db) -> UUID:
