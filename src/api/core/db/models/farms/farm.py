@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import UUID, String, Text, DateTime, ForeignKey, Integer, Enum
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import UUID, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.api.constants import FarmTypes, Difficulty
+from src.api.constants import Difficulty, FarmTypes
 from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
-    from src.api.core.db.models import User, Field, Task
+    from src.api.core.db.models import Field, Task, User
 
 
 class Farm(SqlAlchemyBase):

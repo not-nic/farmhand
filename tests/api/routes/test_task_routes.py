@@ -8,7 +8,7 @@ from uuid import UUID
 import pytest
 from fastapi import status
 
-from src.api.core.schema.tasks.tasks import TasksResponse, TaskResponse
+from src.api.core.schema.tasks.tasks import TaskResponse, TasksResponse
 from src.api.services.tasks_service import TaskService
 from src.config import settings
 

@@ -18,9 +18,10 @@ Dependencies:
 """
 
 from typing import Optional
+
 from fastapi import APIRouter, HTTPException, status
 
-from src.api.core.dependencies import CurrentFarm, TaskDep, SessionDep
+from src.api.core.dependencies import CurrentFarm, SessionDep, TaskDep
 from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse
 from src.api.services.tasks_service import TaskService
 

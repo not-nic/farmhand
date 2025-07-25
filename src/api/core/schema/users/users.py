@@ -3,6 +3,7 @@ Python module containing pydantic models for Users.
 """
 
 from typing import Optional
+
 from pydantic import BaseModel, Field, model_validator
 
 

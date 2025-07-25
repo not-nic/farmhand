@@ -18,12 +18,11 @@ from fastapi import APIRouter
 from src.api.constants import FertilizerTypes
 from src.api.core.dependencies import CurrentField, SessionDep
 from src.api.core.schema.fields.metrics import (
-    MetricsResponseModel,
-    SeedUsageModel,
-    PotentialYieldModel,
     FertilizerUsageModel,
+    MetricsResponseModel,
+    PotentialYieldModel,
+    SeedUsageModel,
 )
-
 from src.api.services.metrics import MetricService
 
 router = APIRouter(prefix="/{field_number}/metrics", tags=["Field Metrics"])

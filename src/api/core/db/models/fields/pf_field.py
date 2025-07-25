@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import UUID, ForeignKey, Integer, Double, Enum
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import UUID, Double, Enum, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.constants import SoilTypes
 from src.api.core.db.models._model_base import SqlAlchemyBase

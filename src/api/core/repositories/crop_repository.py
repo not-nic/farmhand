@@ -4,9 +4,11 @@ see: base_repository.py to see the base repository to inherit from.
 """
 
 from typing import Optional
+
 from sqlalchemy.orm import Session
-from src.api.core.repositories import Repository
+
 from src.api.core.db.models.crops import Crop
+from src.api.core.repositories import Repository
 
 
 class CropRepository(Repository[Crop]):

@@ -8,7 +8,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.api.core.db.models import Task, Farm
+from src.api.core.db.models import Farm, Task
 from src.api.core.logger import logger
 from src.api.core.repositories import TaskRepository
 

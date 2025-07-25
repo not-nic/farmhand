@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING, List, Optional
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from uuid import uuid4
 
-from sqlalchemy import UUID, Integer, DateTime, Double, String, ForeignKey, Enum, Boolean
+from sqlalchemy import UUID, Boolean, DateTime, Double, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.constants import FieldTypes, WeedStates
 from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
-    from src.api.core.db.models import Farm, FieldCrop, BaseGameField, PrecisionFarmingField
+    from src.api.core.db.models import BaseGameField, Farm, FieldCrop, PrecisionFarmingField
 
 
 class Field(SqlAlchemyBase):
@@ -80,13 +80,13 @@ class Field(SqlAlchemyBase):
         """
         return self.crops[0] if self.crops else []
 
-    def past_crops(self: "Field") -> List["FieldCrop"]:
+    def past_crops(self: "Field") -> list["FieldCrop"]:
         """
         Get all previous crops (excluding the current one) as dictionaries.
         """
         return self.crops[1:]
 
-    def get_crops(self) -> List["FieldCrop"]:
+    def get_crops(self) -> list["FieldCrop"]:
         """
         Get all crops for the field as a readable dictionary.
         """

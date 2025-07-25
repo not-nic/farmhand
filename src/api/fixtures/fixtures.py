@@ -5,10 +5,10 @@ on the start-up of the application.
 
 from src.api.core.db.db_setup import db_session
 from src.api.core.db.models.users import User
+from src.api.core.logger import logger
 from src.api.core.repositories.user_repository import UserRepository
 from src.api.core.security import Security
 from src.api.services.crop_service import CropService
-from src.api.core.logger import logger
 from src.config import settings
 
 

@@ -1,9 +1,10 @@
 import uuid
-
-from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import UUID, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from typing import TYPE_CHECKING
+
+from sqlalchemy import UUID, Boolean, DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:

@@ -3,12 +3,13 @@ Field Repository containing field database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
-from sqlalchemy import select, and_
 from typing import Optional
 from uuid import UUID
 
+from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
-from src.api.core.db.models.fields import Field, BaseGameField, PrecisionFarmingField
+
+from src.api.core.db.models.fields import BaseGameField, Field, PrecisionFarmingField
 from src.api.core.repositories import Repository
 
 

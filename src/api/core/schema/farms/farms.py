@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
-from src.api.constants import FarmTypes, Difficulty
+from src.api.constants import Difficulty, FarmTypes
 from src.api.core.schema.validators import Validators
 
 

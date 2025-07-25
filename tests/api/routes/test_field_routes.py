@@ -2,14 +2,14 @@
 Unit Tests for the Field API Routes.
 """
 
-import pytest
-
 from typing import Optional
 from uuid import UUID, uuid4
+
+import pytest
 from fastapi import status
 
-from src.api.constants import SoilTypes, FieldTypes
-from src.api.core.repositories import FieldRepository, FieldCropRepository
+from src.api.constants import FieldTypes, SoilTypes
+from src.api.core.repositories import FieldCropRepository, FieldRepository
 from src.api.core.schema.fields import FieldResponse, FieldsResponse
 from src.api.services.field_service import FieldService
 from src.config import settings

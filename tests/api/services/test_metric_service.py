@@ -4,13 +4,13 @@ Metrics Service Unit Tests.
 
 import pytest
 
-from src.api.constants import FSData, Difficulty, FertilizerTypes
+from src.api.constants import Difficulty, FertilizerTypes, FSData
 from src.api.core.db.models import FieldCrop
-from src.api.core.repositories import FieldCropRepository, CropRepository
+from src.api.core.repositories import CropRepository, FieldCropRepository
 from src.api.services.metrics import MetricService
 from src.api.services.metrics.utils import (
-    calculate_fertilizer_usage_by_time,
     calculate_fertilizer_kg,
+    calculate_fertilizer_usage_by_time,
 )
 
 

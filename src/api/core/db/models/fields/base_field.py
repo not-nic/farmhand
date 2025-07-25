@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import UUID, ForeignKey, Enum, Boolean
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from sqlalchemy import UUID, Boolean, Enum, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.constants import FertilizerStates
 from src.api.core.db.models._model_base import SqlAlchemyBase

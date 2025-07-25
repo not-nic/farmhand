@@ -3,12 +3,12 @@ Security module for handling various secure functions such as JWT encoding / dec
 OAuth configuration and password hashing.
 """
 
-import jwt
-
 from typing import Optional
+
+import jwt
+from authlib.integrations.starlette_client import OAuth
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-from authlib.integrations.starlette_client import OAuth
 
 from src.api.constants import AuthTypes
 from src.api.core.db.models.users import User

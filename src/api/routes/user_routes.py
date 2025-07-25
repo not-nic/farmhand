@@ -12,8 +12,9 @@ Dependencies:
     - get_current_user: Fetches the current authenticated user.
 """
 
-from fastapi import APIRouter, status, HTTPException
-from src.api.core.dependencies import SessionDep, CurrentUser
+from fastapi import APIRouter, HTTPException, status
+
+from src.api.core.dependencies import CurrentUser, SessionDep
 from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import UserCreate
 from src.api.core.security import Security

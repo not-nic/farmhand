@@ -16,10 +16,10 @@ Dependencies:
 
 from typing import Optional
 
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, HTTPException, status
 
-from src.api.core.schema.crops.crops import CropRequest, CropsResponse
 from src.api.core.dependencies import CurrentField, SessionDep
+from src.api.core.schema.crops.crops import CropRequest, CropsResponse
 from src.api.services.crop_service import CropService
 
 router = APIRouter(prefix="/{field_number}/crops", tags=["Crops"])

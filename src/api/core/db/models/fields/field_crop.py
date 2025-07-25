@@ -1,12 +1,14 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
-from datetime import datetime
-from sqlalchemy import UUID, ForeignKey, Integer, DateTime
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+
+from sqlalchemy import UUID, DateTime, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.api.core.db.models._model_base import SqlAlchemyBase
 
 if TYPE_CHECKING:
-    from src.api.core.db.models import Field, Crop
+    from src.api.core.db.models import Crop, Field
 
 
 class FieldCrop(SqlAlchemyBase):

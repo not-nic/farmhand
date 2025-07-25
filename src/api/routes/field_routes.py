@@ -20,19 +20,20 @@ Dependencies:
 
 from typing import Optional
 
-from fastapi import HTTPException, APIRouter, Depends, status
+from fastapi import APIRouter, HTTPException, status
 
-from src.api.core.db.models.farms import Farm
+from src.api.core.dependencies import CurrentFarm, CurrentField, SessionDep
 from src.api.core.schema.fields import FieldRequest, FieldUpdate
-from src.api.core.dependencies import get_current_user, get_farm, CurrentField, SessionDep
 from src.api.services.field_service import FieldService
 
 router = APIRouter(prefix="/farms/{id}/fields", tags=["Fields"])
 
 
-@router.post("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_field(
-    db: SessionDep, field_request: FieldRequest, current_farm: Farm = Depends(get_farm)
+        db: SessionDep,
+        field_request: FieldRequest,
+        current_farm: CurrentFarm
 ) -> dict:
     """
     Create a field based on the current farm type.
@@ -50,12 +51,12 @@ async def create_field(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
-@router.get("/", dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=None, status_code=status.HTTP_200_OK)
 async def get_fields(
-    db: SessionDep,
-    current_farm: Farm = Depends(get_farm),
-    show_crop: Optional[bool] = False,
-    crop_type: Optional[str] = None,
+        db: SessionDep,
+        current_farm: CurrentFarm,
+        show_crop: Optional[bool] = False,
+        crop_type: Optional[str] = None,
 ) -> dict:
     """
     Get all fields associated with a farm.
@@ -74,11 +75,12 @@ async def get_fields(
 
 @router.get(
     "/{field_number}",
-    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_200_OK,
 )
 async def get_field_by_field_number(
-    field: CurrentField, db: SessionDep, show_crop: Optional[bool] = False
+        field: CurrentField,
+        db: SessionDep,
+        show_crop: Optional[bool] = False
 ) -> dict:
     """
     Get a field by its number.
@@ -94,7 +96,6 @@ async def get_field_by_field_number(
 
 @router.put(
     "/{field_number}",
-    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def update_field(db: SessionDep, field: CurrentField, field_update: FieldUpdate):
@@ -110,7 +111,6 @@ async def update_field(db: SessionDep, field: CurrentField, field_update: FieldU
 
 @router.delete(
     "/{field_number}",
-    dependencies=[Depends(get_current_user), Depends(get_farm)],
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_field(db: SessionDep, field: CurrentField):
