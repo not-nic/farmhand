@@ -5,14 +5,15 @@ from uuid import UUID
 
 from pydantic import (
     BaseModel,
-    conint,
-    condecimal,
     Field,
-    model_validator,
     PrivateAttr,
     computed_field,
+    condecimal,
+    conint,
+    model_validator,
 )
-from src.api.constants import FieldTypes, FertilizerStates, WeedStates, SoilTypes
+
+from src.api.constants import FertilizerStates, FieldTypes, SoilTypes, WeedStates
 from src.api.core.schema.crops.crops import CropResponse
 from src.api.core.schema.validators import Validators
 

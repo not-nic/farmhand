@@ -16,13 +16,11 @@ Dependencies:
     - get_user_farm: Fetches the Farm for the given farm_id.
 """
 
-from fastapi import HTTPException, APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.api.core.dependencies import CurrentFarm, CurrentUser, SessionDep, get_current_user
 from src.api.core.repositories import FarmRepository
-from src.api.core.schema.farms import FarmRequest, FarmUpdate, FarmResponse, FarmsResponse
-from src.api.core.db.models.farms import Farm
-from src.api.core.db.models.users import User
-from src.api.core.dependencies import get_current_user, get_farm, SessionDep, CurrentUser
+from src.api.core.schema.farms import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
 from src.api.core.schema.maps.maps import MapModel
 from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
 from src.api.services.data_service import DataApiService
@@ -83,7 +81,7 @@ async def create_farm(
     dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_200_OK,
 )
-async def get_farms(current_user: User = Depends(get_current_user)) -> FarmsResponse:
+async def get_farms(current_user: CurrentUser) -> FarmsResponse:
     """
     Get all farms associated to the current logged-in user.
     :param current_user: the current logged-in user.
@@ -97,10 +95,9 @@ async def get_farms(current_user: User = Depends(get_current_user)) -> FarmsResp
 @router.get(
     "/{id}",
     response_model=FarmResponse,
-    dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_200_OK,
 )
-async def get_farm_by_id(farm: Farm = Depends(get_farm)) -> FarmResponse:
+async def get_farm_by_id(farm: CurrentFarm) -> FarmResponse:
     """
     Get all farms associated to the current logged-in user.
     :param farm: farm from dependency
@@ -111,7 +108,7 @@ async def get_farm_by_id(farm: Farm = Depends(get_farm)) -> FarmResponse:
 
 @router.patch("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_farm(
-    db: SessionDep, farm_update: FarmUpdate, farm: Farm = Depends(get_farm)
+    db: SessionDep, farm_update: FarmUpdate, farm: CurrentFarm
 ) -> None:
     """
     :param db: database session dependency.
@@ -143,9 +140,9 @@ async def update_farm(
 
 
 @router.delete(
-    "/{id}", dependencies=[Depends(get_current_user)], status_code=status.HTTP_204_NO_CONTENT
+    "/{id}", status_code=status.HTTP_204_NO_CONTENT
 )
-async def delete_farm(db: SessionDep, farm: Farm = Depends(get_farm)) -> None:
+async def delete_farm(db: SessionDep, farm: CurrentFarm) -> None:
     """
     Delete a farm by its ID.
     :param db: database session dependency.

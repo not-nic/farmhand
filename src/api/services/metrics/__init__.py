@@ -2,7 +2,7 @@
 init for metrics repo
 """
 
-from .metric_service import MetricService
 from . import utils
+from .metric_service import MetricService
 
 __all__ = ["MetricService", "utils"]

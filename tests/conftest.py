@@ -2,10 +2,10 @@
 Pytest conftest.py containing test setup, TestClient Fixtures and other mocks.
 """
 
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 import pytest
-
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 
@@ -14,12 +14,11 @@ from tests.utils import crop_data
 load_dotenv("tests/resources/test.env", override=True)
 
 # ruff: noqa: E402
-from main import app
-from main import settings
-from src.api.core.db.db_setup import engine, SessionLocal
-from src.api.core.repositories import UserRepository
+from main import app, settings
+from src.api.core.db.db_setup import SessionLocal, engine
 from src.api.core.db.models import User
 from src.api.core.db.models._model_base import SqlAlchemyBase
+from src.api.core.repositories import UserRepository
 from src.api.core.security import Security, github
 from src.api.services.crop_service import CropService
 

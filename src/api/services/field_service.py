@@ -7,21 +7,21 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.api.constants import FieldTypes, FarmTypes
-from src.api.core.db.models import FieldCrop, Crop
-from src.api.core.db.models.fields import Field, PrecisionFarmingField, BaseGameField
+from src.api.constants import FarmTypes, FieldTypes
+from src.api.core.db.models import Crop, FieldCrop
 from src.api.core.db.models.farms import Farm
+from src.api.core.db.models.fields import BaseGameField, Field, PrecisionFarmingField
+from src.api.core.logger import logger
 from src.api.core.repositories import FieldRepository, Repository
+from src.api.core.schema.crops.crops import CropResponse
 from src.api.core.schema.fields import (
-    FieldRequest,
-    PrecisionFarmingFieldModel,
     BaseGameFieldModel,
+    FieldRequest,
     FieldResponse,
     FieldsResponse,
     FieldUpdate,
+    PrecisionFarmingFieldModel,
 )
-from src.api.core.schema.crops.crops import CropResponse
-from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
 
 

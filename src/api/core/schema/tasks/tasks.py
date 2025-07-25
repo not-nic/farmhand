@@ -5,6 +5,7 @@ Python module containing pydantic models for Tasks.
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
+
 from pydantic import BaseModel, StringConstraints
 
 

@@ -2,11 +2,11 @@
 Python module containing the 'DataApiService' for communicating
 with the farmhand data API.
 """
-import httpx
-
 from typing import Optional
+
+import httpx
 from fastapi import status
-from httpx import RequestError, Response, ConnectError
+from httpx import ConnectError, RequestError, Response
 
 from src.api.core.logger import logger
 from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
@@ -47,7 +47,7 @@ class DataApiService:
                 return await client.request(method, url, params=params)
             except ConnectError as exc:
                 logger.error(f"[Data API Service]: Connection failed to {url}: {exc}")
-                raise ServiceUnavailableError("farmhand-data-api is unreachable.")
+                raise ServiceUnavailableError("farmhand-data-api is unreachable.") from exc
             except RequestError as exc:
                 logger.error(f"[Data API Service]: Request error for {url}: {exc}")
-                raise ServiceUnavailableError("Request to farmhand-data-api failed.")
+                raise ServiceUnavailableError("Request to farmhand-data-api failed.") from exc

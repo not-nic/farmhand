@@ -5,7 +5,8 @@ Python Module containing the Task SQLAlchemy model.
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
-from sqlalchemy import UUID, Boolean, DateTime, String, ForeignKey
+
+from sqlalchemy import UUID, Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.api.core.db.models._model_base import SqlAlchemyBase

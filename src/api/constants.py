@@ -3,6 +3,7 @@ Collection of Enums used within the Farmhand service.
 """
 
 from enum import Enum
+
 from strenum import StrEnum
 
 

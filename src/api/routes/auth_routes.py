@@ -16,18 +16,18 @@ Dependencies:
 """
 
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, status, Request, Response, Depends
+
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
 
 from src.api.constants import AuthTypes
-from src.api.core.dependencies import get_current_user, SessionDep
-from src.api.core.repositories import UserRepository
-from src.api.core.schema.users import TokenModel
-from src.api.core.schema.users import GithubUser
-from src.api.core.schema.login import LoginRequest
 from src.api.core.db.models.users import User
-from src.api.core.security import Security, github
+from src.api.core.dependencies import SessionDep, get_current_user
 from src.api.core.logger import logger
+from src.api.core.repositories import UserRepository
+from src.api.core.schema.login import LoginRequest
+from src.api.core.schema.users import GithubUser, TokenModel
+from src.api.core.security import Security, github
 from src.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

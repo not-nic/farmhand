@@ -2,10 +2,10 @@
 Unit Tests for the Crops API Routes.
 """
 
-import pytest
-
 from typing import Optional
 from uuid import UUID
+
+import pytest
 from fastapi import status
 
 from src.api.core.db.models.fields import FieldCrop

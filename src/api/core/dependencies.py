@@ -6,18 +6,18 @@ from typing import Annotated, Optional
 from uuid import UUID
 
 import jwt
-from fastapi import HTTPException, Depends, Path
+from fastapi import Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.requests import Request
 
 from src.api.core.db.db_setup import get_db
 from src.api.core.db.models import Task
-from src.api.core.db.models.fields import Field
 from src.api.core.db.models.farms import Farm
+from src.api.core.db.models.fields import Field
 from src.api.core.db.models.users import User
 from src.api.core.logger import logger
-from src.api.core.repositories import UserRepository, FarmRepository
+from src.api.core.repositories import FarmRepository, UserRepository
 from src.api.core.security import Security
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
@@ -57,7 +57,6 @@ async def get_current_user(request: Request, db: SessionDep) -> User:
 
     return user
 
-
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
@@ -88,6 +87,7 @@ def get_farm(id: UUID, current_user: CurrentUser, db: SessionDep) -> Farm:
     Get the farm for the current logged-in user
     :param id: the id of the farm to get
     :param current_user: the current user of the farm
+    :param db: Database session dependency.
     :return: the requested Farm
     """
     farm_repository = FarmRepository(db)
@@ -116,6 +116,7 @@ def get_field(
     """
     dependency to get the current field by its ID or return
     a 404 if it doesn't exist.
+    :param: db: database dependency.
     :param current_farm: the farm requested with the field.
     :param field_number: the id of the field to get
     """

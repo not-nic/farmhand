@@ -3,8 +3,9 @@ Python Module containing base SqlAlchemy classes and mixins for common methods
 like to_dict.
 """
 
-from sqlalchemy.orm import DeclarativeBase
 from typing import TypeVar
+
+from sqlalchemy.orm import DeclarativeBase
 
 T = TypeVar("T", bound="BaseMixin")
 

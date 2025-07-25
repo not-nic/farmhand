@@ -3,10 +3,11 @@ Entrypoint for starting the application.
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, status, Request
-from fastapi.responses import JSONResponse
+
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from src.api.fixtures.fixtures import Fixtures

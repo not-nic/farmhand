@@ -2,17 +2,16 @@
 Fixtures module for reusable pytest fixtures to be used across tests.
 """
 
-from decimal import Decimal
-
-import pytest
 import datetime
-
+from decimal import Decimal
 from uuid import UUID
 
-from src.api.constants import FarmTypes, FieldTypes, SoilTypes, WeedStates, FertilizerStates
+import pytest
+
+from src.api.constants import FarmTypes, FertilizerStates, FieldTypes, SoilTypes, WeedStates
 from src.api.core.db.models import Field, User
 from src.api.core.db.models.farms import Farm
-from src.api.core.repositories import UserRepository, FarmRepository, FieldRepository
+from src.api.core.repositories import FarmRepository, FieldRepository, UserRepository
 from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService

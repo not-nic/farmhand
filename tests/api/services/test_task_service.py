@@ -3,9 +3,9 @@ Task Service unit tests
 """
 
 import copy
-import pytest
-
 from uuid import UUID
+
+import pytest
 
 from src.api.core.repositories import TaskRepository
 from src.api.services.tasks_service import TaskService

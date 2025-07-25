@@ -4,7 +4,7 @@ Util functions for the metrics service:
     - calculate_fertilizer_usage_by_time: calculate the time to fertilize a field by working time.
 """
 
-from src.api.constants import FertilizerTypes, FSData, FertilizerStates, FertilizerEffect, SoilTypes
+from src.api.constants import FertilizerEffect, FertilizerStates, FertilizerTypes, FSData, SoilTypes
 
 
 def calculate_fertilizer_kg(rate: int, field_size: float) -> float:
@@ -60,7 +60,7 @@ def calculate_fertilizer_usage_by_time(
 
     if fertilizer_type not in FertilizerTypes:
         raise ValueError(
-            f"Invalid fertilizer type. Expected: {[fertilizer_type for fertilizer_type in FertilizerTypes]}"
+            f"Invalid fertilizer type. Expected: {list(FertilizerTypes)}"
         )
 
     time_seconds = calculate_working_time(

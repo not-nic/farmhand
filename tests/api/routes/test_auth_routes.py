@@ -3,8 +3,8 @@ Unit Tests for the Auth API Routes.
 """
 
 import pytest
-
 from fastapi import status
+
 from src.config import settings
 
 

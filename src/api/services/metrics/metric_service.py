@@ -7,15 +7,15 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from src.api.constants import (
-    FSData,
-    FieldTypes,
-    WeedStates,
-    SoilTypes,
-    FertilizerTypes,
     FertilizerEffect,
     FertilizerStates,
+    FertilizerTypes,
+    FieldTypes,
+    FSData,
+    SoilTypes,
+    WeedStates,
 )
-from src.api.core.db.models import Field, Crop, FieldCrop
+from src.api.core.db.models import Crop, Field, FieldCrop
 from src.api.core.logger import logger
 from src.api.services.crop_service import CropService
 from src.api.services.metrics.utils import (

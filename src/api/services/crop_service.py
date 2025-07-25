@@ -4,15 +4,15 @@ Crop Service Module for interacting and managing with crops that are associated 
 
 import json
 import os.path
-
 from typing import Optional
 
 from sqlalchemy.orm import Session
-from src.api.core.repositories import FieldRepository, CropRepository, FieldCropRepository
-from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
-from src.api.core.db.models.fields import FieldCrop, Field
+
 from src.api.core.db.models.crops import Crop
+from src.api.core.db.models.fields import Field, FieldCrop
 from src.api.core.logger import logger
+from src.api.core.repositories import CropRepository, FieldCropRepository, FieldRepository
+from src.api.core.schema.crops import CropModel, CropRequest, CropResponse
 
 
 class CropService:
@@ -141,5 +141,5 @@ class CropService:
         """
         filepath = os.path.join("src", "api", "fixtures", "resources", "crop_data.json")
         logger.info(f"[Crop Service]: Loading crop data from path: {filepath}")
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             return json.load(file)

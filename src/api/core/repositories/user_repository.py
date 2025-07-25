@@ -4,6 +4,7 @@ see: base_repository.py to see the base repository to inherit from.
 """
 
 from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from src.api.core.db.models import User

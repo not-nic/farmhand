@@ -8,12 +8,12 @@ from fastapi import APIRouter, Depends
 from src.api.core.dependencies import get_current_user, get_farm
 from src.api.routes import (
     auth_routes,
-    user_routes,
+    crop_routes,
     farm_routes,
     field_routes,
-    crop_routes,
     metrics_routes,
     tasks_routes,
+    user_routes,
 )
 
 api_router = APIRouter()

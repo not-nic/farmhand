@@ -8,11 +8,11 @@ e.g. getting all fields that share the same crop it should be written
 as a method within its own <model_name>Repository.
 """
 
-from typing import TypeVar, Generic, Type, Optional, List
+from typing import Generic, Optional, TypeVar
 from uuid import UUID
 
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import Session
 
 T = TypeVar("T", bound=DeclarativeMeta)
 
@@ -22,11 +22,11 @@ class Repository(Generic[T]):
     Base Repository class for generic CRUD database operations.
     """
 
-    def __init__(self, db: Session, model: Type[T]):
+    def __init__(self, db: Session, model: type[T]):
         self.db = db
         self.model = model
 
-    def all(self) -> List[T]:
+    def all(self) -> list[T]:
         """
         get all items from DB using inherited class.
         :return: all items in a specific database table.
