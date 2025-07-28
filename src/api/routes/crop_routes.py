@@ -9,8 +9,9 @@ Routes:
     - GET /{field_id}/crops: Get a list of crops in the specified field with optional filters.
 
 Dependencies:
-    - get_current_user: Fetches the current authenticated user.
-    - get_users_farm: Fetches the current user's farm.
+    - SessionDep: Database session object
+    - CurrentUser: Fetches the current authenticated user.
+    - CurrentFarm: Fetches the current user's farm.
     - CurrentField: Represents the specific field being referenced.
 """
 

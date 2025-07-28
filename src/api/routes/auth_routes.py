@@ -12,7 +12,8 @@ Routes:
     - POST /auth/logout: Log out and delete the JWT token cookie.
 
 Dependencies:
-    - get_current_user: Fetches the current authenticated user.
+    - SessionDep: Database session object
+    - CurrentUser: Fetches the current authenticated user.
 """
 
 from datetime import datetime, timezone

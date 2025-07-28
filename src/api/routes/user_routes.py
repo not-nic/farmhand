@@ -9,7 +9,7 @@ Routes:
     - POST /users: Create a new user with a username, email, and password.
 
 Dependencies:
-    - get_current_user: Fetches the current authenticated user.
+    - CurrentUser: Fetches the current authenticated user.
 """
 
 from fastapi import APIRouter, HTTPException, status
