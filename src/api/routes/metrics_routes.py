@@ -8,6 +8,7 @@ Routes:
     - GET /metrics: Get all metrics.
 
 Dependencies:
+    - SessionDep: Database session object
     - CurrentField: Fetches the Field for the given field_id.
 """
 

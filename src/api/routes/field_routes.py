@@ -13,8 +13,9 @@ Routes:
     - DELETE /fields/{field_number} delete a field.
 
 Dependencies:
-    - get_current_user: Fetches the current authenticated user.
-    - get_user_farm: Fetches the Farm for the given field_number.
+    - CurrentUser: Fetches the current authenticated user.
+    - CurrentFarm: Fetches the Farm for the given field_number.
+    - SessionDep: Database session object
     - CurrentField: Fetches the Field for the given field_id.
 """
 

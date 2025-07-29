@@ -8,12 +8,12 @@ Routes:
     - POST /farms: Create a new farm.
     - GET /farms: Get all farms belonging to a user
     - GET /farms/{farm_id}: get a farm by its UUID.
-    - PUT /farms/{farm_id}: update a farm.
+    - PATCH /farms/{farm_id}: update a farm.
     - DELETE /farms/{farm_id} delete a farm.
 
 Dependencies:
-    - get_current_user: Fetches the current authenticated user.
-    - get_user_farm: Fetches the Farm for the given farm_id.
+    - CurrentUser: Fetches the current authenticated user.
+    - CurrentFarm: Fetches the Farm for the given farm_id.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
