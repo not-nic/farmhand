@@ -85,7 +85,7 @@ class TestTaskRoutes:
         payload = {"content": "updated task content", "completed": True}
 
         task_id = tasks[0].id
-        result = client.put(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
+        result = client.patch(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
     def test_update_task_endpoint_returns_bad_request_when_too_long(
@@ -103,7 +103,7 @@ class TestTaskRoutes:
 
         task_id = tasks[0].id
 
-        result = client.put(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
+        result = client.patch(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
 
         assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert result.json() == {"detail": "String should have at most 280 characters"}
@@ -143,5 +143,5 @@ class TestTaskRoutes:
         :param tasks: Tasks Fixture.
         """
         task = tasks[1]
-        result = client.put(url=f"{self.task_url(farm_id=farm.id, task_id=task.id)}/complete")
+        result = client.patch(url=f"{self.task_url(farm_id=farm.id, task_id=task.id)}/complete")
         assert result.status_code == status.HTTP_204_NO_CONTENT

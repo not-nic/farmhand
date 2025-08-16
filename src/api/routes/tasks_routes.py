@@ -77,7 +77,7 @@ async def get_task_by_id(task: TaskDep) -> TaskResponse:
     return TaskResponse(**task.to_dict())
 
 
-@router.put("/{task_id}/complete", status_code=status.HTTP_204_NO_CONTENT)
+@router.patch("/{task_id}/complete", status_code=status.HTTP_204_NO_CONTENT)
 async def complete_task(db: SessionDep, task: TaskDep) -> None:
     """
     Change the completed status of a task.
@@ -89,7 +89,7 @@ async def complete_task(db: SessionDep, task: TaskDep) -> None:
     task_service.complete_task(task)
 
 
-@router.put("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.patch("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -> None:
     """
     Delete a task by its ID, if a task exists.
