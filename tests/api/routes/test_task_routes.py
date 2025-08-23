@@ -134,14 +134,3 @@ class TestTaskRoutes:
         assert result.status_code == status.HTTP_200_OK
         assert TaskResponse(**task.to_dict()).model_dump(mode="json") == result.json()
 
-    def test_complete_task(self, client, session, farm, tasks):
-        """
-        Test that a task can be completed.
-        :param client: FastAPI test client
-        :param session: the user's session
-        :param farm: Farm Fixture.
-        :param tasks: Tasks Fixture.
-        """
-        task = tasks[1]
-        result = client.patch(url=f"{self.task_url(farm_id=farm.id, task_id=task.id)}/complete")
-        assert result.status_code == status.HTTP_204_NO_CONTENT

@@ -96,15 +96,6 @@ class TaskService:
             logger.info(f"[Task Service]: Updating Task: '{task_id}' with new content or status.")
             self.task_repository.update(id=task_id, **update_fields)
 
-    def complete_task(self, task: Task):
-        """
-        Update a tasks status to complete once it has been completed.
-        :param task: (Task) the task and status to update.
-        """
-        logger.info(f"[Task Service]: Completed Task: '{task.id}' on farm: {task.farm_id}")
-        task.completed = True
-        self.db.commit()
-
     def _check_task_length(self, content: str) -> bool:
         """
         check the length of the task content
