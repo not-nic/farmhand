@@ -85,9 +85,8 @@ class TaskService:
         """
         update_fields = {}
 
-        self._check_task_length(content)
-
         if content is not None:
+            self._check_task_length(content)
             update_fields["content"] = content
         if completed is not None:
             update_fields["completed"] = completed
@@ -95,15 +94,6 @@ class TaskService:
         if update_fields:
             logger.info(f"[Task Service]: Updating Task: '{task_id}' with new content or status.")
             self.task_repository.update(id=task_id, **update_fields)
-
-    def complete_task(self, task: Task):
-        """
-        Update a tasks status to complete once it has been completed.
-        :param task: (Task) the task and status to update.
-        """
-        logger.info(f"[Task Service]: Completed Task: '{task.id}' on farm: {task.farm_id}")
-        task.completed = True
-        self.db.commit()
 
     def _check_task_length(self, content: str) -> bool:
         """

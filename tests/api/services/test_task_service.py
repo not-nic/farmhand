@@ -103,17 +103,6 @@ class TestTaskService:
         assert original_task.content != updated_task.content
         assert original_task.completed != updated_task.completed
 
-    def test_complete_task(self, db, farm):
-        """
-        Test that a task can be completed.
-        :param farm: Farm Fixture.
-        """
-        task_service = TaskService(db)
-        task = task_service.create_task("new task", completed=False, farm_id=farm.id)
-        task_service.complete_task(task)
-
-        assert task.completed is True
-
     def test_delete_task(self, db, farm):
         """
         Test that a task can be deleted.

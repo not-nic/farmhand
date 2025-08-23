@@ -23,7 +23,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, status
 
 from src.api.core.dependencies import CurrentFarm, SessionDep, TaskDep
-from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse
+from src.api.core.schema.tasks.tasks import TaskRequest, TaskResponse, TasksResponse, TaskUpdate
 from src.api.services.tasks_service import TaskService
 
 router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
@@ -77,20 +77,8 @@ async def get_task_by_id(task: TaskDep) -> TaskResponse:
     return TaskResponse(**task.to_dict())
 
 
-@router.patch("/{task_id}/complete", status_code=status.HTTP_204_NO_CONTENT)
-async def complete_task(db: SessionDep, task: TaskDep) -> None:
-    """
-    Change the completed status of a task.
-    :param db: database session dependency
-    :param task: (Task) The task Dependency.
-    :return: 204 No content message.
-    """
-    task_service = TaskService(db)
-    task_service.complete_task(task)
-
-
 @router.patch("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_task(db: SessionDep, task: TaskDep, task_update: TaskRequest) -> None:
+async def update_task(db: SessionDep, task: TaskDep, task_update: TaskUpdate) -> None:
     """
     Delete a task by its ID, if a task exists.
     :param db: database session dependency
