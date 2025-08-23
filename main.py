@@ -10,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
+from src.api.core.logger import logger
 from src.api.fixtures.fixtures import Fixtures
 from src.api.routes import api_router
 from src.api.utils import format_pydantic_errors
@@ -43,6 +44,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     :return: a new JSON response of a formatted pydantic error.
     """
     error = format_pydantic_errors(exc)
+    logger.warning("Error validating pydantic model: %s", error["detail"])
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=jsonable_encoder(error)
     )

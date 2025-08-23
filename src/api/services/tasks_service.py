@@ -85,9 +85,8 @@ class TaskService:
         """
         update_fields = {}
 
-        self._check_task_length(content)
-
         if content is not None:
+            self._check_task_length(content)
             update_fields["content"] = content
         if completed is not None:
             update_fields["completed"] = completed
