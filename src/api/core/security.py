@@ -5,18 +5,16 @@ OAuth configuration and password hashing.
 
 from typing import Optional
 
+import bcrypt
 import jwt
 from authlib.integrations.starlette_client import OAuth
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 
 from src.api.constants import AuthTypes
 from src.api.core.db.models.users import User
 from src.api.core.repositories import UserRepository
 from src.api.core.schema.users import TokenModel
 from src.config import settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
 
@@ -44,31 +42,36 @@ class Security:
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         """
-        verify the password hash of an incoming login.
-        :param plain_password: plaintext password sent in request
+        Verify the password hash of an incoming login.
+        :param plain_password: Plaintext password sent in request
         :param hashed_password: hashed password stored in DB
-        :return: boolean if password matches hash.
+        :return: boolean if the password matches hash.
         """
-        return pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8")
+        )
 
     @staticmethod
     def get_password_hash(password: str) -> str:
         """
-        create a hash for a plaintext password.
-        :param password: plaintext password
+        Create a hash for a plaintext password.
+        :param password: Plaintext password
         :return: hashed password
         """
-        return pwd_context.hash(password)
+        return bcrypt.hashpw(
+            password.encode("utf-8"),
+            bcrypt.gensalt()
+        ).decode("utf-8")
 
     @staticmethod
     def get_user_by_auth_type(token: TokenModel, user_repository: UserRepository) -> Optional[User]:
         """
         Get a user based on the auth claim in the JWT Token.
-        :param token: the JWT token values
-        :param user_repository: User Repository instance
+        :param token: The JWT token values
+        :param user_repository: the User Repository instance
         :return: (User) if it exists for the matching auth type.
         """
-
         if token.auth_type == AuthTypes.DEFAULT:
             return user_repository.get_by_id(token.id)
 
@@ -80,7 +83,7 @@ class Security:
     @staticmethod
     def encode_jwt(payload: TokenModel) -> str:
         """
-        Encode a JWT token with a TokenModel payload
+        Encode a JWT token with a TokenModel payload.
         :param payload: (TokenModel) of the data to encode
         :return: (str) JWT token of encoded data.
         """

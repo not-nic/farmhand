@@ -30,8 +30,6 @@ services:
       - database
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
   database:
     image: postgres:17
     container_name: farmhand-db

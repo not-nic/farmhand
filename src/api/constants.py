@@ -2,9 +2,7 @@
 Collection of Enums used within the Farmhand service.
 """
 
-from enum import Enum
-
-from strenum import StrEnum
+from enum import Enum, StrEnum
 
 
 class AuthTypes(StrEnum):
@@ -38,7 +36,7 @@ class FieldTypes(StrEnum):
 
 class FertilizerStates(Enum):
     """
-    Fertilizer states for a base game field which map to percentage
+    Fertiliser states for a base game field which map to percentage
     of yield improvement:
         0% - 0% yield improvement
         50% - 22.5% yield improvement
@@ -98,7 +96,7 @@ class Difficulty(str, Enum):
 class FSData(Enum):
     """
     An assortment of static values taken from farming simulator to make
-    calculations i.e. seed price, fertilizer price etc.
+    calculations i.e. seed price, fertiliser price etc.
     All values should be * 1000 to get their value per 1000l.
     """
 
@@ -120,7 +118,7 @@ class FSData(Enum):
     SILTY_CLAY_PH_LEVELS = [(7.000, 15), (6.750, 10), (6.500, 5)]
     LOAMY_SAND_PH_LEVELS = [(6.000, 15), (5.750, 10), (5.500, 5)]
 
-    # Fertilizer, Lime and Herbicide rates in litres per second
+    # Fertiliser, Lime and Herbicide rates in litres per second
     SOLID_FERTILIZER_RATE = 0.0060
     LIQUID_FERTILIZER_RATE = 0.0081
     MANURE_RATE = 0.4000
@@ -135,7 +133,7 @@ class FSData(Enum):
 
 class FertilizerTypes(StrEnum):
     """
-    Types of Fertilizer in Farming Simulator
+    Types of Fertiliser in Farming Simulator
     """
 
     SOLID = "solid"
@@ -147,7 +145,7 @@ class FertilizerTypes(StrEnum):
 
 class FertilizerEffect(Enum):
     """
-    Fertilizer states for a base game field which map to percentage
+    Fertiliser states for a base game field which map to percentage
     of yield improvement:
         NOT_FERTILIZED - 0% yield improvement
         HALF_FERTILIZED - 22.5% yield improvement
