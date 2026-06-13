@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from sqlalchemy import UUID, Boolean, DateTime, Double, Enum, ForeignKey, Integer, String
@@ -42,13 +42,13 @@ class Field(SqlAlchemyBase):
     owned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     farm_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("farms.id"), nullable=False)
-    farm: Mapped["Farm"] = relationship("Farm", back_populates="fields")
+    farm: Mapped[Farm] = relationship("Farm", back_populates="fields")
 
     field_type: Mapped[FieldTypes] = mapped_column(
         Enum(FieldTypes, native_enum=False), nullable=False, default=FieldTypes.BASE_FIELD
     )
 
-    crops: Mapped[list["FieldCrop"]] = relationship(
+    crops: Mapped[list[FieldCrop]] = relationship(
         "FieldCrop",
         back_populates="field",
         order_by="desc(FieldCrop.planted_at)",
@@ -63,30 +63,30 @@ class Field(SqlAlchemyBase):
         Enum(WeedStates, native_enum=False), nullable=True, default=WeedStates.NO_WEEDS
     )
 
-    base_game_field: Mapped["BaseGameField"] = relationship(
+    base_game_field: Mapped[BaseGameField] = relationship(
         "BaseGameField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
-    precision_farming_field: Mapped["PrecisionFarmingField"] = relationship(
+    precision_farming_field: Mapped[PrecisionFarmingField] = relationship(
         "PrecisionFarmingField", back_populates="field", uselist=False, cascade="all, delete-orphan"
     )
 
     def __repr__(self):
         return f"<Field {self.number} in Farm {self.farm_id} | Current Crop: {self.current_crop()}>"
 
-    def current_crop(self) -> Optional["FieldCrop"]:
+    def current_crop(self) -> FieldCrop | None:
         """
         Get the most recent crop planted as a dictionary.
         """
         return self.crops[0] if self.crops else []
 
-    def past_crops(self: "Field") -> list["FieldCrop"]:
+    def past_crops(self: Field) -> list[FieldCrop]:
         """
         Get all previous crops (excluding the current one) as dictionaries.
         """
         return self.crops[1:]
 
-    def get_crops(self) -> list["FieldCrop"]:
+    def get_crops(self) -> list[FieldCrop]:
         """
         Get all crops for the field as a readable dictionary.
         """

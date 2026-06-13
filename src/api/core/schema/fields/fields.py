@@ -1,6 +1,5 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from pydantic import (
@@ -31,12 +30,12 @@ class FieldRequest(BaseModel):
     plowed: bool
     rolled: bool
     mulched: bool
-    limed: Optional[bool] = None
-    fertilized: Optional[FertilizerStates] = None
+    limed: bool | None = None
+    fertilized: FertilizerStates | None = None
     weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
-    nitrogen_level: Optional[int] = None
-    ph_level: Optional[float] = None
-    soil_type: Optional[SoilTypes] = None
+    nitrogen_level: int | None = None
+    ph_level: float | None = None
+    soil_type: SoilTypes | None = None
 
     class Config:
         exclude_none = True
@@ -51,9 +50,9 @@ class PrecisionFarmingFieldModel(BaseModel):
     Pydantic Response model for a 'Precision Farming' field.
     """
 
-    nitrogen_level: Optional[int] = None
-    ph_level: Optional[float] = None
-    soil_type: Optional[SoilTypes] = None
+    nitrogen_level: int | None = None
+    ph_level: float | None = None
+    soil_type: SoilTypes | None = None
 
 
 class BaseGameFieldModel(BaseModel):
@@ -61,8 +60,8 @@ class BaseGameFieldModel(BaseModel):
     Pydantic Response model for a 'Base Game' field.
     """
 
-    limed: Optional[bool] = None
-    fertilized: Optional[FertilizerStates] = None
+    limed: bool | None = None
+    fertilized: FertilizerStates | None = None
 
 
 class FieldResponse(BaseModel):
@@ -82,8 +81,8 @@ class FieldResponse(BaseModel):
     mulched: bool
     weeds: WeedStates = Field(default=WeedStates.NO_WEEDS)
 
-    __base_field: Optional[BaseGameFieldModel] = PrivateAttr(default=None)
-    __precision_field: Optional[PrecisionFarmingFieldModel] = PrivateAttr(default=None)
+    __base_field: BaseGameFieldModel | None = PrivateAttr(default=None)
+    __precision_field: PrecisionFarmingFieldModel | None = PrivateAttr(default=None)
 
     def set_base_field(self, base_field: BaseGameFieldModel):
         self.__base_field = base_field
@@ -95,27 +94,27 @@ class FieldResponse(BaseModel):
 
     @computed_field
     @property
-    def limed(self) -> Optional[bool]:
+    def limed(self) -> bool | None:
         return self.__base_field.limed if self.__base_field else None
 
     @computed_field
     @property
-    def fertilized(self) -> Optional[FertilizerStates]:
+    def fertilized(self) -> FertilizerStates | None:
         return self.__base_field.fertilized if self.__base_field else None
 
     @computed_field
     @property
-    def nitrogen_level(self) -> Optional[int]:
+    def nitrogen_level(self) -> int | None:
         return self.__precision_field.nitrogen_level if self.__precision_field else None
 
     @computed_field
     @property
-    def ph_level(self) -> Optional[float]:
+    def ph_level(self) -> float | None:
         return self.__precision_field.ph_level if self.__precision_field else None
 
     @computed_field
     @property
-    def soil_type(self) -> Optional[str]:
+    def soil_type(self) -> str | None:
         return self.__precision_field.soil_type if self.__precision_field else None
 
     class Config:
@@ -136,16 +135,16 @@ class FieldUpdate(BaseModel):
     Request model for updating a field.
     """
 
-    number: Optional[conint(ge=0, le=1000)] = None
-    ground_type: Optional[str] = None
-    size: Optional[condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2)] = None
-    owned: Optional[bool] = None
-    plowed: Optional[bool] = None
-    rolled: Optional[bool] = None
-    mulched: Optional[bool] = None
-    limed: Optional[bool] = None
-    fertilized: Optional[FertilizerStates] = None
-    weeds: Optional[WeedStates] = None
-    nitrogen_level: Optional[int] = None
-    ph_level: Optional[float] = None
-    soil_type: Optional[SoilTypes] = None
+    number: conint(ge=0, le=1000) | None = None
+    ground_type: str | None = None
+    size: condecimal(ge=0, le=Decimal(1000), max_digits=6, decimal_places=2) | None = None
+    owned: bool | None = None
+    plowed: bool | None = None
+    rolled: bool | None = None
+    mulched: bool | None = None
+    limed: bool | None = None
+    fertilized: FertilizerStates | None = None
+    weeds: WeedStates | None = None
+    nitrogen_level: int | None = None
+    ph_level: float | None = None
+    soil_type: SoilTypes | None = None

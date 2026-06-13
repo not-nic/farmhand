@@ -2,7 +2,7 @@
 Module for FastAPI Dependencies that need to be called / injected before methods can be called.
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 import jwt
@@ -112,7 +112,7 @@ def get_field(
     db: SessionDep,
     current_farm: CurrentFarm,
     field_number: Annotated[int, Path(title="The number of the field to get")],
-) -> Optional[Field]:
+) -> Field | None:
     """
     dependency to get the current field by its ID or return
     a 404 if it doesn't exist.
@@ -134,7 +134,7 @@ def get_task(
     db: SessionDep,
     current_farm: CurrentFarm,
     task_id: UUID,
-) -> Optional[Task]:
+) -> Task | None:
     """
     dependency to get a task by its ID or return
     a 404 / 403 if it doesn't exist or not associated with a farm.

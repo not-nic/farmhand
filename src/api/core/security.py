@@ -3,7 +3,6 @@ Security module for handling various secure functions such as JWT encoding / dec
 OAuth configuration and password hashing.
 """
 
-from typing import Optional
 
 import bcrypt
 import jwt
@@ -65,7 +64,7 @@ class Security:
         ).decode("utf-8")
 
     @staticmethod
-    def get_user_by_auth_type(token: TokenModel, user_repository: UserRepository) -> Optional[User]:
+    def get_user_by_auth_type(token: TokenModel, user_repository: UserRepository) -> User | None:
         """
         Get a user based on the auth claim in the JWT Token.
         :param token: The JWT token values

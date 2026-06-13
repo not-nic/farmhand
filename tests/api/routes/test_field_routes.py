@@ -2,7 +2,6 @@
 Unit Tests for the Field API Routes.
 """
 
-from typing import Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -18,7 +17,7 @@ from src.config import settings
 @pytest.mark.usefixtures("client", "session", "mock_crop_data")
 class TestFieldRoutes:
     @staticmethod
-    def field_url(farm_id: UUID, field_number: Optional[int] = None):
+    def field_url(farm_id: UUID, field_number: int | None = None):
         field_number_path = f"/{field_number}" if field_number else ""
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields{field_number_path}"
 

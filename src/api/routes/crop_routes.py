@@ -15,7 +15,6 @@ Dependencies:
     - CurrentField: Represents the specific field being referenced.
 """
 
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -55,8 +54,8 @@ async def plant_crop(
 async def get_crops(
     field: CurrentField,
     db: SessionDep,
-    current: Optional[bool] = False,
-    past: Optional[bool] = False,
+    current: bool | None = False,
+    past: bool | None = False,
 ) -> CropsResponse:
     """
     Get crops planted in a field from the crop service and filter them by the possible queries.

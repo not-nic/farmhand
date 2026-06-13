@@ -32,7 +32,7 @@ class BaseGameField(SqlAlchemyBase):
         default=FertilizerStates.ZER0_PERCENT,
     )
     limed: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    field: Mapped["Field"] = relationship("Field", back_populates="base_game_field")
+    field: Mapped[Field] = relationship("Field", back_populates="base_game_field")
 
     def __repr__(self):
         return f"<BaseGameField {self.field.number}, Fertilized: {self.fertilized}, Limed: {self.limed}>"

@@ -47,13 +47,13 @@ class Farm(SqlAlchemyBase):
         Enum(Difficulty, native_enum=False), nullable=False, default=Difficulty.MEDIUM
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="farms")
+    user: Mapped[User] = relationship("User", back_populates="farms")
 
-    fields: Mapped[list["Field"]] = relationship(
+    fields: Mapped[list[Field]] = relationship(
         "Field", back_populates="farm", cascade="all, delete-orphan"
     )
 
-    tasks: Mapped[list["Task"]] = relationship(
+    tasks: Mapped[list[Task]] = relationship(
         "Task", back_populates="farm", cascade="all, delete-orphan"
     )
 

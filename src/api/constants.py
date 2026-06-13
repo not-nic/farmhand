@@ -72,7 +72,7 @@ class SoilTypes(StrEnum):
     LOAM = "loam"
 
 
-class Difficulty(str, Enum):
+class Difficulty(StrEnum):
     """
     Enum for Farming Simulator difficulty levels.
     """

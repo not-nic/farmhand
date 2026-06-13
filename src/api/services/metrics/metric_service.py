@@ -2,7 +2,6 @@
 Metric Service Module for calculating and managing costs that are associated with fields and farms.
 """
 
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -39,7 +38,7 @@ class MetricService:
         self.crop_service = CropService(self.db)
 
     async def calculate_yield(
-        self, current_field: Field, future_crop: Optional[str] = None
+        self, current_field: Field, future_crop: str | None = None
     ) -> float:
         """
         Calculate the yield for a field and its current crop based on the field stats.
@@ -79,7 +78,7 @@ class MetricService:
         return current_field.size * expected_yield_per_ha
 
     async def estimate_profit(
-        self, current_field: Field, estimated_yield: float, future_crop: Optional[str] = None
+        self, current_field: Field, estimated_yield: float, future_crop: str | None = None
     ) -> float:
         """
         Estimate the profit for the crop on a field from the field size, difficulty
@@ -94,7 +93,7 @@ class MetricService:
         return round((estimated_yield * crop.price) * difficulty, 3)
 
     async def calculate_seed_usage(
-        self, current_field: Field, future_crop: Optional[str] = None
+        self, current_field: Field, future_crop: str | None = None
     ) -> float:
         """
         Estimate the amount of seeds required to plant a specific crop in a field.
@@ -307,7 +306,7 @@ class MetricService:
 
         return 0
 
-    async def _get_crop(self, current_field: Field, future_crop: Optional[str]) -> Crop:
+    async def _get_crop(self, current_field: Field, future_crop: str | None) -> Crop:
         """
         Util to get either the current crop or a future crop sent with the request.
         :param current_field: the field to get the current crop from

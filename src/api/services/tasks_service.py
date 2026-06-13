@@ -3,7 +3,6 @@ Python module containing the TaskService used for creating and managing tasks in
 farmhand service.
 """
 
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -23,7 +22,7 @@ class TaskService:
         self.db = db
         self.task_repository = TaskRepository(db)
 
-    def get_tasks(self, farm: Farm, filter_by: Optional[str] = "") -> list[type[Task]] | list[Task]:
+    def get_tasks(self, farm: Farm, filter_by: str | None = "") -> list[type[Task]] | list[Task]:
         """
         Get all task associated to a farm, filtered by either complete or not.
         :param farm: (Farm) the farm to get tasks from.
@@ -56,7 +55,7 @@ class TaskService:
 
         return self.task_repository.create(content=content, completed=completed, farm_id=farm_id)
 
-    def get_task_by_id(self, task_id: UUID) -> Optional[Task]:
+    def get_task_by_id(self, task_id: UUID) -> Task | None:
         """
         Get a Task by its UUID.
         :param task_id: (uuid) the ID of the task.
@@ -74,7 +73,7 @@ class TaskService:
         self.task_repository.delete(task_id)
 
     def update_task(
-        self, task_id: UUID, content: Optional[str] = None, completed: Optional[bool] = None
+        self, task_id: UUID, content: str | None = None, completed: bool | None = None
     ) -> None:
         """
         Update a task by its content or completed status.

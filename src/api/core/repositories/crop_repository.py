@@ -3,7 +3,6 @@ Crop Repository containing crop database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -19,7 +18,7 @@ class CropRepository(Repository[Crop]):
     def __init__(self, db: Session):
         super().__init__(db, Crop)
 
-    def get_by_type(self, type: str) -> Optional[Crop]:
+    def get_by_type(self, type: str) -> Crop | None:
         """
         Get a crop by its type / plaintext name e.g. Wheat.
         :param type: the type of crop.

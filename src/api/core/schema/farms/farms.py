@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
@@ -17,8 +16,8 @@ class FarmRequest(BaseModel):
     description: str
     farm_type: FarmTypes = Field(default=FarmTypes.BASE)
     difficulty: Difficulty = Field(default=Difficulty.MEDIUM)
-    map_name: Optional[str] = None
-    map_id: Optional[int] = None
+    map_name: str | None = None
+    map_id: int | None = None
 
     @model_validator(mode="before")
     def validate_map_id_or_name(cls, values):
@@ -30,9 +29,9 @@ class FarmUpdate(FarmRequest):
     Request model for creating a farm.
     """
 
-    name: Optional[str] = None
-    description: Optional[str] = None
-    map_name: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
+    map_name: str | None = None
 
 
 class FarmResponse(BaseModel):
@@ -44,7 +43,7 @@ class FarmResponse(BaseModel):
     name: str
     farm_type: FarmTypes
     map_name: str
-    map_id: Optional[int]
+    map_id: int | None
     description: str
     created_at: datetime
     difficulty: Difficulty

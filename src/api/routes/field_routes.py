@@ -19,7 +19,6 @@ Dependencies:
     - CurrentField: Fetches the Field for the given field_id.
 """
 
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -56,8 +55,8 @@ async def create_field(
 async def get_fields(
         db: SessionDep,
         current_farm: CurrentFarm,
-        show_crop: Optional[bool] = False,
-        crop_type: Optional[str] = None,
+        show_crop: bool | None = False,
+        crop_type: str | None = None,
 ) -> dict:
     """
     Get all fields associated with a farm.
@@ -81,7 +80,7 @@ async def get_fields(
 async def get_field_by_field_number(
         field: CurrentField,
         db: SessionDep,
-        show_crop: Optional[bool] = False
+        show_crop: bool | None = False
 ) -> dict:
     """
     Get a field by its number.

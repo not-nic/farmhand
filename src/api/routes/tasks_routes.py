@@ -18,7 +18,6 @@ Dependencies:
     - SessionDep: Database session object
 """
 
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -31,7 +30,7 @@ router = APIRouter(prefix="/farms/{id}/tasks", tags=["Tasks"])
 
 @router.get("", status_code=status.HTTP_200_OK)
 async def get_tasks(
-    db: SessionDep, current_farm: CurrentFarm, filter_by: Optional[str] = ""
+    db: SessionDep, current_farm: CurrentFarm, filter_by: str | None = ""
 ) -> TasksResponse:
     """
     Return a list of all tasks associated with a farm.

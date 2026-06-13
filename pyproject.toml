@@ -49,6 +49,7 @@ exclude = [
     ".pytest_cache/",
     ".idea",
     ".github",
+    "alembic"
 ]
 
 line-length = 100

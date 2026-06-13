@@ -32,8 +32,8 @@ class FieldCrop(SqlAlchemyBase):
     crop_id: Mapped[int] = mapped_column(Integer, ForeignKey("crops.id"), nullable=False)
     planted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
-    field: Mapped["Field"] = relationship("Field", back_populates="crops")
-    crop: Mapped["Crop"] = relationship("Crop")
+    field: Mapped[Field] = relationship("Field", back_populates="crops")
+    crop: Mapped[Crop] = relationship("Crop")
 
     def __repr__(self):
         return (

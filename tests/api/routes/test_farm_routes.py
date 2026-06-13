@@ -38,7 +38,7 @@ class TestFarmRoutes:
         assert result.status_code == status.HTTP_200_OK
         assert result.json()["count"] == len(farms)
 
-        for expected_farm, farm_data in zip(farms, result.json()["farms"]):
+        for expected_farm, farm_data in zip(farms, result.json()["farms"], strict=True):
             assert farm_data["name"] == expected_farm.name
             assert farm_data["description"] == expected_farm.description
             assert farm_data["map_name"] == expected_farm.map_name

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
@@ -14,7 +13,7 @@ class TokenModel(BaseModel):
     authentication.
     """
 
-    id: Union[int, UUID]
+    id: int | UUID
     auth_type: AuthTypes = Field(default=AuthTypes.DEFAULT)
     expires_at: datetime = Field(alias="exp")
     issued_at: datetime = Field(alias="iat")

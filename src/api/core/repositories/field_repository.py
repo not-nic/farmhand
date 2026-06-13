@@ -3,7 +3,6 @@ Field Repository containing field database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -21,7 +20,7 @@ class FieldRepository(Repository[Field]):
     def __init__(self, db: Session):
         super().__init__(db, Field)
 
-    def update(self, id: Optional[UUID | int], **kwargs) -> Optional[Field]:
+    def update(self, id: UUID | int | None, **kwargs) -> Field | None:
         """
         Update the details of a field and any associated relationships such as base_game_fields
         or precision_farming_fields.
@@ -63,7 +62,7 @@ class FieldRepository(Repository[Field]):
 
         return field
 
-    def delete(self, id: UUID) -> Optional[Field]:
+    def delete(self, id: UUID) -> Field | None:
         """
         delete a field and its associated field type object by its ID
         :param id: the id of the record to be deleted
@@ -81,7 +80,7 @@ class FieldRepository(Repository[Field]):
             self.db.commit()
         return field
 
-    def get_field_by_number(self, number: int, farm_id: UUID) -> Optional[Field]:
+    def get_field_by_number(self, number: int, farm_id: UUID) -> Field | None:
         """
         Get a field from a farm by its field number.
         :param number: the number of the field.

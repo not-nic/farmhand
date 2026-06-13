@@ -3,7 +3,6 @@ User Repository containing user database interactions.
 see: base_repository.py to see the base repository to inherit from.
 """
 
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -19,7 +18,7 @@ class UserRepository(Repository[User]):
     def __init__(self, db: Session):
         super().__init__(db, User)
 
-    def get_by_username(self, username: str) -> Optional[User]:
+    def get_by_username(self, username: str) -> User | None:
         """
         get a user by their username
         :param username:
@@ -27,7 +26,7 @@ class UserRepository(Repository[User]):
         """
         return self.db.query(User).filter(User.username == username).first()
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         """
         get a user by their email
         :param email: the users email
@@ -35,7 +34,7 @@ class UserRepository(Repository[User]):
         """
         return self.db.query(User).filter(User.email_address == email).first()
 
-    def get_by_github_id(self, github_id: int) -> Optional[User]:
+    def get_by_github_id(self, github_id: int) -> User | None:
         """
         get a user by their email
         :param github_id: the users GitHub ID.
