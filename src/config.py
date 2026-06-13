@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     @computed_field(return_type=str)
     def DATABASE_URL(self):
         if self.ENVIRONMENT == "development":
-            return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            return f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         if self.ENVIRONMENT == "testing":
             return "sqlite:///./instance/testdb.sqlite"
 

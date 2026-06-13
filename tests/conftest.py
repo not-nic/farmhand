@@ -54,7 +54,7 @@ def db(create_database):
 
 
 @pytest.fixture(scope="module")
-def client(db, make_httpserver) -> Generator[TestClient, None, None]:
+def client(db, make_httpserver) -> Generator[TestClient]:
     """
     Fixture for the FastAPI test client
     :return:
@@ -67,7 +67,7 @@ def client(db, make_httpserver) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture(scope="function")
-def unit_test_user(db) -> Generator[User, Any, None]:
+def unit_test_user(db) -> Generator[User, Any]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
@@ -85,7 +85,7 @@ def unit_test_user(db) -> Generator[User, Any, None]:
 
 
 @pytest.fixture(scope="function")
-def github_user(db) -> Generator[User, Any, None]:
+def github_user(db) -> Generator[User, Any]:
     """
     Fixture for creating a user in the 'SQLite test database'
     :return: the user object.
@@ -103,7 +103,7 @@ def github_user(db) -> Generator[User, Any, None]:
 
 
 @pytest.fixture
-def session(client, unit_test_user) -> Generator[str | None, Any, None]:
+def session(client, unit_test_user) -> Generator[str | None, Any]:
     """
     Create a session for the unit test user.
     :param unit_test_user: The mock unit test user

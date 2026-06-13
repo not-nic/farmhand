@@ -3,7 +3,7 @@ Module for testing the Farmhand Security class.
 """
 
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
@@ -27,8 +27,8 @@ class TestSecurity:
         expected_token = TokenModel(
             id=unit_test_user.id,
             auth_type=AuthTypes.DEFAULT,
-            exp=datetime.now(timezone.utc) + settings.JWT_TOKEN_EXPIRATION_TIME,
-            iat=datetime.now(timezone.utc),
+            exp=datetime.now(UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(UTC),
         )
 
         user_repository = UserRepository(db)
@@ -48,8 +48,8 @@ class TestSecurity:
         expected_token = TokenModel(
             id=github_user.github_id,
             auth_type=AuthTypes.GITHUB,
-            exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.now(timezone.utc),
+            exp=datetime.now(UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(UTC),
         )
 
         user_repository = UserRepository(db)
@@ -66,8 +66,8 @@ class TestSecurity:
         token_payload = TokenModel(
             id=12345,
             auth_type=AuthTypes.GITHUB,
-            exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-            iat=datetime.now(timezone.utc),
+            exp=datetime.now(UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+            iat=datetime.now(UTC),
         )
 
         encoded_token = Security.encode_jwt(token_payload)
@@ -94,8 +94,8 @@ class TestSecurity:
         token = TokenModel(
             id=12345,
             auth_type=AuthTypes.DEFAULT,
-            exp=datetime.now(timezone.utc) + timedelta(milliseconds=5),
-            iat=datetime.now(timezone.utc),
+            exp=datetime.now(UTC) + timedelta(milliseconds=5),
+            iat=datetime.now(UTC),
         )
 
         with pytest.raises(jwt.ExpiredSignatureError):

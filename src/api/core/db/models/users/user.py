@@ -40,7 +40,7 @@ class User(SqlAlchemyBase):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    farms: Mapped[list["Farm"]] = relationship("Farm", back_populates="user", cascade="all, delete")
+    farms: Mapped[list[Farm]] = relationship("Farm", back_populates="user", cascade="all, delete")
 
     def __repr__(self):
         return f"<User: {self.username}>"

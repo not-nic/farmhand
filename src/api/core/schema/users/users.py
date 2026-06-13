@@ -2,7 +2,6 @@
 Python module containing pydantic models for Users.
 """
 
-from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -26,7 +25,7 @@ class GithubUser(BaseModel):
     id: int
     username: str = Field(alias="login")
     name: str
-    email: Optional[str] = None
+    email: str | None = None
 
     @model_validator(mode="after")
     def validate_github_email(self):

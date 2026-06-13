@@ -2,7 +2,6 @@
 Python module containing the 'DataApiService' for communicating
 with the farmhand data API.
 """
-from typing import Optional
 
 import httpx
 from fastapi import status
@@ -18,10 +17,10 @@ class DataApiService:
     Class containing the Data API Service which is used to communicate
     with the farmhand-data-api, to get information from the game files or modhub.
     """
-    def __init__(self, url: Optional[str] = None):
+    def __init__(self, url: str | None = None):
         self.data_api_url = settings.DATA_API_URL or url
 
-    async def get_map_by_id(self, map_id: int) -> Optional[dict]:
+    async def get_map_by_id(self, map_id: int) -> dict | None:
         """
         Get a map by its ID from the data-api.
         :param map_id:
@@ -33,7 +32,7 @@ class DataApiService:
             return response.json()
         return None
 
-    async def _make_request(self, method: str, endpoint: str, params: Optional[dict] = None) -> Response:
+    async def _make_request(self, method: str, endpoint: str, params: dict | None = None) -> Response:
         """
         Reusable HTTP request method using httpx.
         :param method: HTTP method as a string (e.g., "GET").

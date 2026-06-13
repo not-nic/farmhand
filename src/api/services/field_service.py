@@ -2,7 +2,6 @@
 Field Service Module for creating and managing fields in Farmhand.
 """
 
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -87,7 +86,7 @@ class FieldService:
                 f"Cannot create a {field_request.field_type} on a {current_farm.farm_type} farm."
             )
 
-    def get_field(self, field_id: UUID, farm_id: UUID) -> Optional[Field]:
+    def get_field(self, field_id: UUID, farm_id: UUID) -> Field | None:
         """
         Get the field from the database and raise an error it doesn't exist
         :param farm_id: the id of the farm that requested the field
@@ -111,7 +110,7 @@ class FieldService:
 
         return field
 
-    def get_field_by_number(self, field_number: int, farm_id: UUID) -> Optional[Field]:
+    def get_field_by_number(self, field_number: int, farm_id: UUID) -> Field | None:
         """
         Get the field from the database and raise an error it doesn't exist
         :param farm_id: the id of the farm that requested the field
@@ -127,7 +126,7 @@ class FieldService:
         return field
 
     async def get_all_fields(
-        self, current_farm: Farm, show_crop: Optional[bool] = False, crop_type: Optional[str] = None
+        self, current_farm: Farm, show_crop: bool | None = False, crop_type: str | None = None
     ) -> dict:
         """
         Get all fields associated with a farm.
@@ -180,7 +179,7 @@ class FieldService:
         ]
         return fields
 
-    def get_field_details(self, field: Field, show_crops: Optional[bool] = False) -> FieldResponse:
+    def get_field_details(self, field: Field, show_crops: bool | None = False) -> FieldResponse:
         """
         Get the details of a field and its relationships to a base game field
         or precision farming field

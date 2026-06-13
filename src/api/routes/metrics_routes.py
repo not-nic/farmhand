@@ -12,7 +12,6 @@ Dependencies:
     - CurrentField: Fetches the Field for the given field_id.
 """
 
-from typing import Optional
 
 from fastapi import APIRouter
 
@@ -31,7 +30,7 @@ router = APIRouter(prefix="/{field_number}/metrics", tags=["Field Metrics"])
 
 @router.get("")
 async def get_metrics(
-    field: CurrentField, db: SessionDep, next_crop: Optional[str] = None
+    field: CurrentField, db: SessionDep, next_crop: str | None = None
 ) -> MetricsResponseModel:
     """
     Retrieves various metrics associated with a field from the metrics response,

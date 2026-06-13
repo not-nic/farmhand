@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -15,7 +14,7 @@ class CropModel(BaseModel):
     type: str
     yield_per_ha: int
     seeds_per_ha: int
-    nitrogen_per_kg_ha: Optional[int]
+    nitrogen_per_kg_ha: int | None
     price: float
 
     growth_stages: int
@@ -36,7 +35,7 @@ class CropRequest(BaseModel):
     """
 
     crop_type: str = Field(alias="type")
-    ground_type: Optional[str] = None
+    ground_type: str | None = None
 
 
 class CropResponse(BaseModel):
@@ -55,4 +54,4 @@ class CropsResponse(BaseModel):
     """
 
     crops: list[CropResponse]
-    count: Optional[int] = None
+    count: int | None = None

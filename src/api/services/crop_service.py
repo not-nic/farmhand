@@ -4,7 +4,6 @@ Crop Service Module for interacting and managing with crops that are associated 
 
 import json
 import os.path
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -92,7 +91,7 @@ class CropService:
             "[Crop Service]: All Crops created, updated values successfully if any changed."
         )
 
-    async def get_crop_by_type(self, crop_type: str) -> Optional[Crop]:
+    async def get_crop_by_type(self, crop_type: str) -> Crop | None:
         """
         Get a crop by its crop_type e.g. wheat, barley etc.
         :param crop_type: the crop type to get
@@ -105,7 +104,7 @@ class CropService:
             raise ValueError(f"Invalid crop: '{crop_type}' not found")
         return crop
 
-    async def get_crop_details(self, crop_id: int) -> Optional[Crop]:
+    async def get_crop_details(self, crop_id: int) -> Crop | None:
         """
         Get all the details for a 'Crop' i.e.
         :param crop_id: the id of the crop to get

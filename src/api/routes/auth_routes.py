@@ -16,7 +16,7 @@ Dependencies:
     - CurrentUser: Fetches the current authenticated user.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
@@ -53,8 +53,8 @@ async def login(login_request: LoginRequest, db: SessionDep, response: Response)
 
     payload = TokenModel(
         id=user.id,
-        exp=datetime.now(timezone.utc) + settings.JWT_TOKEN_EXPIRATION_TIME,
-        iat=datetime.now(timezone.utc),
+        exp=datetime.now(UTC) + settings.JWT_TOKEN_EXPIRATION_TIME,
+        iat=datetime.now(UTC),
     )
 
     session_token = Security.encode_jwt(payload)
@@ -105,8 +105,8 @@ async def authenticate_github(request: Request, db: SessionDep) -> Response:
     payload = TokenModel(
         id=github_user.id,
         auth_type=AuthTypes.GITHUB,
-        exp=datetime.now(timezone.utc) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
-        iat=datetime.now(timezone.utc),
+        exp=datetime.now(UTC) + settings.GITHUB_TOKEN_EXPIRATION_TIME,
+        iat=datetime.now(UTC),
     )
 
     session_token = Security.encode_jwt(payload)

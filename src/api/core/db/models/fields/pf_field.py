@@ -33,7 +33,7 @@ class PrecisionFarmingField(SqlAlchemyBase):
         Enum(SoilTypes, native_enum=False), nullable=True, default=SoilTypes.LOAM
     )
 
-    field: Mapped["Field"] = relationship("Field", back_populates="precision_farming_field")
+    field: Mapped[Field] = relationship("Field", back_populates="precision_farming_field")
 
     def __repr__(self):
         return (

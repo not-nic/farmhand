@@ -2,7 +2,6 @@
 Unit Tests for the Crops API Routes.
 """
 
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -32,7 +31,7 @@ class TestCropRoutes:
         return FieldCropRepository(db)
 
     @staticmethod
-    def crop_url(farm_id: UUID, field_number: Optional[int] = None):
+    def crop_url(farm_id: UUID, field_number: int | None = None):
         return f"{settings.API_V1_STR}/farms/{farm_id}/fields/{field_number}/crops"
 
     async def test_get_field_crops(

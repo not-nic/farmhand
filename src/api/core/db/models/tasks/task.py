@@ -37,7 +37,7 @@ class Task(SqlAlchemyBase):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
     farm_id: Mapped[UUID] = mapped_column(UUID, ForeignKey("farms.id"), nullable=False)
-    farm: Mapped["Farm"] = relationship("Farm", back_populates="tasks")
+    farm: Mapped[Farm] = relationship("Farm", back_populates="tasks")
 
     def __repr__(self):
         return f"Task(id={self.id}, content='{self.content}, completed={self.completed}, farm_id={self.farm.id})"

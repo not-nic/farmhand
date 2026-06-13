@@ -2,7 +2,6 @@
 Unit Tests for the Farm API Routes.
 """
 
-from typing import Optional
 from uuid import UUID
 
 import pytest
@@ -16,7 +15,7 @@ from src.config import settings
 @pytest.mark.usefixtures("client", "session")
 class TestTaskRoutes:
     @staticmethod
-    def task_url(farm_id: UUID, filter_by: Optional[str] = "", task_id: Optional[UUID] = None):
+    def task_url(farm_id: UUID, filter_by: str | None = "", task_id: UUID | None = None):
         """task url util method"""
         task_id_path = f"/{task_id}" if task_id else ""
         filter_by_query = f"?filter_by={filter_by}" if filter_by else ""
