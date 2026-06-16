@@ -25,7 +25,7 @@ Visit those repos here:
    POSTGRES_USER=postgres  
    POSTGRES_PASSWORD=postgres  
    POSTGRES_DB=farmhand  
-   ENVIRONMENT=development  
+   ENVIRONMENT=dev  
    
    DATA_API_URL=http://data-api:8000/api/v1 # machine local IP address if running outside docker
   
