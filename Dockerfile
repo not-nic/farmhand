@@ -2,8 +2,7 @@ FROM python:3.14-alpine
 
 ENV PYTHONUNBUFFERED=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv \
-    UV_NO_CACHE=1 \
-    UV_NO_DEV=1
+    UV_NO_CACHE=1
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 

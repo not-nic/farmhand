@@ -84,8 +84,10 @@ class TestCropRoutes:
         :param base_game_field: base game field fixture
         """
 
+        print(base_game_field)
+
         field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
-        field_crop_repository.create(field_id=base_game_field.id, crop_id=5)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=2)
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=base_game_field.number)}/?current=true"
 
@@ -111,7 +113,7 @@ class TestCropRoutes:
         """
 
         field_crop_repository.create(field_id=base_game_field.id, crop_id=1)
-        field_crop_repository.create(field_id=base_game_field.id, crop_id=5)
+        field_crop_repository.create(field_id=base_game_field.id, crop_id=3)
         field_crop_repository.create(field_id=base_game_field.id, crop_id=2)
 
         url = f"{self.crop_url(farm_id=farm.id, field_number=base_game_field.number)}/?past=true"
@@ -135,7 +137,7 @@ class TestCropRoutes:
         :param base_game_field: base game field fixture
         """
 
-        payload = {"type": "Canola"}
+        payload = {"type": "Barley"}
 
         response = client.put(
             self.crop_url(farm_id=farm.id, field_number=base_game_field.number),
@@ -146,7 +148,7 @@ class TestCropRoutes:
 
         f_crop: FieldCrop = base_game_field.current_crop()
 
-        assert f_crop.crop.type == "Canola"
+        assert f_crop.crop.type == "Barley"
 
     async def test_planting_crop_that_does_not_exist(self, client, session, farm, base_game_field):
         """

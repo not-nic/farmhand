@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.requests import Request
 
-from src.api.core.db.db_setup import get_db
+from src.api.core.db import get_db
 from src.api.core.db.models import Task
 from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.fields import Field

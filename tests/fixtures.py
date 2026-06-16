@@ -3,27 +3,27 @@ Fixtures module for reusable pytest fixtures to be used across tests.
 """
 
 import datetime
+from collections.abc import Generator
 from decimal import Decimal
-from uuid import UUID
 
 import pytest
 
 from src.api.constants import FarmTypes, FertilizerStates, FieldTypes, SoilTypes, WeedStates
-from src.api.core.db.models import Field, User
+from src.api.core.db.models import Field
 from src.api.core.db.models.farms import Farm
-from src.api.core.repositories import FarmRepository, FieldRepository, UserRepository
+from src.api.core.repositories import FarmRepository, FieldRepository
 from src.api.core.schema.fields import FieldRequest, FieldResponse
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
-from tests.conftest import UNIT_TESTING_USER
 
 
 @pytest.fixture
-def farms(user_id, db) -> list[Farm]:
+def farms(user_id, db) -> Generator[list[Farm]]:
     """
     Fixture containing farms for the unit test user.
-    :param user_id: the unit test user id
-    :return: a list of farms.
+    :param db: The database session fixture.
+    :param user_id: The unit test user id
+    :return: A list of farms.
     """
     farm_repository = FarmRepository(db)
     farms = [
@@ -38,7 +38,11 @@ def farms(user_id, db) -> list[Farm]:
             owner_id=user_id,
         ),
     ]
-    return farms
+
+    yield farms
+
+    for farm in farms:
+        farm_repository.delete(farm.id)
 
 
 @pytest.fixture
@@ -71,16 +75,6 @@ def mock_map_response(httpserver):
     httpserver.expect_request(f"/maps/{mock_id}", method="GET").respond_with_json(mock_response, status=200)
 
     return httpserver, mock_response
-
-@pytest.fixture
-def user_id(db) -> UUID:
-    """
-    Fixture for the user_id of the unit testing account.
-    :return: (UUID) unit test user id
-    """
-    user_repository = UserRepository(db)
-    user: User = user_repository.get_by_username(UNIT_TESTING_USER)
-    return user.id
 
 
 @pytest.fixture
