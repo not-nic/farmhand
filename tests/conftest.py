@@ -9,13 +9,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from main import app
-from src.config import settings
 from src.api.core.db import SessionLocal, engine
 from src.api.core.db.models import User
 from src.api.core.db.models._model_base import SqlAlchemyBase
 from src.api.core.repositories import UserRepository
 from src.api.core.security import Security, github
 from src.api.services.crop_service import CropService
+from src.config import settings
 from tests.utils import crop_data
 
 pytest_plugins = "tests.fixtures"

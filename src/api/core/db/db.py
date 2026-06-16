@@ -23,14 +23,14 @@ engine: Engine = _make_engine(settings.DATABASE_URL)
 SessionLocal: sessionmaker = _make_session_factory(engine)
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Generator[Session]:
     """FastAPI dependency that provides a database session."""
     with SessionLocal() as session:
         yield session
 
 
 @contextmanager
-def db_session() -> Generator[Session, None, None]:
+def db_session() -> Generator[Session]:
     """Context manager for use outside of FastAPI DI (scripts, CLI, etc.)."""
     with SessionLocal() as session:
         yield session

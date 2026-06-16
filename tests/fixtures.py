@@ -3,8 +3,8 @@ Fixtures module for reusable pytest fixtures to be used across tests.
 """
 
 import datetime
+from collections.abc import Generator
 from decimal import Decimal
-from typing import Generator
 
 import pytest
 
