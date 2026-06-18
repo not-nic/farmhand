@@ -20,7 +20,7 @@ class CropService:
 
     This service is responsible for managing crops on a user's farm, including adding, updating,
     and retrieving crop data.
-    It also handles the initialization of crops during the application's startup.
+    It also handles the initialisation of crops during the application's startup.
     """
 
     def __init__(self, db: Session):
@@ -38,7 +38,7 @@ class CropService:
         crop = await self.get_crop_by_type(crop_request.crop_type)
 
         if not crop_request.ground_type:
-            self.field_repository.update(id=current_field.id, ground_type=crop_request.ground_type)
+            self.field_repository.update(current_field, ground_type=crop_request.ground_type)
 
         logger.info(f"[Crop Service]: Planting '{crop.type}' in field: '{current_field.id}'")
         return self.field_crop_repository.create(crop_id=crop.id, field_id=current_field.id)
@@ -82,7 +82,7 @@ class CropService:
             existing_crop = self.crop_repository.get_by_type(type=crop_data.type)
 
             if existing_crop:
-                self.crop_repository.update(existing_crop.id, **crop_dict)
+                self.crop_repository.update(existing_crop, **crop_dict)
             else:
                 logger.info(f"[Crop Service]: Creating new crop '{crop_data.type}'")
                 self.crop_repository.create(**crop_dict)
@@ -93,7 +93,7 @@ class CropService:
 
     async def get_crop_by_type(self, crop_type: str) -> Crop | None:
         """
-        Get a crop by its crop_type e.g. wheat, barley etc.
+        Get a crop by its crop_type e.g. wheat, barley, etc.
         :param crop_type: the crop type to get
         :return: the crop if it exists.
         """

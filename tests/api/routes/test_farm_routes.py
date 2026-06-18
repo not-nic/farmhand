@@ -8,6 +8,7 @@ import pytest
 from fastapi import status
 
 from src.api.core.repositories import FarmRepository
+from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
 from src.config import settings
 from tests.conftest import UNIT_TESTING_USER
 
@@ -20,14 +21,14 @@ class TestFarmRoutes:
     def farm_repository(self, db):
         """
         Farm Repository Instance fixture.
-        :param db: database session fixture.
-        :return: farm repository instance.
+        :param db: Database session fixture.
+        :return: Farm repository instance.
         """
         return FarmRepository(db)
 
     def test_get_multiple_farms(self, client, session, farms):
         """
-        Test that multiple created farms can be retrieved from the get endpoint.
+        Test that multiple created farms can be retrieved from the 'GET' endpoint.
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
@@ -46,7 +47,7 @@ class TestFarmRoutes:
 
     def test_get_farm(self, client, session, farms):
         """
-        Test that a single farm record can be retrieved from the get endpoint.
+        Test that a single farm record can be retrieved from the 'GET' endpoint.
         :param client: FastAPI test client
         :param session: the user's session
         :param farms: create farms fixture
@@ -66,7 +67,7 @@ class TestFarmRoutes:
 
     def test_get_farm_that_does_not_exist(self, client, session):
         """
-        Test that when requesting a farm that doesn't exist it returns a 404.
+        Test that when requesting a farm that doesn't exist, it returns a 404.
         :param client: FastAPI test client
         :param session: the user's session
         """
@@ -78,7 +79,7 @@ class TestFarmRoutes:
 
     def test_get_farm_for_a_different_user(self, client, session, farm_repository):
         """
-        Test that when getting a farm for a different user it returns a 403 forbidden error.
+        Test that when getting a farm for a different user, it returns a 403 forbidden error.
         :param client: FastAPI test client
         :param session: the user's session
         :param farm_repository: farm repository fixture.
@@ -90,42 +91,23 @@ class TestFarmRoutes:
         result = client.get(f"{self.url}/{farm.id}")
 
         assert result.status_code == status.HTTP_403_FORBIDDEN
-        assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not own this farm."}
+        assert result.json() == {"detail": f"{UNIT_TESTING_USER} does not have access to this farm."}
 
-    def test_create_farm_by_map_name(self, client, session, farm_repository):
-        """
-        Test creating a farm by a custom map_name and validate it is in the database.
-        :param client: FastAPI test client
-        :param session: the user's session
-        """
-
-        payload = {
-            "name": "test-farm",
-            "description": "test-description",
-            "map_name": "test-map",
-        }
-
-        result = client.post(self.url, json=payload)
-
-        assert result.status_code == status.HTTP_201_CREATED
-
-        result_json = result.json()
-        expected_farm = farm_repository.get_by_id(UUID(result_json["id"])).to_dict()
-
-        for key, value in payload.items():
-            assert expected_farm.get(key) == value
-
-    def test_create_farm_by_map_id(self, client, session, mock_map_response, farm_repository):
+    def test_create_farm_by_map_id(
+            self,
+            client,
+            session,
+            mock_map_response,
+            unit_test_user,
+            farm_repository
+    ):
         """
         Test creating a farm by a map_id and validate it is in the database.
         :param client: FastAPI test client
         :param session: the user's session
         :param mock_map_response: fixture to create a map
         """
-
         payload = {
-            "name": "test-farm",
-            "description": "test-description",
             "map_id": 123456,
         }
 
@@ -134,30 +116,29 @@ class TestFarmRoutes:
 
         result_json = result.json()
         expected_farm = farm_repository.get_by_id(UUID(result_json["id"]))
-        expected_farm_dict = expected_farm.to_dict()
-
-        for key, value in payload.items():
-            assert expected_farm_dict.get(key) == value
 
         assert expected_farm.map_name == 'custom-map-1'
         assert expected_farm.map_id == 123456
+        assert expected_farm.name == 'custom-map-1 Farm'
+        assert expected_farm.difficulty == "MEDIUM"
+        assert expected_farm.farm_type == "base"
+        assert expected_farm.description == f"{unit_test_user.username}'s new farm on custom-map-1-1.0.0.0"
 
     def test_create_farm_returns_404_if_no_map_is_found(self, client, session):
         """
-        Test that when creating a farm with a map_id it returns a 404 if the map is not found.
+        Test that when creating a farm with a map_id, it returns a
+        404 if the map is not found.
         :param client: FastAPI test client
         :param session: the user's session
         """
 
         payload = {
-            "name": "test-farm",
-            "description": "test-description",
             "map_id": 1234,
         }
 
         result = client.post(self.url, json=payload)
         assert result.status_code == status.HTTP_404_NOT_FOUND
-        assert result.json() == {"detail": "Map not found"}
+        assert result.json() == {"detail": "Map not found."}
 
     def test_create_farm_returns_validation_error(self, client, session):
         """
@@ -172,7 +153,7 @@ class TestFarmRoutes:
         }
 
         result = client.post(self.url, json=payload)
-        assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_update_farm(self, client, session, user_id, farm_repository):
         """
@@ -189,35 +170,14 @@ class TestFarmRoutes:
             owner_id=user_id,
         )
 
-        payload = {"map_name": "New farm name"}
+        payload = {
+            "name": "New farm name",
+            "description": "new desc",
+            "difficulty": "HARD"
+        }
 
         result = client.patch(f"{self.url}/{expected_farm.id}", json=payload)
         assert result.status_code == status.HTTP_204_NO_CONTENT
-
-    def test_update_farm_with_new_map(self, client, db, session, user_id, mock_map_response, farm_repository):
-        """
-        test that when a farm is updated with a new map the map_id and map_name
-        are updated.
-        :param client: FastAPI test client
-        :param session: the user session fixture
-        :param farm_repository: farm database repository fixture.
-        """
-        httpserver, mock_response = mock_map_response
-
-        farm = farm_repository.create(
-            name="Old farm name",
-            description="test description",
-            map_name="test map",
-            owner_id=user_id,
-        )
-
-        payload = {"map_id": mock_response["id"]}
-        result = client.patch(f"{self.url}/{farm.id}", json=payload)
-
-        assert result.status_code == status.HTTP_204_NO_CONTENT
-        db.refresh(farm)
-        assert farm.map_id == mock_response["id"]
-        assert farm.map_name == mock_response["name"]
 
     def test_delete_farm(self, client, session, user_id, farm_repository):
         """
@@ -234,3 +194,20 @@ class TestFarmRoutes:
         result = client.delete(f"{self.url}/{expected_farm.id}")
         assert result.status_code == status.HTTP_204_NO_CONTENT
 
+    def test_create_farm_returns_503_if_service_unavailable(self, client, session, mocker):
+        """
+        Test that when the farmhand-data-api is unavailable, it returns a 503.
+        :param client: FastAPI test client
+        :param session: the user's session
+        :param mocker: pytest-mock fixture
+        """
+        mocker.patch(
+            "src.api.routes.farm_routes.FarmService.create_farm",
+            side_effect=ServiceUnavailableError,
+        )
+
+        payload = {"map_id": 123456}
+
+        result = client.post(self.url, json=payload)
+        assert result.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+        assert result.json() == {"detail": "Unable to communicate with farmhand-data-api."}

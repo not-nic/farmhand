@@ -17,8 +17,9 @@ from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.fields import Field
 from src.api.core.db.models.users import User
 from src.api.core.logger import logger
-from src.api.core.repositories import FarmRepository, UserRepository
+from src.api.core.repositories import UserRepository
 from src.api.core.security import Security
+from src.api.services.farm_service import FarmService
 from src.api.services.field_service import FieldService
 from src.api.services.tasks_service import TaskService
 from src.config import settings
@@ -82,16 +83,18 @@ def is_service_user(current_user: CurrentUser) -> bool:
 ServiceUser = Annotated[bool, Depends(is_service_user)]
 
 
-def get_farm(id: UUID, current_user: CurrentUser, db: SessionDep) -> Farm:
+def get_farm(id: UUID, db: SessionDep, current_user: CurrentUser) -> Farm:
     """
-    Get the farm for the current logged-in user
-    :param id: the id of the farm to get
-    :param current_user: the current user of the farm
+    Dependency to get the farm for a given user.
+    :param id: (UUID) The ID of the Farm to retrieve.
     :param db: Database session dependency.
-    :return: the requested Farm
+    :param current_user: (User) A user object.
+    :return: (Farm) The request farm.
+    :raises: (HTTPException) 404 If the farm is not found, or a 403 if the
+    user does not have access.
     """
-    farm_repository = FarmRepository(db)
-    farm = farm_repository.get_by_id(id)
+    farm_service = FarmService(db)
+    farm = farm_service.get_by_id(id)
 
     if not farm:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Farm not found.")
@@ -99,7 +102,7 @@ def get_farm(id: UUID, current_user: CurrentUser, db: SessionDep) -> Farm:
     if farm.owner_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"{current_user.username} does not own this farm.",
+            detail=f"{current_user.username} does not have access to this farm.",
         )
 
     return farm

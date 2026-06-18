@@ -42,7 +42,7 @@ def farms(user_id, db) -> Generator[list[Farm]]:
     yield farms
 
     for farm in farms:
-        farm_repository.delete(farm.id)
+        farm_repository.delete(farm)
 
 
 @pytest.fixture

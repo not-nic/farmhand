@@ -1,43 +1,42 @@
+"""
+Python module containing Farm Request / Response Pydantic Models.
+"""
+
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.constants import Difficulty, FarmTypes
-from src.api.core.schema.validators import Validators
 
 
 class FarmRequest(BaseModel):
     """
     Request model for creating a farm.
     """
+    model_config = ConfigDict(extra="forbid")
 
-    name: str
-    description: str
     farm_type: FarmTypes = Field(default=FarmTypes.BASE)
     difficulty: Difficulty = Field(default=Difficulty.MEDIUM)
-    map_name: str | None = None
-    map_id: int | None = None
-
-    @model_validator(mode="before")
-    def validate_map_id_or_name(cls, values):
-        return Validators.validate_map_id_or_name_exists(values)
+    map_id: int
 
 
-class FarmUpdate(FarmRequest):
+class FarmUpdate(BaseModel):
     """
     Request model for creating a farm.
     """
+    model_config = ConfigDict(extra="forbid")
 
     name: str | None = None
     description: str | None = None
-    map_name: str | None = None
+    difficulty: Difficulty | None = None
 
 
 class FarmResponse(BaseModel):
     """
     Response model for returning a singular farm.
     """
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     name: str

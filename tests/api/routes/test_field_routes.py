@@ -154,7 +154,7 @@ class TestFieldRoutes:
         }
 
         result = client.post(self.field_url(farm_id=farms[0].id), json=payload)
-        assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
         result_json = result.json()
 
@@ -186,7 +186,7 @@ class TestFieldRoutes:
         assert result.status_code == status.HTTP_400_BAD_REQUEST
 
         result_json = result.json()
-        assert result_json["detail"] == "Cannot create a base_field on a precision_farming farm."
+        assert result_json["detail"] == "Cannot create a base_field on a pf farm."
 
     def test_updating_field_on_base_game_farm(self, client, session, farms, base_game_field):
         """

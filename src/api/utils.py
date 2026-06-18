@@ -20,3 +20,12 @@ def format_pydantic_errors(
         messages = [err.get("msg", "Validation error") for err in errors]
         return {"detail": "; ".join(messages)}
     return {"detail": "Unknown validation error"}
+
+
+def possessive(name: str) -> str:
+    """
+    Returns the possessive form of a name.
+    E.g. 'James' -> "James'", 'Alex' -> "Alex's".
+    :param name: The name to check.
+    """
+    return f"{name}'" if name.lower().endswith("s") else f"{name}'s"
