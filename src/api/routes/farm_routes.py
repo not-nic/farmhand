@@ -19,11 +19,8 @@ Dependencies:
 from fastapi import APIRouter, HTTPException, status
 
 from src.api.core.dependencies import CurrentFarm, CurrentUser, SessionDep
-from src.api.core.repositories import FarmRepository
 from src.api.core.schema.farms import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
-from src.api.core.schema.maps.maps import MapModel
 from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
-from src.api.services.data_service import DataApiService
 from src.api.services.farm_service import FarmService
 
 router = APIRouter(prefix="/farms", tags=["Farms"])

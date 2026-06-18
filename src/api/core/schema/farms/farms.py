@@ -5,7 +5,7 @@ Python module containing Farm Request / Response Pydantic Models.
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.api.constants import Difficulty, FarmTypes
 

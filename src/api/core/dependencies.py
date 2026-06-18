@@ -17,7 +17,7 @@ from src.api.core.db.models.farms import Farm
 from src.api.core.db.models.fields import Field
 from src.api.core.db.models.users import User
 from src.api.core.logger import logger
-from src.api.core.repositories import FarmRepository, UserRepository
+from src.api.core.repositories import UserRepository
 from src.api.core.security import Security
 from src.api.services.farm_service import FarmService
 from src.api.services.field_service import FieldService

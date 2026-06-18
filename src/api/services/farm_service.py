@@ -5,12 +5,11 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from src.api.constants import FarmTypes, Difficulty
+from src.api.constants import Difficulty, FarmTypes
 from src.api.core.db.models import Farm, User
 from src.api.core.repositories import FarmRepository
 from src.api.services.data_service import DataApiService
 from src.api.utils import possessive
-from tests.fixtures import farms
 
 
 class FarmService:
