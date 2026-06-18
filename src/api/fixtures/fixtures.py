@@ -38,7 +38,7 @@ class Fixtures:
                 logger.info(f"Service user created - {service_user.email_address}")
             else:
                 logger.info("Service user already exists, updating values if changed.")
-                user_repository.update(id=service_user.id, **user_data)
+                user_repository.update(service_user, **user_data)
 
             return service_user
 
