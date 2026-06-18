@@ -79,8 +79,8 @@ async def get_task_by_id(task: TaskDep) -> TaskResponse:
 @router.patch("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_task(db: SessionDep, task: TaskDep, task_update: TaskUpdate) -> None:
     """
-    Delete a task by its ID, if a task exists.
-    :param db: database session dependency
+    Update a task.
+    :param db: Database session dependency
     :param task: (Task) The task Dependency.
     :param task_update: Task update request model.
     :return: 204 No content message.
@@ -88,7 +88,7 @@ async def update_task(db: SessionDep, task: TaskDep, task_update: TaskUpdate) ->
     task_service = TaskService(db)
 
     try:
-        task_service.update_task(task.id, **task_update.model_dump(exclude_none=True))
+        task_service.update_task(task, **task_update.model_dump(exclude_none=True))
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
@@ -96,10 +96,10 @@ async def update_task(db: SessionDep, task: TaskDep, task_update: TaskUpdate) ->
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(db: SessionDep, task: TaskDep) -> None:
     """
-    Delete a task by its ID, if a task exists.
-    :param db: database session dependency
+    Delete a task if the task exists.
+    :param db: Database session dependency
     :param task: (Task) The task Dependency.
     :return: 204 No content message.
     """
     task_service = TaskService(db)
-    task_service.delete_task(task.id)
+    task_service.delete_task(task)

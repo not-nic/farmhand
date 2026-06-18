@@ -96,7 +96,7 @@ class TestTaskService:
 
         original_task = copy.deepcopy(task_service.get_task_by_id(task.id))
 
-        task_service.update_task(task.id, content="updated task", completed=True)
+        task_service.update_task(task, content="updated task", completed=True)
 
         updated_task = task_service.get_task_by_id(task.id)
 
@@ -110,7 +110,7 @@ class TestTaskService:
         """
         task_service = TaskService(db)
         task = task_service.create_task("new task", completed=False, farm_id=farm.id)
-        task_service.delete_task(task.id)
+        task_service.delete_task(task)
 
         deleted_task = task_service.get_task_by_id(task.id)
 

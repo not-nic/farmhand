@@ -65,7 +65,7 @@ def unit_test_user(db) -> Generator[User, Any]:
     )
 
     yield user_repository.get_by_id(test_user.id)
-    user_repository.delete(test_user.id)
+    user_repository.delete(test_user)
 
 
 @pytest.fixture(scope="session")
@@ -82,7 +82,7 @@ def github_user(db) -> Generator[User, Any]:
         name="github-user",
     )
     yield user_repository.get_by_id(github_test_user.id)
-    user_repository.delete(github_test_user.id)
+    user_repository.delete(github_test_user)
 
 
 @pytest.fixture(scope="session")

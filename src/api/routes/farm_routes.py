@@ -1,8 +1,8 @@
 """
 API Routes for CRUD operations on a Farm.
 
-This module defines the API routes for interacting with farms in the service,
-everything is attached to a farm, for example fields.
+This module defines the API routes for interacting with farms in the service.
+Most routes in the API are extended from the farm e.g. Fields, Tasks, etc.
 
 Routes:
     - POST /farms: Create a new farm.
@@ -16,14 +16,15 @@ Dependencies:
     - CurrentFarm: Fetches the Farm for the given farm_id.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
-from src.api.core.dependencies import CurrentFarm, CurrentUser, SessionDep, get_current_user
+from src.api.core.dependencies import CurrentFarm, CurrentUser, SessionDep
 from src.api.core.repositories import FarmRepository
 from src.api.core.schema.farms import FarmRequest, FarmResponse, FarmsResponse, FarmUpdate
 from src.api.core.schema.maps.maps import MapModel
 from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
 from src.api.services.data_service import DataApiService
+from src.api.services.farm_service import FarmService
 
 router = APIRouter(prefix="/farms", tags=["Farms"])
 
@@ -37,59 +38,51 @@ async def create_farm(
     farm_request: FarmRequest, db: SessionDep, current_user: CurrentUser
 ) -> FarmResponse:
     """
-    Create a farm linked for the logged-in user.
-    :param current_user: current logged-in user
-    :param db: database session dependency.
-    :param farm_request: farm request model
-    :return: (FarmResponse) Return a response of the farm
+    Create a farm for a user.
+    :param current_user: The current user.
+    :param db: Database session dependency.
+    :param farm_request: Farm request object.
+    :return: (FarmResponse) Farm response object.
     """
-    farm_repository = FarmRepository(db)
-
-    if farm_request.map_id or farm_request.map_id == 0:
-        try:
-            data_service = DataApiService()
-            map_response = await data_service.get_map_by_id(farm_request.map_id)
-        except ServiceUnavailableError:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Unable to communicate with farmhand-data-api."
-            )
-
-        if not map_response:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
-
-        map = MapModel.model_validate(map_response)
-
-        farm_request.map_name = map.name
-
-    farm = farm_repository.create(
-        name=farm_request.name,
-        description=farm_request.description,
-        map_name=farm_request.map_name,
-        owner_id=current_user.id,
-        map_id=farm_request.map_id,
-        farm_type=farm_request.farm_type,
-        difficulty=farm_request.difficulty,
-    )
-
-    return FarmResponse(**farm.to_dict())
+    farm_service = FarmService(db)
+    try:
+        new_farm = await farm_service.create_farm(
+            farm_request.map_id,
+            farm_request.farm_type,
+            farm_request.difficulty,
+            current_user
+        )
+        return FarmResponse(**new_farm.to_dict())
+    except ServiceUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Unable to communicate with farmhand-data-api."
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Map not found."
+        )
 
 
 @router.get(
     "/",
     response_model=FarmsResponse,
-    dependencies=[Depends(get_current_user)],
     status_code=status.HTTP_200_OK,
 )
-async def get_farms(current_user: CurrentUser) -> FarmsResponse:
+async def get_farms(current_user: CurrentUser, db: SessionDep) -> FarmsResponse:
     """
-    Get all farms associated to the current logged-in user.
-    :param current_user: the current logged-in user.
-    :return: (FarmsResponse) - Response of farm information and count
+    Get all farms for a given user.
+    :param current_user: (User) The current user.
+    :param db: A database session.
+    :return: (Farms) a list of Farms.
     """
-    farms = [FarmResponse(**farm.to_dict()) for farm in current_user.farms]
-    farms_count = len(farms)
-    return FarmsResponse(farms=farms, count=farms_count)
+    farm_service = FarmService(db)
+    farms = farm_service.get_farms(current_user)
+    return FarmsResponse(
+        farms=farms,
+        count=len(farms),
+    )
 
 
 @router.get(
@@ -99,49 +92,34 @@ async def get_farms(current_user: CurrentUser) -> FarmsResponse:
 )
 async def get_farm_by_id(farm: CurrentFarm) -> FarmResponse:
     """
-    Get all farms associated to the current logged-in user.
-    :param farm: farm from dependency
-    :return: (FarmsResponse) - Response of farm information and count
+    Get a farm by its ID for the current user.
+    :param farm: Dependency for the Current Farm.
+    :return: (Farm) the farm object.
     """
-    return FarmResponse(**farm.to_dict())
+    return FarmResponse.model_validate(farm)
 
 
 @router.patch("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_farm(
-    db: SessionDep, farm_update: FarmUpdate, farm: CurrentFarm
+    db: SessionDep,
+    farm: CurrentFarm,
+    farm_update: FarmUpdate,
 ) -> None:
     """
-    :param db: database session dependency.
-    :param farm_update: Farm update model
-    :param farm: The farm fetched by the dependency
-    :return: No Content
+    Update a farm with a new name or description.
+    :param db: A database session.
+    :param farm: Dependency for the Current Farm.
+    :param farm_update: (Farm) update model.
     """
-    farm_repository = FarmRepository(db)
-
-    if farm_update.map_id:
-        try:
-            data_service = DataApiService()
-            map_response = await data_service.get_map_by_id(farm_update.map_id)
-        except ServiceUnavailableError:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Unable to communicate with farmhand-data-api."
-            )
-
-        if not map_response:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
-
-        map = MapModel.model_validate(map_response)
-
-        farm_update.map_name = map.name
-        farm_repository.update(farm.id, **farm_update.model_dump(exclude_unset=True))
-
-    farm_repository.update(farm.id, **farm_update.model_dump(exclude_unset=True))
+    FarmService(db).update_farm(
+        farm=farm,
+        name=farm_update.name,
+        description=farm_update.description,
+        difficulty=farm_update.difficulty,
+    )
 
 
-@router.delete(
-    "/{id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_farm(db: SessionDep, farm: CurrentFarm) -> None:
     """
     Delete a farm by its ID.
@@ -149,5 +127,4 @@ async def delete_farm(db: SessionDep, farm: CurrentFarm) -> None:
     :param farm: Farm dependency.
     :return: No Content
     """
-    farm_repository = FarmRepository(db)
-    farm_repository.delete(farm.id)
+    FarmService(db).delete_farm(farm)

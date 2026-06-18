@@ -64,20 +64,20 @@ class TaskService:
         logger.info(f"[Task Service]: Getting Task: '{task_id}'")
         return self.task_repository.get_by_id(task_id)
 
-    def delete_task(self, task_id: UUID) -> None:
+    def delete_task(self, task: Task) -> None:
         """
         Delete a task by its UUID.
-        :param task_id: (uuid) the ID of the task.
+        :param task: (uuid) the Task object.
         """
-        logger.info(f"[Task Service]: Deleting Task: '{task_id}'")
-        self.task_repository.delete(task_id)
+        logger.info(f"[Task Service]: Deleting Task: '{task.id}'")
+        self.task_repository.delete(task)
 
     def update_task(
-        self, task_id: UUID, content: str | None = None, completed: bool | None = None
+        self, task: Task, content: str | None = None, completed: bool | None = None
     ) -> None:
         """
         Update a task by its content or completed status.
-        :param task_id: the ID of the task to update.
+        :param task: the ID of the task to update.
         :param content: the new content to update an existing task
         :param completed: the new status of the task.
         :return: (Task) the updated task.
@@ -91,8 +91,8 @@ class TaskService:
             update_fields["completed"] = completed
 
         if update_fields:
-            logger.info(f"[Task Service]: Updating Task: '{task_id}' with new content or status.")
-            self.task_repository.update(id=task_id, **update_fields)
+            logger.info(f"[Task Service]: Updating Task: '{task.id}' with new content or status.")
+            self.task_repository.update(obj=task, **update_fields)
 
     def _check_task_length(self, content: str) -> bool:
         """

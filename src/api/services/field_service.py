@@ -222,7 +222,7 @@ class FieldService:
             f"Updating Field: {field.number} ({field.id}) with the following data: {field_update}"
         )
         update_data = field_update.model_dump(exclude_unset=True)
-        self.field_repository.update(field.id, **update_data)
+        self.field_repository.update(field, **update_data)
 
     def delete_field(self, field: Field) -> None:
         """
@@ -230,7 +230,7 @@ class FieldService:
         :param field: the field to delete
         """
         logger.info(f"Deleting Field: {field.number} ({field.id})")
-        self.field_repository.delete(field.id)
+        self.field_repository.delete(field)
 
     @staticmethod
     def _is_base_game_field(field_request: FieldRequest, current_farm: Farm) -> bool:

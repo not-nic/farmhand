@@ -20,64 +20,50 @@ class FieldRepository(Repository[Field]):
     def __init__(self, db: Session):
         super().__init__(db, Field)
 
-    def update(self, id: UUID | int | None, **kwargs) -> Field | None:
+    def update_obj(self, field: Field, **kwargs) -> Field:
         """
         Update the details of a field and any associated relationships such as base_game_fields
         or precision_farming_fields.
-        :param id: ID of the field to update.
-        :param kwargs: Parameters to update, e.g., {number: 123}.
-        :return: The updated field object or None if not found.
+        :param field: The field instance to update.
+        :param kwargs: Parameters to update, e.g. {number: 123}.
+        :return: The updated field object.
         """
-
-        field: Field = self.get_by_id(id)
-        if not field:
-            return None
-
         for key, value in kwargs.items():
             if hasattr(field, key):
                 setattr(field, key, value)
 
-        self.db.commit()
-
         base_field_values = ["fertilized", "limed"]
         precision_field_values = ["nitrogen_level", "ph_level", "soil_type"]
 
-        # Check if the field is a base_game_field and get any kwargs from the update object and apply them.
         if field.base_game_field:
             base_field_kwargs = {key: kwargs[key] for key in base_field_values if key in kwargs}
             if base_field_kwargs:
                 base_game_field_repo = Repository(self.db, BaseGameField)
-                base_game_field_repo.update(field.id, **base_field_kwargs)
+                base_game_field_repo.update(field.base_game_field, **base_field_kwargs)
 
-        # Check if the field is a precision_farming_field and get any kwargs from the update object and apply them.
         if field.precision_farming_field:
-            precision_field_kwargs = {
-                key: kwargs[key] for key in precision_field_values if key in kwargs
-            }
+            precision_field_kwargs = {key: kwargs[key] for key in precision_field_values if key in kwargs}
             if precision_field_kwargs:
                 precision_farming_field_repo = Repository(self.db, PrecisionFarmingField)
-                precision_farming_field_repo.update(field.id, **precision_field_kwargs)
+                precision_farming_field_repo.update(field.precision_farming_field, **precision_field_kwargs)
 
         self.db.commit()
-
         return field
 
-    def delete(self, id: UUID) -> Field | None:
+    def delete_obj(self, field: Field) -> Field:
         """
-        delete a field and its associated field type object by its ID
-        :param id: the id of the record to be deleted
-        :return: the deleted object
+        Delete a field and its associated field type object.
+        :param field: The field instance to delete.
+        :return: The deleted field object.
         """
-        field: Field = self.get_by_id(id)
-        if field:
-            if field.base_game_field:
-                self.db.delete(field.base_game_field)
+        if field.base_game_field:
+            self.db.delete(field.base_game_field)
 
-            if field.precision_farming_field:
-                self.db.delete(field.precision_farming_field)
+        if field.precision_farming_field:
+            self.db.delete(field.precision_farming_field)
 
-            self.db.delete(field)
-            self.db.commit()
+        self.db.delete(field)
+        self.db.commit()
         return field
 
     def get_field_by_number(self, number: int, farm_id: UUID) -> Field | None:

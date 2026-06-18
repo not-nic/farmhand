@@ -8,6 +8,7 @@ from fastapi import status
 from httpx import ConnectError, RequestError, Response
 
 from src.api.core.logger import logger
+from src.api.core.schema.maps.maps import MapModel
 from src.api.exceptions.farmhand_data_api_exceptions import ServiceUnavailableError
 from src.config import settings
 
@@ -20,7 +21,7 @@ class DataApiService:
     def __init__(self, url: str | None = None):
         self.data_api_url = settings.DATA_API_URL or url
 
-    async def get_map_by_id(self, map_id: int) -> dict | None:
+    async def get_map_by_id(self, map_id: int) -> MapModel | None:
         """
         Get a map by its ID from the data-api.
         :param map_id:
@@ -29,14 +30,14 @@ class DataApiService:
 
         response = await self._make_request("GET", f"/maps/{map_id}")
         if response.status_code == status.HTTP_200_OK:
-            return response.json()
+            return MapModel(**response.json())
         return None
 
     async def _make_request(self, method: str, endpoint: str, params: dict | None = None) -> Response:
         """
         Reusable HTTP request method using httpx.
-        :param method: HTTP method as a string (e.g., "GET").
-        :param endpoint: Endpoint to hit (e.g., "/maps/1").
+        :param method: HTTP method as a string (e.g. "GET").
+        :param endpoint: Endpoint to hit (e.g. "/maps/1").
         :param params: Optional query parameters.
         :return: JSON response as dict.
         """

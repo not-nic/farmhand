@@ -18,11 +18,11 @@ class AuthTypes(StrEnum):
 class FarmTypes(StrEnum):
     """
     Types of farms a user can create, either a 'base' (game) farm
-    or 'precision farming' farm for different fields.
+    or 'precision farming' (pf) farm for different fields.
     """
 
     BASE = "base"
-    PRECISION_FARMING = "precision_farming"
+    PRECISION_FARMING = "pf"
 
 
 class FieldTypes(StrEnum):

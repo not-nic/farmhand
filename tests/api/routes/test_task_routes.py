@@ -71,7 +71,7 @@ class TestTaskRoutes:
 
         result = client.post(self.task_url(farm_id=farm.id), json=payload)
 
-        assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
         assert result.json() == {"detail": "String should have at most 280 characters"}
 
     def test_update_task(self, client, session, farm, tasks):
@@ -104,7 +104,7 @@ class TestTaskRoutes:
 
         result = client.patch(self.task_url(farm_id=farm.id, task_id=task_id), json=payload)
 
-        assert result.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert result.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
         assert result.json() == {"detail": "String should have at most 280 characters"}
 
     def test_delete_task(self, client, session, farm, tasks):
