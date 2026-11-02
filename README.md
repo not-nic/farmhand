@@ -2,16 +2,17 @@
 
 ![farmhand-logo-dark](https://github.com/user-attachments/assets/f93546cb-1fbe-4044-84ae-bbe849b580e4)
 
-This is the backend API for Farmhand, a companion service for Farming Simulator 2025 (and 2022)! 
+This is the backend API for Farmhand, a companion service for Farming Simulator 2025! 
 Built with Python and FastAPI, Farmhand helps you track, manage and plan your farm, vehicles,
 crops and more. 🌾
 
-This project originated from my dissertation, which focused on building a Farming Simulator dashboard using Spring Boot and Vue.js, 
-and focused on the XML processing of a save game.
+> [!NOTE] 
+> see the `farmhand-data-api` here: https://github.com/not-nic/farmhand-data-api, 
+> Which is used to extract information from Farming Simulator ModHub maps and base game 
+> information.
 
-Visit those repos here:
-> Treadcrumb's Frontend: https://github.com/not-nic/treadcrumbs-frontend \
-> Treadcrumb's Backend: https://github.com/not-nic/treadcrumbs-backend
+> [!NOTE]
+> You can also try out the map viewer here: https://maps.farmhand.uk/
 
 ## Install Guide
 1. Clone this repository on your machine:
